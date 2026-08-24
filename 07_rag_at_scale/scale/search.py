@@ -80,8 +80,30 @@ class ScaleIndex:
         dim = manifest["dim"]
         cal = Int8Calibration.load(path / "int8_calib.json")
 
-        coords = np.memmap(path / "coords.i64", dtype=np.int64, mode="r").reshape(-1, 4)
-        n = len(coords)
+        # Trust the MANIFEST for the row count, not the file length.
+        #
+        # The data files are append-only and the manifest is the commit point,
+        # so a file can legitimately be longer than the manifest claims -- those
+        # trailing rows are uncommitted work from an interrupted build. Sizing
+        # the index from the file length silently reads them, which is how an
+        # earlier benchmark run "successfully" measured 3.4M rows against a
+        # manifest that said zero.
+        n = int(manifest.get("n_chunks", 0))
+        coords_all = np.memmap(path / "coords.i64", dtype=np.int64, mode="r").reshape(-1, 4)
+        on_disk = len(coords_all)
+        if n == 0:
+            raise RuntimeError(
+                f"index at {path} has no committed chunks "
+                f"({on_disk:,} uncommitted rows on disk). Run build_index.py first."
+            )
+        if on_disk < n:
+            raise RuntimeError(
+                f"index is shorter than the manifest claims ({on_disk:,} < {n:,}); "
+                "index and manifest disagree, rebuild required"
+            )
+        if on_disk > n:
+            print(f"  note: ignoring {on_disk - n:,} uncommitted rows past the last commit")
+        coords = coords_all[:n]
         binary = np.memmap(path / "binary.u8", dtype=np.uint8, mode="r",
                            shape=(n, dim // 8))
         # The binary index is scanned in full on every query, so it belongs in
