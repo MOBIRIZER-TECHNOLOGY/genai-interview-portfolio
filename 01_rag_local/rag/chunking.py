@@ -48,9 +48,36 @@ def approx_tokens(text: str) -> int:
     return max(1, len(text) // 4)
 
 
+def _hard_split(paragraph: str, max_tokens: int) -> list[str]:
+    """Break a single oversized paragraph on sentence/space boundaries.
+
+    Without this, a paragraph with no blank lines passes through _split_long
+    whole -- and anything past the embedding model's 512-token window is then
+    silently truncated, never indexed, and unretrievable. Found by a test, not
+    by a user, which is the way round you want it.
+    """
+    max_chars = max_tokens * 4
+    out, pos, n = [], 0, len(paragraph)
+    while pos < n:
+        end = min(pos + max_chars, n)
+        if end < n:
+            window = paragraph[pos:end]
+            for sep in (". ", "; ", ", ", " "):
+                cut = window.rfind(sep)
+                if cut > max_chars // 4:          # keep pieces a sane size
+                    end = pos + cut + len(sep)
+                    break
+        out.append(paragraph[pos:end])
+        pos = end
+    return out
+
+
 def _split_long(section: str, max_tokens: int, overlap_tokens: int) -> list[str]:
     """Split an over-long section on paragraph boundaries, with overlap."""
     paras = [p for p in section.split("\n\n") if p.strip()]
+    # a single paragraph can itself exceed the budget -- split it first
+    paras = [piece for p in paras
+             for piece in (_hard_split(p, max_tokens) if approx_tokens(p) > max_tokens else [p])]
     out: list[str] = []
     cur: list[str] = []
     cur_tokens = 0

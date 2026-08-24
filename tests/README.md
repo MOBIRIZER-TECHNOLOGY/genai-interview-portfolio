@@ -6,15 +6,41 @@ instruments.
 ```powershell
 ..\activate.ps1
 
-pytest tests/ -m "not llm and not gpu and not slow"   # 48 fast tests, 0.4 s
-pytest tests/ -m "not llm and not gpu"               # + 17 concurrency tests (~1 min)
+pytest tests/ -m "not llm and not gpu and not slow"   # fast subset, seconds
+pytest tests/ -m "not llm and not gpu"               # 105 tests, ~90 s, 99% coverage
 pytest tests/ -m llm -v                   # DeepEval quality gates (needs Ollama)
 pytest tests/                             # everything
 ```
 
 ---
 
-## Layer 1 — deterministic (65 tests)
+## Layer 1 — deterministic (105 tests, 99% coverage)
+
+```
+pytest tests/ -m "not llm and not gpu" --cov=07_rag_at_scale/scale --cov=01_rag_local/rag
+
+TOTAL   717 statements   4 missed   99%     (9 of 12 files at 100%)
+```
+
+Coverage was **not** an original goal and the honest history matters: the first
+suite was regression-targeted (every test pinned a real bug) and measured
+**56%** when coverage was first checked — `embed.py`, `rerank.py` and
+`pipeline.py` sat at 0% because no bug had happened there *yet*. The coverage
+pass closed that the right way round:
+
+- **It found another real bug**: a single paragraph with no blank lines passed
+  through `_split_long` whole — a 1,128-token chunk against a 320 budget, whose
+  tail the 512-token embedding model then silently truncated. Fixed with
+  `_hard_split`, pinned by test.
+- **It found a real regression**: the event-based shutdown rewrite had silently
+  dropped stall detection from the main and chunker polling loops, resurrecting
+  the eternal-silent-hang failure the detector was built to kill. Restored,
+  pinned by two stall tests.
+- **It deleted 12 statements of dead code** (`ShardPipeline._get`, orphaned by
+  the same rewrite). Dead code is not a coverage problem; the fix is removal,
+  not a test.
+- The 4 remaining uncovered lines are defensive guards unreachable through the
+  public API (documented inline where they live).
 
 Fast, exact, no GPU, no network, CI-safe. **Every test here is a regression test
 for a bug that actually happened in this repo.**

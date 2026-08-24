@@ -153,21 +153,6 @@ class ShardPipeline:
                     return time.perf_counter() - t0
         return time.perf_counter() - t0
 
-    def _get(self, q: queue.Queue, what: str):
-        """Blocking get that honours shutdown; returns SENTINEL on shutdown."""
-        t0 = time.perf_counter()
-        while not self.stop.is_set():
-            try:
-                return q.get(timeout=POLL)
-            except queue.Empty:
-                if time.perf_counter() - t0 > self.stall_timeout_s:
-                    with self._lock:
-                        self.stats.errors.append(
-                            f"{what}: waited >{self.stall_timeout_s:.0f}s for input")
-                    self.stop.set()
-                    return SENTINEL
-        return SENTINEL
-
     # ------------------------------------------------------------ stages
 
     def _reader(self) -> None:
@@ -208,13 +193,27 @@ class ShardPipeline:
             pending_txt, pending_co = [], []
 
         try:
+            waited = 0.0
             while not self.stop.is_set():
                 try:
                     item = self.raw_q.get(timeout=POLL)
+                    waited = 0.0
                 except queue.Empty:
                     # Exit only when the reader is finished AND nothing is left.
                     # Checking both, in that order, is what makes this race-free.
                     if self.reader_done.is_set() and self.raw_q.empty():
+                        break
+                    # Stall detection. The event-based rewrite originally
+                    # dropped this by polling the queue directly -- a wedged
+                    # (alive but stuck) reader then starved chunkers FOREVER
+                    # with no error, resurrecting the silent-hang failure the
+                    # detector was built to kill. Caught by a test.
+                    waited += POLL
+                    if waited > self.stall_timeout_s:
+                        with self._lock:
+                            self.stats.errors.append(
+                                f"chunker: waited >{self.stall_timeout_s:.0f}s for input")
+                        self.stop.set()
                         break
                     continue
                 base_row, texts = item
@@ -252,16 +251,27 @@ class ShardPipeline:
             c.start()
 
         next_report = progress_every
+        waited = 0.0
         try:
             while not self.stop.is_set():
                 t0 = time.perf_counter()
                 try:
                     item = self.embed_q.get(timeout=POLL)
+                    waited = 0.0
                 except queue.Empty:
                     self.stats.gpu_wait_s += time.perf_counter() - t0
                     with self._lock:
                         live = self.chunkers_live
                     if live == 0 and self.embed_q.empty():
+                        break
+                    # same stall detection as the chunkers: live producers that
+                    # never produce must become an error, not an eternal wait
+                    waited += POLL
+                    if waited > self.stall_timeout_s:
+                        self.stats.errors.append(
+                            f"main: waited >{self.stall_timeout_s:.0f}s for input "
+                            f"({live} chunker(s) alive but producing nothing)")
+                        self.stop.set()
                         break
                     continue
                 self.stats.gpu_wait_s += time.perf_counter() - t0
