@@ -1,0 +1,8 @@
+# Test suite
+pytest>=8.0
+pytest-asyncio>=0.24
+deepeval>=3.0          # LLM quality gates; judged locally via Ollama
+
+# The DeepEval gates need a running Ollama server with qwen2.5:7b.
+# Deterministic tests need neither GPU nor network:
+#   pytest tests/ -m "not llm and not gpu"
