@@ -72,24 +72,119 @@ writing down.
 
 ---
 
+## 🐛 The chunker bug that cost 42× the compute
+
+The first build run produced **15 million chunks from one shard** and was still
+going. That number was wrong by a factor of 42, and the bug is worth studying
+because nothing about it looked broken.
+
+`chunk_text` advanced with `pos = max(pos + 1, end - overlap_chars)`. For a
+document **shorter than the chunk size**, `end` immediately equals `len(text)`,
+the separator search is skipped (`if end < n`), so `end` never moves again — and
+`pos` then advances by **one character per iteration**. A 500-character document
+yielded ~180 near-identical chunks instead of 1.
+
+Measured on real FineWeb text, before and after the fix:
+
+| | before | after |
+|---|---:|---:|
+| chunks from 2,000 docs (10.1 MB) | 371,937 | **9,937** |
+| mean chars per chunk | 178 | **1,209** (target 1400) |
+| vs. the expected count at stride 1160 | 42.68× | **1.14×** ← the overlap |
+| short doc (500 chars) | ~180 chunks | **1 chunk** |
+
+Two things made it hard to see: the output was *plausible* — chunks existed, had
+text in them, and embedded fine — and the failure only triggers on short
+documents, so any test with a few long paragraphs passes. It only showed up as
+"this shard is taking suspiciously long".
+
+The cost if it had shipped: 42× the embedding compute, an index full of
+near-duplicate chunks that would crowd out real results, and a corpus-size
+estimate off by an order of magnitude.
+
+---
+
 ## 📏 The corpus is bigger than "200 GB" suggests
 
-An honest correction I hit while building, worth internalising:
+**200 GB of compressed parquet is ~344 GB of raw text.** FineWeb-Edu shards are
+~2.15 GB each and yield **~3.6 M chunks** apiece after the fix:
 
-**200 GB of compressed parquet is ~500 GB of raw text.** FineWeb-Edu shards are
-~2.05 GB each and yield **~5.2 M chunks** apiece at 1400-char chunks. So:
-
-| | my initial estimate | measured |
+| | initial estimate | measured (post-fix) |
 |---|---:|---:|
-| chunks from 93 shards | 143 M | **~480 M** |
-| binary index (RAM) | 6.9 GB | **23 GB** (fits in 61 GB) |
-| int8 rescore (disk) | 55 GB | **184 GB** (fits in 1.6 TB) |
-| embedding time | 8.1 h | **~43 h** at the measured 3,100 chunks/s |
+| chunks from 93 shards | 143 M | **~335 M** |
+| binary index (RAM) | 6.9 GB | **16.1 GB** (fits in 61 GB) |
+| int8 rescore (disk) | 55 GB | **129 GB** (fits in 1.6 TB) |
 
-The gap between 4,900 chunks/s (pure GPU, measured) and 3,100 chunks/s (measured
-end-to-end) is parquet decode, chunking and disk writes on the critical path —
-they are single-threaded and not overlapped with the GPU. That is the first thing
-I would fix: a producer thread feeding a GPU consumer would recover most of it.
+The lesson: **measure one unit before extrapolating.** One shard would have
+caught both the compression ratio and the chunker bug in twenty minutes.
+
+---
+
+## ⚡ Producer/consumer threading
+
+The single-threaded build reached **3,100 chunks/s** against a **4,900 chunks/s**
+GPU ceiling — the GPU idled roughly a third of the run while Python decoded
+parquet and sliced strings:
+
+```
+read parquet -> chunk text -> EMBED ON GPU -> quantise -> write
+[------- CPU, GIL-bound -------]  [-- GPU --]  [-- CPU --]
+```
+
+`scale/pipeline.py` overlaps them:
+
+```
+[reader]      parquet row-batches      -> raw_q
+[chunker x3]  text -> (texts, coords)  -> embed_q
+[main]        embed on GPU + quantise  -> write_q
+[writer]      append to the three files
+```
+
+**Why threads work here despite the GIL:** chunking is pure Python and does hold
+it, but `pyarrow` releases the GIL during parquet decode, HF `tokenizers` is Rust
+and releases it, and every CUDA op releases it. So while the GPU works, the
+interpreter is free and the chunkers run in that window.
+
+Every queue is **bounded**. An unbounded queue in front of a GPU turns a
+speedup into an OOM, because readers happily materialise the whole shard in RAM.
+`maxsize` makes a fast producer block instead — which is the backpressure you
+want.
+
+The run reports **GPU-busy percentage** and where each stage blocked, so the
+bottleneck is visible rather than inferred.
+
+### ⚠️ Do not compare chunks/s across the chunker fix
+
+The obvious metric is misleading here, and it is worth being explicit about:
+
+| | pre-fix | post-fix |
+|---|---:|---:|
+| chunks/s | 3,100 | 1,185 |
+| mean chars per chunk | 178 | 1,209 |
+| **text throughput** | **552 KB/s** | **1,432 KB/s** |
+
+Chunks/s went *down* by 2.6× and real throughput went *up* by 2.6×, because each
+post-fix chunk carries ~7× more text and therefore ~7× more GPU work. The old
+number was inflated by embedding near-duplicate 178-character fragments.
+
+**Measure the unit that matters.** For an indexing pipeline that is bytes of
+corpus per second, or tokens per second — not chunks, whose definition your own
+code controls.
+
+---
+
+## 🛟 Crash safety: the resume-duplication bug
+
+The first version had a second bug I only found by killing it: the data files are
+append-only and the manifest is the commit point, but nothing reconciled them.
+Killing a run mid-shard left ~15 M vectors on disk that the manifest didn't know
+about — so resuming would re-process that shard and **append its vectors a second
+time**. Silent duplicates, no error, nothing in the logs.
+
+`truncate_uncommitted()` now rolls the three files back to the manifest's row
+count on startup, and `save_manifest()` writes atomically via `os.replace` (a
+torn manifest would make that truncation compute the wrong offset and corrupt the
+index).
 
 ---
 
