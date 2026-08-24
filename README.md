@@ -21,7 +21,8 @@ and answers you can defend.
 | **04** | [LoRA — voice](04_lora_voice/) | Domain adaptation of Whisper using TTS-synthesised training data | WER **52.1% → 2.5%**, domain terms **1% → 96%**, 78 s; **cross-engine holdout passed** (1.5% WER on SAPI); mic-recording pipeline included |
 | **05** | [MCP server](05_mcp_server/) | Tools/resources/prompts exposing projects 01+02, plus a full **OAuth 2.1** server with PKCE and per-tool scopes | flow verified end to end: PKCE rejects stolen codes, refresh rotates, revocation takes effect |
 | **06** | [Local GPU inference](06_local_gpu_inference/) | Quantisation and batching: memory, speed **and** the quality you pay for it | batching **32.5×** throughput; int4 costs **+9.2% perplexity**; found the benchmark refuted the textbook claim |
-| **07** | [RAG at 200 GB](07_rag_at_scale/) | Real 200 GB corpus, binary+int8 precision cascade, latency scaling, and modern retrieval techniques | **32× memory reduction** at **0.985 recall@10**, quality ratio **1.0000** |
+| **07** | [RAG at scale](07_rag_at_scale/) | Real FineWeb-Edu corpus, binary+int8 precision cascade, measured latency scaling, and modern retrieval techniques | **13.6 M chunks indexed**; **32× memory reduction** at **0.985 recall@10**, quality **1.0000**; rescore flat at **0.45 ms** while the flat scan proved O(n) at 91 ms/M — the measured case for IVF/HNSW |
+| **tests** | [pytest + DeepEval](tests/) | 65 deterministic regression tests (each pinned to a real bug, mutation-verified) + judge-calibrated LLM quality gates | the DeepEval layer **found a real hallucination** that carried a valid citation and passed every mechanical check |
 
 They share one fictional domain — the **"Atlas"** warehouse-robotics platform —
 on purpose. Project 05 calls projects 01 and 02 as tools, so the set reads as one
@@ -149,22 +150,33 @@ Each project directory:
 
 ---
 
-## ⏸️ Work in progress
+## 📊 Project 07: what got measured, and what it proved
 
-**Project 07's index build is incomplete** and that is a deliberate stopping
-point, not a failure. Its corpus (164 GB) and index live at `C:\genai-data`,
-outside the repo and outside OneDrive.
+The scale-RAG project finished its measurement arc. The short version:
 
-Everything is crash-safe: the index files are append-only, `manifest.json` is
-the commit point, and partial work is truncated automatically on the next run.
-Just re-run `python build_index.py --max-shards 3` — see
-[07_rag_at_scale/README.md](07_rag_at_scale/README.md#-resuming-after-a-shutdown).
+**The precision cascade works.** Binary (1-bit) codes for the full scan, int8 on
+disk to rescore the top 500: **32× memory reduction at 0.985 recall@10 with a
+quality ratio of 1.0000** against exact float32 search. At 13.6 M indexed chunks
+the rescore stage costs **0.45 ms** — a 136× larger index moved it a fifth of a
+millisecond, confirming it scales with candidate depth and never with corpus
+size.
 
-The result that carries project 07 — 32x memory reduction at 0.985 recall@10 —
-is already measured and committed, and needs no index to reproduce
-(`validate_quantization.py`, ~2 min). The one unproduced artifact is
-`bench_latency.py`, which needs a committed index.
+**The flat scan doesn't.** Measured O(n) at **91.3 ms per million vectors**,
+perfectly linear from 100 k to 13.6 M (a 3.4 M-scale run predicted the 13.6 M
+number to within 3%). Projected to the full corpus: **~28.8 s per query** — so
+the architecture provably does not reach 200 GB, and the benchmark exists
+precisely to prove that rather than hide it. That is the measured argument for
+IVF/HNSW partitioning.
 
+**Six real bugs found and pinned by tests along the way**, including a chunker
+producing 42× too many chunks, a resume path that silently duplicated data, a
+lost-sentinel deadlock in the threading, and a RAG hallucination that carried a
+*valid* citation — caught only by the DeepEval judge layer, then fixed in the
+prompt and pinned deterministically.
+
+The corpus (164 GB, 82 shards) and index live at `C:\genai-data`, outside the
+repo and outside OneDrive. Both the download and the index build are resumable;
+`python build_index.py --status` shows where things stand.
 ---
 
 ## Validated on
