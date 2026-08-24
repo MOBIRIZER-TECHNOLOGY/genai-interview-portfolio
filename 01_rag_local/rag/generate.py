@@ -39,7 +39,10 @@ Rules:
 3. If the context does not contain the answer, reply with exactly:
    NOT_FOUND: <one sentence saying what is missing>
    Do not guess, and do not fall back on general knowledge.
-4. Be concise. Quote exact numbers, error codes and identifiers verbatim."""
+4. Be concise. Quote exact numbers, error codes and identifiers verbatim.
+5. Do not infer, extrapolate or fill gaps -- report only what the blocks state.
+   If a table cell reads "none", "n/a" or is empty, that means the value does not
+   apply. Never turn it into a duration, a quantity, or "indefinite"."""
 
 CITATION = re.compile(r"\[(\d+)\]")
 

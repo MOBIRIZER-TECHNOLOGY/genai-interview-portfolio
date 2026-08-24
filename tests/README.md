@@ -115,55 +115,77 @@ diagnostic instead of wedging CI.
 
 ## Layer 2 — DeepEval quality gates (`-m llm`)
 
-Deterministic tests cannot tell you whether an *answer* is any good. That needs a
-judge, and DeepEval is the standard framework for it.
+Deterministic tests cannot tell you whether an *answer* is any good. That needs
+a judge — and a judge needs calibrating before you trust it.
 
-| metric | fails when |
-|---|---|
-| `FaithfulnessMetric` | the answer asserts what the context doesn't support |
-| `AnswerRelevancyMetric` | the answer is true but doesn't address the question |
-| `ContextualPrecisionMetric` | retrieval returned mostly noise |
-| `HallucinationMetric` | the answer contradicts its context |
-| `GEval` (custom) | **citation discipline** — claims without `[n]` attribution |
+### It found a real bug on the first run
 
-The `GEval` rubric is the interesting one: off-the-shelf metrics don't know this
-pipeline is *supposed* to cite block numbers and abstain when unsupported.
-G-Eval lets you grade the property you actually care about.
+```
+answer:  "Vision frames are retained for 14 days hot and indefinitely cold [1]."
+corpus:  | Vision frames | 14 days | none | 14 days |
+```
+
+Cold storage is **none**. The model invented indefinite cold retention — and
+cited block `[1]`, which genuinely *was* sent, so `verify_citations()` passed it.
+**Mechanical verification confirms a citation points at a real block; only a
+judge can tell you the sentence misrepresents that block.** That single find
+justifies the layer.
+
+Fixed by a system-prompt rule ("never turn `none` into a duration"), and then
+**pinned deterministically** by `test_no_invented_cold_retention` — once a
+specific failure is known, checking it exactly costs nothing and needs no judge.
+
+### But the judge is an unreliable instrument, and that's measurable
+
+Scores on the real pipeline with a local `qwen2.5:7b`:
+
+| question | faithfulness | relevancy | G-Eval citation |
+|---|---:|---:|---:|
+| Rotterdam rule (correct, cited `[2]`) | 1.00 | **0.00** | **0.00** |
+| TLM-330 (correct, cited `[1]`) | **0.50** | 0.67 | 0.90 |
+| barcode 0.92 (correct, cited `[1]`) | 1.00 | 1.00 | **0.00** |
+| vision frames (**hallucinated**) | **0.33** | 0.25 | 1.00 |
+
+Two judge failure modes, both verified by hand against the corpus:
+
+- **Partial context use.** The TLM-330 answer is fully supported by block `[1]`;
+  blocks `[2]`–`[4]` are retrieval noise. The judge penalised the answer for
+  correctly *ignoring* them.
+- **Negation.** After the fix the answer says frames are "**not** retained cold".
+  The judge read that as "retained cold" and called it a contradiction.
+
+And the G-Eval citation metric scored **0.00** on answers visibly containing
+`[2]` and `[1]`, while scoring **1.00** on another that also contains `[1]` —
+self-contradictory, so it measures nothing.
+
+### What the suite does about it
+
+1. **Calibration test runs first.** `test_judge_is_calibrated_for_faithfulness`
+   checks the judge separates a known-good from a known-bad answer by ≥ 0.5. If
+   it fails, the gate's verdicts are meaningless and the *judge* is what needs
+   fixing.
+2. **Faithfulness is the only gate**, at a threshold **derived from measurement**
+   — known hallucination 0.33, known-correct answers 0.50–1.00, so the floor sits
+   at 0.40. Not aspiration: 0.7 produced 2 false positives out of 4, and a gate
+   that fails correct work gets switched off within a week.
+3. **Relevancy and contextual precision are advisory** — printed every run, never
+   failing.
+4. **The G-Eval citation metric was deleted.** Its property is already verified
+   exactly and for free. *An unreliable LLM gate over a mechanically checkable
+   property is strictly worse than the mechanical check alone.*
+
+The 0.17 margin between 0.33 and 0.50 is thin, and that is a statement about the
+7B judge rather than the pipeline. Set `DEEPEVAL_JUDGE=llama3.1:70b` (or a
+frontier API model) and re-run calibration to justify a stricter gate.
 
 ### Local judge, no API key
 
-`tests/ollama_judge.py` implements `DeepEvalBaseLLM` over Ollama
-(`qwen2.5:7b`, temperature 0). Nothing leaves the machine, nothing costs money,
-consistent with every other model here.
-
-The detail that makes it work: DeepEval metrics ask the judge for **structured
-JSON** and parse it. A judge returning prose fails every metric with a *parse
-error* rather than a low score — which looks like a broken metric, not a broken
-model. So the adapter sets Ollama's `format="json"` and validates into
-DeepEval's pydantic schema, with a salvage path for JSON wrapped in prose.
-
-### Thresholds are set below current performance, deliberately
-
-The pipeline currently scores 100% fact recall and 100% citation validity on its
-own eval set. The gates sit at **0.6–0.7**.
-
-That's not laziness. A gate pinned to today's exact score fails on harmless
-variance and gets disabled within a week. A gate set where *real* degradation
-lives keeps working — the point is catching regressions, not certifying
-perfection.
-
-### The honest caveat
-
-An LLM judge is an instrument with its own error rate: biased toward verbose
-answers, inconsistent near boundaries, and capped by its own competence — a 7B
-judge cannot reliably grade claims it doesn't understand.
-
-Use these to compare runs of **your own system**, not to certify absolute
-quality. **Where a deterministic check exists, prefer it.** Project 01's
-mechanical citation verification is free, exact, and cannot hallucinate its own
-verdict — which is why `test_crash_safety.py` also asserts grounding and
-abstention deterministically, so those properties stay covered even if every
-judge-based gate were disabled.
+`tests/ollama_judge.py` returns DeepEval's built-in `OllamaModel`. I first wrote
+a custom `DeepEvalBaseLLM` subclass before finding the built-in — it is kept as a
+reference for wrapping runtimes DeepEval doesn't support (vLLM, TGI), with the
+gotcha it taught: it must **subclass** `DeepEvalBaseLLM`, because DeepEval does an
+`isinstance` check and duck typing fails with
+`TypeError: Unsupported type for model`.
 
 ---
 
