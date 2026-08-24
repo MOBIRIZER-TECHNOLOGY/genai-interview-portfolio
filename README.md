@@ -149,6 +149,24 @@ Each project directory:
 
 ---
 
+## ⏸️ Work in progress
+
+**Project 07's index build is incomplete** and that is a deliberate stopping
+point, not a failure. Its corpus (164 GB) and index live at `C:\genai-data`,
+outside the repo and outside OneDrive.
+
+Everything is crash-safe: the index files are append-only, `manifest.json` is
+the commit point, and partial work is truncated automatically on the next run.
+Just re-run `python build_index.py --max-shards 3` — see
+[07_rag_at_scale/README.md](07_rag_at_scale/README.md#-resuming-after-a-shutdown).
+
+The result that carries project 07 — 32x memory reduction at 0.985 recall@10 —
+is already measured and committed, and needs no index to reproduce
+(`validate_quantization.py`, ~2 min). The one unproduced artifact is
+`bench_latency.py`, which needs a committed index.
+
+---
+
 ## Validated on
 
 RTX 5070 Ti 16 GB (sm_120) · Windows 11 · Python 3.12.13 · PyTorch 2.11.0+cu128 ·

@@ -111,7 +111,7 @@ estimate off by an order of magnitude.
 
 | | initial estimate | measured (post-fix) |
 |---|---:|---:|
-| chunks from 93 shards | 143 M | **~335 M** |
+| chunks from 93 shards | 143 M | **~316 M** (3.4 M/shard measured) |
 | binary index (RAM) | 6.9 GB | **16.1 GB** (fits in 61 GB) |
 | int8 rescore (disk) | 55 GB | **129 GB** (fits in 1.6 TB) |
 
@@ -173,24 +173,34 @@ want.
 The run reports **GPU-busy percentage** and where each stage blocked, so the
 bottleneck is visible rather than inferred.
 
-### Where the bottleneck moved
+### The verdict: it worked
 
-Sampling GPU utilisation every 2 s during a threaded build, *while the 200 GB
-download was still running*:
+The pipeline's own instrumentation, every progress line of a full shard:
 
 ```
-100%  16%  100%  4%  6%  33%  58%  100%  100%  100%  38%  100%     (mean ~63%)
+  250,719 chunks   294/s   GPU busy 100%  starved 0%
+  501,688 chunks   418/s   GPU busy 100%  starved 0%
+1,000,869 chunks   607/s   GPU busy 100%  starved 0%
+1,500,073 chunks   706/s   GPU busy 100%  starved 0%
+2,250,320 chunks   818/s   GPU busy 100%  starved 0%
 ```
 
-The GPU now *reaches* 100% — it never did single-threaded — but it still starves
-in bursts. The producers are **disk-I/O bound**, competing with the concurrent
-download writing 129 GB. That is contention between two jobs I chose to run at
-once, not a flaw in the pipeline: indexing reads 2 GB parquet files while the
-downloader writes at ~9.5 MB/s to the same volume.
+**GPU busy 100%, starved 0%, for the entire run.** Producers never starved the
+GPU once. (The rising chunks/s is the cumulative average recovering from model
+load and int8 calibration at startup; instantaneous rate is higher.)
 
-The honest reading: threading fixed the *GIL/serialisation* bottleneck and
-exposed an *I/O* one. Run the download to completion first and the same code
-should sit much closer to the GPU ceiling.
+### A hypothesis I had to discard
+
+Mid-build I assumed the concurrent download was stealing disk bandwidth and
+throttling the producers. I stopped the download to confirm — and throughput
+**fell** to 248 chunks/s with the GPU still pinned at 99%.
+
+Disk contention was never the limiter. The GPU was, the whole time. Sustained
+rate with nothing else running is **632 chunks/s**, and `nvidia-smi` shows
+2662/3090 MHz with no throttle reasons set — genuinely saturated.
+
+Stating this because the wrong diagnosis was *plausible*: two jobs, one disk, an
+obvious story. The measurement that killed it took ninety seconds.
 
 ### ⚠️ Do not compare chunks/s across the chunker fix
 
@@ -209,6 +219,66 @@ number was inflated by embedding near-duplicate 178-character fragments.
 **Measure the unit that matters.** For an indexing pipeline that is bytes of
 corpus per second, or tokens per second — not chunks, whose definition your own
 code controls.
+
+---
+
+## 🧵 The concurrency bug that cost a shard
+
+The first threaded run embedded **3.25 M chunks successfully** and then aborted:
+
+```
+ERROR chunker: waited >900s for input
+aborting: shard failed, manifest not committed
+```
+
+Completion was signalled by sentinels pushed through the **bounded** queues:
+
+```python
+try: self.raw_q.put(SENTINEL, timeout=30)
+except queue.Full: pass          # <- silently drops the shutdown signal
+```
+
+Under sustained backpressure that `put` times out and the sentinel is dropped.
+A chunker then waits forever for a message that no longer exists. The stall
+detector caught it — working exactly as designed — but the shard was already
+lost, because the manifest only commits at shard boundaries.
+
+**Fix: never signal completion through a channel that can drop messages.**
+`threading.Event` for "reader finished" plus a live-chunker counter. Consumers
+exit on *"producer finished AND queue empty"*, checked in that order. An Event
+cannot be lost to backpressure.
+
+---
+
+## ⏱️ What full-corpus indexing actually costs
+
+Measured, with nothing else running:
+
+```
+632 chunks/s x 302 tokens = 191k tokens/s   (GPU-bound, 98-100%)
+```
+
+The 82 downloaded shards hold ~283 GB of raw text ≈ **71 billion tokens**.
+At 191k tokens/s that is **103 hours**. Not a bug, not a tuning problem — that
+is what a 5070 Ti does with BGE-small at this token volume.
+
+| shards | chunks | binary index | time |
+|---:|---:|---:|---:|
+| 1 | 3.4 M | 0.16 GB | 1.6 h |
+| 3 | 10.8 M | 0.52 GB | 4.7 h |
+| 10 | 36 M | 1.73 GB | 15.8 h |
+| 82 (all downloaded) | ~295 M | 14.2 GB | **103 h** |
+
+The lever that would actually move this is batch size — measured on real
+302-token chunks there is a **4x cliff**:
+
+```
+batch 128:  191 chunks/s
+batch 256:  196 chunks/s
+batch 512:  783 chunks/s   <- 4x
+```
+
+The build already uses 512. Worth testing 1024 before accepting the 103 h figure.
 
 ---
 
@@ -310,6 +380,63 @@ Two details that made that work, both easy to get wrong:
 
 ---
 
+## ▶️ Resuming after a shutdown
+
+**Everything here survives a hard power-off.** Nothing needs cleaning up by hand.
+
+### Current state as of the last session
+
+| | |
+|---|---|
+| Corpus | **82 / 93 shards, 164 GB** at `C:\genai-data\hf` (download stopped deliberately) |
+| Index | **0 chunks committed** — a build was mid-shard-1 when the machine went down |
+| Uncommitted rows | ~2.4 M on disk, rolled back automatically on next run |
+| Everything else | measured, committed, and independent of the index |
+
+### To carry on
+
+```powershell
+cd 07_rag_at_scale
+..ctivate.ps1
+
+python build_index.py --status          # confirm what is committed
+python build_index.py --max-shards 3    # ~4.7 h, rolls back partial work first
+```
+
+The first thing `build_index.py` prints is how many uncommitted rows it
+discarded. That is the crash-safety machinery doing its job: the data files are
+append-only, the manifest is the commit point, and anything past the last
+committed shard is truncated before new work starts.
+
+To finish the corpus download (11 shards left) — it self-retries now:
+
+```powershell
+python download_corpus.py --target-gb 200
+```
+
+### What does NOT need the index
+
+The result that carries this project is already measured and committed:
+
+```powershell
+python validate_quantization.py --include-synthetic   # ~2 min, no index needed
+```
+
+`quantization_results.json` is in the repo. The 0.985 recall / 1.0000 quality /
+32x reduction numbers do not improve with more shards — a bigger index buys a
+bigger number in the README, not a stronger claim.
+
+### Still outstanding
+
+`bench_latency.py` has **not run yet** — it needs a committed index. It is the
+one unproduced artifact. Run it after the first shard commits:
+
+```powershell
+python bench_latency.py
+```
+
+---
+
 ## 🧪 Modern techniques
 
 Each module is independently runnable and documents **when the technique is wrong**,
@@ -347,7 +474,7 @@ because it only needs the right *shape*, not the right facts.
   work, which is why the 200 GB path uses structural chunking.
 - **Contextual retrieval** (Anthropic) — prepend an LLM-written sentence situating
   each chunk. ~35% fewer retrieval failures, but one LLM call **per chunk**: at
-  480 M chunks that is months of compute. Project 01's heading breadcrumb is the
+  316 M chunks that is months of compute. Project 01's heading breadcrumb is the
   free structural approximation.
 - **Late chunking** — embed the whole document, *then* pool per chunk, so each
   chunk vector carries context it never had in isolation. Usually *cheaper* than
@@ -371,7 +498,7 @@ Interpretable, and it ranks correctly. **But it cannot be the primary index:**
 
 | | chunk-level binary | token-level ColBERT (2-bit) |
 |---|---:|---:|
-| 480 M chunks | **7.4 GB** | **5,208 GB** |
+| 316 M chunks | **15.2 GB** | **3,540 GB** |
 
 700× the storage. Its place in a 200 GB system is as a *second-stage reranker*
 over the few hundred candidates the binary index already returned.

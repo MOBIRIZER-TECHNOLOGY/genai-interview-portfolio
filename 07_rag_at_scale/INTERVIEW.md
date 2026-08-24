@@ -13,10 +13,11 @@
 > Two things I'd want to talk about. First, I nearly got the measurement wrong
 > twice — validating on synthetic vectors said the technique doesn't work
 > (recall 0.18 vs 0.62 on real embeddings), and leaving the query in the corpus
-> capped recall at exactly 0.9 in a way that looked plausible. Second, my sizing
-> was wrong: 200 GB of compressed parquet is ~500 GB of text, so 480 M chunks
-> rather than the 143 M I'd projected. Binary index goes from 7 GB to 23 GB —
-> still fits in 61 GB of RAM, which is the whole reason the cascade exists."
+> capped recall at exactly 0.9 in a way that looked plausible. Second, the thing
+> that actually bit me was a chunker bug producing 42× too many chunks, which
+> also made my capacity estimate garbage until I found it. Post-fix the 82 shards
+> I downloaded are ~279 M chunks — a 13 GB binary index, which fits in 61 GB of
+> RAM. That fit is the whole reason the cascade exists.""
 
 ---
 
@@ -24,19 +25,19 @@
 
 ### "How do you fit hundreds of millions of vectors on one machine?"
 
-You don't store them at float32. 480 M × 384 dims × 4 bytes is **715 GB**.
+You don't store them at float32. 279 M × 384 dims × 4 bytes is **428 GB**.
 
 The cascade:
 
-| precision | bytes/vector | 480 M vectors | where it lives |
+| precision | bytes/vector | 279 M vectors | where it lives |
 |---|---:|---:|---|
-| float32 | 1536 | 715 GB | never materialised |
-| int8 | 384 | 184 GB | disk, memmapped |
-| **binary** | **48** | **23 GB** | **RAM** |
+| float32 | 1536 | 428 GB | never materialised |
+| int8 | 384 | 107 GB | disk, memmapped |
+| **binary** | **48** | **13 GB** | **RAM** |
 
 Search is two stages. Stage 1 scans **all** the binary codes — Hamming distance
-is XOR plus a popcount lookup, so it's memory-bandwidth work over 23 GB rather
-than float math over 715 GB. That produces ~500 candidates. Stage 2 reads only
+is XOR plus a popcount lookup, so it's memory-bandwidth work over 13 GB rather
+than float math over 428 GB. That produces ~500 candidates. Stage 2 reads only
 those 500 rows from the int8 memmap (192 KB), decodes, and does exact dot
 products to fix the ordering.
 
@@ -66,7 +67,7 @@ retrieved over the mean similarity of the exact top-10. Both are **1.0000**.
 
 The 1.4% of documents int8 "misses" are near-ties: cosine 0.8112 versus 0.8109.
 No user can tell those apart. So int8 is the right call, and it halves the disk —
-184 GB instead of 368 GB.
+107 GB instead of 214 GB.
 
 The general lesson: **recall against exact search is a proxy, not the goal.** On
 real corpora with many near-duplicates, chasing the last point of recall buys
@@ -90,6 +91,36 @@ self from both the ground truth and the results took the same configuration from
 What makes this worth telling: 0.899 is *plausible*. It's not obviously broken.
 If I'd shipped it I'd have spent a week tuning candidate depth against a ceiling
 that had nothing to do with candidate depth.
+
+### "Tell me about a concurrency bug you wrote."
+
+I added a producer/consumer pipeline so the GPU stopped waiting on Python.
+It worked — the instrumentation showed **GPU busy 100%, starved 0%** for a whole
+shard. Then it aborted after 3.25 M successfully embedded chunks:
+`chunker: waited >900s for input`.
+
+Completion was signalled by sentinels pushed through the **bounded** queues:
+
+```python
+try: self.raw_q.put(SENTINEL, timeout=30)
+except queue.Full: pass
+```
+
+Under sustained backpressure that `put` times out and the sentinel is silently
+dropped. The consumer then waits forever for a message that no longer exists.
+
+The fix is a principle, not a patch: **never signal completion through a channel
+that can drop messages.** `threading.Event` plus a live-producer counter;
+consumers exit on "producer finished AND queue empty", checked in that order. An
+Event cannot be lost to backpressure.
+
+Two things I'd draw out. First, the stall detector I'd added earlier is what
+turned this from a silent hang into a diagnosable message — an earlier version
+of the same pipeline deadlocked at **0.00 CPU seconds** with no output at all,
+and finding that needed a CPU-time sample rather than a traceback. Second, the
+blast radius was set by commit granularity: because the manifest commits per
+shard, 3.25 M chunks of correct work were discarded. Cheaper commits would have
+bounded the loss.
 
 ### "How does latency scale, and what breaks first?"
 
@@ -122,34 +153,72 @@ that's what lets you *configure* them correctly. If you don't know why binary
 plus rescore works, you can't reason about `nprobe`, quantisation settings, or
 why your recall dropped after an index rebuild.
 
-I'd also push back gently on the premise: at 480 M vectors on one box, a managed
+I'd also push back gently on the premise: at 279 M vectors on one box, a managed
 service's network round-trip alone can exceed the entire local search time.
 
-### "You said 200 GB but got 480 M chunks. Explain."
+### "Your capacity estimate was wrong twice. What happened?"
 
-That was my sizing error and it's a good one to own. I estimated from 200 GB of
-*text*: 50 B tokens ÷ 350 tokens/chunk ≈ 143 M chunks.
+Worth owning both, because they're different kinds of wrong.
 
-But the 200 GB is **compressed parquet**. Measured, each 2.05 GB shard yields
-~5.2 M chunks, so 93 shards is ~480 M — roughly 500 GB of raw text. Everything
-downstream moves: binary index 7 GB → 23 GB, int8 184 GB, embedding time 8 h →
-~43 h at the measured end-to-end rate.
+**First, compression.** I estimated from 200 GB of *text*, but the 200 GB is
+compressed parquet — a 2.15 GB shard holds ~3.7 GB of raw text.
 
-Two lessons. **Measure one unit before extrapolating** — one shard would have
-caught this in 20 minutes. And **compression ratio is not a detail** when your
-capacity plan is denominated in bytes on disk.
+**Second, and much worse, a bug.** My chunker produced **42× too many chunks**:
+mean 178 characters against a 1400-character target. For a document shorter than
+the chunk size, `end` immediately hit the text end, the separator search was
+skipped, and `pos` advanced *one character per iteration* — so a 500-char
+document became ~180 near-identical chunks. On real text, 2,000 documents went
+from 371,937 chunks to 9,937 once fixed.
 
-### "Your embedding throughput dropped from 4,900/s to 3,100/s. Why?"
+Nothing about it looked broken. Chunks existed, contained text, embedded fine.
+It surfaced only as "this shard is taking suspiciously long". Had it shipped:
+42× the compute, and an index full of near-duplicates crowding out real results.
 
-4,900 chunks/s is the pure GPU number, measured in isolation. 3,100/s is
-end-to-end. The gap is parquet decode, chunking and disk writes sitting on the
-critical path, single-threaded, not overlapped with the GPU — so the GPU idles
-while Python parses.
+The lesson is the same for both: **measure one unit before extrapolating.** One
+shard, twenty minutes, would have caught the compression ratio *and* the bug.
 
-The fix is a producer/consumer split: worker threads decode and chunk into a
-queue, the main thread does nothing but feed the GPU. That should recover most of
-the difference and cut the ~43 h materially. I know it's the bottleneck because
-GPU utilisation sits around 60–95% rather than pinned.
+### "Describe a time your diagnosis was wrong."
+
+Indexing was slower than the GPU should allow, and a download was running
+concurrently. Obvious story: two jobs, one disk, the download is stealing I/O
+bandwidth and starving the producers. I wrote it in the README.
+
+Then I stopped the download to confirm — and throughput **fell**, to 248
+chunks/s, with the GPU still pinned at 99%. `nvidia-smi` showed 2662/3090 MHz
+and no throttle reasons. The GPU had been the bottleneck the entire time;
+sustained rate alone is 632 chunks/s = 191k tokens/s.
+
+The wrong diagnosis was *plausible*, which is what made it dangerous — it
+explained the symptom and would have sent me optimising I/O. The measurement
+that killed it took ninety seconds. I'd rather run the cheap experiment than
+ship the plausible story.
+
+### "How long does indexing actually take, and what limits it?"
+
+Measured with nothing else running: **632 chunks/s × 302 tokens = 191k tokens/s**,
+GPU-bound at 98–100% (2662/3090 MHz, no throttle reasons set).
+
+The 82 shards I downloaded are ~71 billion tokens, so a full index is **103
+hours**. That's not a tuning problem — it's what a 5070 Ti does with BGE-small at
+that token volume. The honest planning unit is shards: one shard ≈ 3.4 M chunks ≈
+1.6 hours.
+
+I did add a producer/consumer pipeline, and it worked — the instrumentation shows
+**GPU busy 100%, starved 0%** across a whole shard, where single-threaded it
+idled. But that only removed the *Python* bottleneck; the GPU ceiling was always
+the real one.
+
+The one lever I'd try next is batch size, because it has a sharp cliff on real
+302-token chunks:
+
+```
+batch 128:  191 chunks/s
+batch 256:  196 chunks/s
+batch 512:  783 chunks/s   <- 4x
+```
+
+The build already uses 512; 1024 is untested and is where I'd look before
+accepting 103 hours.
 
 ### "Which modern techniques did you implement, and when are they wrong?"
 
@@ -168,13 +237,13 @@ That second half is the real question. Everything has a regime.
   at high QPS you'd distil it into a fine-tuned 0.5B or logistic regression on
   the query embedding.
 - **Contextual retrieval** — ~35% fewer retrieval failures, but one LLM call *per
-  chunk*. At 480 M chunks that's months. It's for thousands-to-millions of
+  chunk*. At 279 M chunks that's months. It's for thousands-to-millions of
   chunks, or a high-value subset.
 - **Semantic chunking** — cut on topic shift, thresholded by *percentile* of
   observed distances (absolute thresholds don't transfer across document styles).
   3–4× the embedding cost.
 - **ColBERT** — one vector per token, MaxSim scoring. Ranks well and is
-  interpretable. **Cannot be the primary index**: 480 M chunks → 5.2 TB even at
+  interpretable. **Cannot be the primary index**: 279 M chunks → 3.1 TB even at
   2-bit compression, versus 7.4 GB chunk-level. Its place is second-stage
   reranking over candidates the binary index already returned.
 - **Matryoshka** — truncate dims and renormalise. Only valid on models *trained*
