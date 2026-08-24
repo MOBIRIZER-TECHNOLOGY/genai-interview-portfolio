@@ -285,6 +285,29 @@ python bench_latency.py
 Steps 1 and 2 are both resumable and can run concurrently — the indexer records
 completed shards in `manifest.json` and skips them next time.
 
+### Resumability is not optional at this size
+
+The download **did** fail, at 157 GB / 78 shards, with a `ConnectionError` from
+the Hub:
+
+```
+ConnectionError: Network error: Request middleware error:
+  error sending request for url (.../xet-read-token/87f09149...)
+```
+
+Six hours of transfer is long enough that a transient network fault is not an
+edge case, it is the expected path. Re-running picked up at **84% and skipped
+every completed shard**, costing nothing.
+
+Two details that made that work, both easy to get wrong:
+
+- **Shard-level granularity.** `snapshot_download` verifies each file
+  independently, so a partially-written shard is re-fetched and a complete one
+  is not. A single 200 GB stream would have had to restart from zero.
+- **A misleading exit code.** The failure was reported as `exit code 0`, because
+  the shell pipe's status is what gets reported, not the Python process's. Check
+  the actual output, not just the status.
+
 ---
 
 ## 🧪 Modern techniques
