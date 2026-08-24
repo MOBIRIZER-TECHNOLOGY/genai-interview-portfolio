@@ -69,6 +69,12 @@ def main():
     ap.add_argument("--status", action="store_true", help="report progress and exit")
     ap.add_argument("--workers", type=int, default=4,
                     help="parallel shard downloads; >8 rarely helps on one connection")
+    ap.add_argument("--retries", type=int, default=20,
+                    help="restart attempts after a network failure")
+    ap.add_argument("--no-xet", action="store_true", default=True,
+                    help="bypass the xet CAS backend (default: on; it failed twice here)")
+    ap.add_argument("--xet", dest="no_xet", action="store_false",
+                    help="re-enable the xet backend")
     args = ap.parse_args()
 
     root = Path(args.root)
@@ -82,6 +88,12 @@ def main():
     os.environ["HF_HOME"] = str(cache)
     os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
     os.environ.setdefault("HF_HUB_ENABLE_HF_TRANSFER", "0")
+    # The xet CAS backend failed twice on this connection at ~80% with
+    #   "CAS Client Error: Request middleware error: error sending request"
+    # and it does not retry internally. The classic HTTP path is slower but has
+    # per-file retry and resume, which matters far more over a 6-hour transfer.
+    if args.no_xet:
+        os.environ["HF_HUB_DISABLE_XET"] = "1"
 
     from huggingface_hub import snapshot_download
 
@@ -107,18 +119,41 @@ def main():
     start_bytes = have
     progress = root / "download_progress.jsonl"
 
-    # snapshot_download handles retries, parallelism and skip-if-present for us.
-    # allow_patterns restricts it to exactly the shards we picked.
     patterns = [name for name, _ in shards]
-    print(f"\ndownloading with {args.workers} workers ...\n", flush=True)
+    print(f"\ndownloading with {args.workers} workers, "
+          f"xet={'off' if args.no_xet else 'on'} ...\n", flush=True)
 
-    snapshot_download(
-        repo_id=REPO,
-        repo_type="dataset",
-        allow_patterns=patterns,
-        max_workers=args.workers,
-        cache_dir=str(cache),
-    )
+    # Retry loop around snapshot_download.
+    #
+    # snapshot_download retries individual HTTP requests, but a transport-level
+    # failure (connection reset, CDN error) propagates out and kills the whole
+    # call. Over a six-hour transfer that WILL happen -- it happened twice here,
+    # at 157 GB and again at 165 GB. Because completed shards are skipped on
+    # re-entry, restarting is cheap and idempotent, so the correct response to
+    # any failure is simply to go again.
+    for attempt in range(1, args.retries + 1):
+        try:
+            snapshot_download(
+                repo_id=REPO,
+                repo_type="dataset",
+                allow_patterns=patterns,
+                max_workers=args.workers,
+                cache_dir=str(cache),
+            )
+            break
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as exc:
+            got = downloaded_bytes(cache) / 1e9
+            print(f"\n  attempt {attempt}/{args.retries} failed at {got:.1f} GB "
+                  f"({100*got/total_gb:.0f}%): {type(exc).__name__}: {str(exc)[:140]}",
+                  flush=True)
+            if attempt == args.retries:
+                print("  giving up; re-run to continue from here")
+                break
+            backoff = min(60, 2 ** min(attempt, 6))
+            print(f"  retrying in {backoff}s ...", flush=True)
+            time.sleep(backoff)
 
     elapsed = time.perf_counter() - t0
     now = downloaded_bytes(cache)
