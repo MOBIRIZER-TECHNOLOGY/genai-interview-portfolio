@@ -134,11 +134,31 @@ read parquet -> chunk text -> EMBED ON GPU -> quantise -> write
 `scale/pipeline.py` overlaps them:
 
 ```
-[reader]      parquet row-batches      -> raw_q
-[chunker x3]  text -> (texts, coords)  -> embed_q
-[main]        embed on GPU + quantise  -> write_q
-[writer]      append to the three files
+[reader]       parquet row-batches      -> raw_q
+[chunker x3]   text -> (texts, coords)  -> embed_q
+[main]         embed on GPU, quantise, AND write
 ```
+
+### The deadlock I had to remove
+
+The first version also had a **writer thread**. It deadlocked: the main thread
+blocked on a full `write_q` while the writer was stuck, and because no queue
+operation had a timeout, the process sat at **0.00 CPU seconds** indefinitely
+with no error and no log line. Diagnosing it took a CPU-time sample, not a
+traceback — a hung Python process tells you nothing on its own.
+
+Two fixes, and the second is the more important lesson:
+
+1. **Deleted the writer thread.** It bought almost nothing — appending ~1 MB to
+   the OS buffer is sub-millisecond and the expensive `fsync` happens once per
+   shard — while adding a whole deadlock surface. The real win is overlapping
+   *read and chunk* with the GPU, which is preserved.
+2. **Every blocking queue call now has a timeout and checks a shutdown event.**
+   A stall surfaces as `"chunker: blocked >900s on a full queue"` instead of
+   silence.
+
+The general rule: **a concurrent stage that isn't on the critical path is pure
+risk.** Add threads where the time actually goes, nowhere else.
 
 **Why threads work here despite the GIL:** chunking is pure Python and does hold
 it, but `pyarrow` releases the GIL during parquet decode, HF `tokenizers` is Rust
@@ -152,6 +172,25 @@ want.
 
 The run reports **GPU-busy percentage** and where each stage blocked, so the
 bottleneck is visible rather than inferred.
+
+### Where the bottleneck moved
+
+Sampling GPU utilisation every 2 s during a threaded build, *while the 200 GB
+download was still running*:
+
+```
+100%  16%  100%  4%  6%  33%  58%  100%  100%  100%  38%  100%     (mean ~63%)
+```
+
+The GPU now *reaches* 100% — it never did single-threaded — but it still starves
+in bursts. The producers are **disk-I/O bound**, competing with the concurrent
+download writing 129 GB. That is contention between two jobs I chose to run at
+once, not a flaw in the pipeline: indexing reads 2 GB parquet files while the
+downloader writes at ~9.5 MB/s to the same volume.
+
+The honest reading: threading fixed the *GIL/serialisation* bottleneck and
+exposed an *I/O* one. Run the download to completion first and the same code
+should sit much closer to the GPU ceiling.
 
 ### ⚠️ Do not compare chunks/s across the chunker fix
 
