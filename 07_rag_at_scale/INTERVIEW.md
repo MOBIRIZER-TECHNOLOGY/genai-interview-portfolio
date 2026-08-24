@@ -124,26 +124,52 @@ bounded the loss.
 
 ### "How does latency scale, and what breaks first?"
 
-Four costs that scale completely differently:
+I measured it on a real 3.4 M-chunk index rather than guessing:
 
-| stage | scales with |
-|---|---|
-| embed the query | nothing — constant |
-| **binary scan** | **O(n)** — the one that grows |
-| int8 rescore | candidate depth, not n |
-| fetch text | k |
+| vectors | binary ms | rescore ms | p50 ms |
+|---:|---:|---:|---:|
+| 100,000 | 8.9 | 0.24 | 9.1 |
+| 1,000,000 | 88.5 | 0.34 | 88.8 |
+| 3,401,375 | 306.3 | 0.38 | 306.7 |
 
-So the question isn't "how fast is the index", it's **"at what n does the linear
-scan blow the latency budget"** — everything else is constant. `bench_latency.py`
-measures the curve by subsampling and projects it. Subsampling is legitimate here
-precisely *because* stage 1 is a full linear scan: cost is proportional to row
-count and independent of which rows. That would not be valid for HNSW, where
-you'd have to rebuild the graph at each size.
+Two things fall straight out.
 
-When the flat scan stops fitting, the answer is IVF or HNSW — partition the space
-so a query touches a fraction of it. The trade is that recall becomes a
-**tunable** (`nprobe`, `efSearch`) rather than a guarantee, so you've swapped a
-known cost for a new error budget you now have to measure.
+**The cascade works.** Rescore is *flat* — 0.38 ms at 3.4 M, same as 0.24 ms at
+100 k, still under 3 ms at 2000 candidates. It scales with candidate depth, never
+with corpus size. That is the entire design intent, confirmed.
+
+**The flat scan doesn't.** Binary is ruthlessly O(n) at ~90 ms per million
+vectors, and it's 306 ms of a 307 ms query. Extrapolated to the real corpus size
+(~316 M chunks) that's **~28 seconds per query**.
+
+So the honest conclusion is that **my architecture does not reach 200 GB, and my
+own benchmark is what proved it.** A flat scan is correct to roughly 10 M vectors
+and wrong past that. The fix is IVF or HNSW — partition so a query touches a
+fraction of the index. The trade: recall stops being a guarantee and becomes a
+tunable (`nprobe`, `efSearch`), which is a new error budget you then have to
+measure — which is what the quantisation harness already does.
+
+I'd rather present that than quietly benchmark 100 k vectors and quote 9 ms.
+
+### "Anything surprise you in the numbers?"
+
+Yes — **text fetch dominated end-to-end and I hadn't costed it at all.**
+
+| stage | ms |
+|---|---:|
+| query embedding | 8 |
+| search | 307 |
+| **fetch text for 5 hits** | **~1,600–2,200** |
+
+The index stores 32-byte coordinates per chunk instead of the text, which saves
+~344 GB. But `attach_text` scans parquet row-batches to find those rows, so
+retrieving five snippets costs five times longer than the search it followed.
+
+Both halves are real: the storage win is genuine and so is the retrieval cost.
+The fix is a row-offset index into each parquet file, or chunk text in a
+key-value store beside the vectors. What matters is that the cost was
+*invisible* until I timed end-to-end separately from search — a single blended
+"query latency" number would have hidden which stage to fix.
 
 ### "Why not just use Pinecone / Qdrant / FAISS?"
 

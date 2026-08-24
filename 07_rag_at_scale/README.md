@@ -426,14 +426,75 @@ python validate_quantization.py --include-synthetic   # ~2 min, no index needed
 32x reduction numbers do not improve with more shards — a bigger index buys a
 bigger number in the README, not a stronger claim.
 
-### Still outstanding
+## 📉 Measured latency — and why the flat scan loses
 
-`bench_latency.py` has **not run yet** — it needs a committed index. It is the
-one unproduced artifact. Run it after the first shard commits:
+One committed shard: **3,401,375 chunks**, binary index 0.163 GB, int8 1.31 GB,
+float32 avoided 5.22 GB (32x). Indexed in 50.3 min at 1,127 chunks/s with
+**GPU busy 100%, starved 0%** throughout.
 
-```powershell
-python bench_latency.py
+| vectors | binary ms | rescore ms | p50 ms | QPS/thread |
+|---:|---:|---:|---:|---:|
+| 100,000 | 8.9 | 0.24 | 9.1 | 109 |
+| 500,000 | 44.6 | 0.33 | 44.9 | 22.3 |
+| 1,000,000 | 88.5 | 0.34 | 88.8 | 11.3 |
+| 2,000,000 | 180.2 | 0.39 | 180.7 | 5.5 |
+| **3,401,375** | **306.3** | **0.38** | **306.7** | **3.3** |
+
+### The cascade is validated. The flat scan is not.
+
+**Rescore cost is flat.** 0.38 ms at 3.4 M vectors, identical to 0.24 ms at
+100 k, and still under 3 ms at 2000 candidates. It depends only on candidate
+depth, never on corpus size — exactly the design intent. Reading ~500 rows from a
+1.31 GB memmap costs essentially nothing.
+
+**The binary scan is ruthlessly O(n)**: ~90 ms per million vectors, and it is
+306 ms of a 307 ms query. Extrapolating to the corrected corpus size (~316 M
+chunks):
+
 ```
+306 ms x 93  ->  ~28 SECONDS per query
+```
+
+**So this architecture does not reach 200 GB, and the benchmark is what proves
+it.** A flat scan is right up to roughly 10 M vectors and wrong past it. This is
+the measured argument for IVF or HNSW: partition the space so a query touches a
+fraction of it. The trade is that recall stops being a guarantee and becomes a
+tunable (`nprobe`, `efSearch`) — a new error budget you then have to measure,
+which is exactly what `validate_quantization.py` is for.
+
+Reporting this rather than quietly benchmarking 100 k vectors and claiming 9 ms
+is the whole point of building the harness.
+
+### Concurrency: memory-bandwidth bound
+
+| workers | QPS | p50 ms | p95 ms | p99 ms |
+|---:|---:|---:|---:|---:|
+| 1 | 3.3 | 306 | 317 | 321 |
+| 4 | 11.8 | 336 | 359 | 376 |
+| 8 | 19.9 | 393 | 421 | 435 |
+
+8 threads deliver **6x the QPS, not 8x**, and p50 degrades 306 → 393 ms. numpy
+releases the GIL inside the XOR/popcount so threads genuinely scale, but they
+contend for the same memory bandwidth — which is the real ceiling, and another
+reason the answer is to touch *less* of the index rather than scan it faster.
+
+### The surprise: text fetch dominates end-to-end
+
+| stage | ms |
+|---|---:|
+| query embedding | 8 |
+| search (binary + rescore) | 307 |
+| **fetch text for 5 hits** | **~1,600–2,200** |
+| **end-to-end** | **1,894–2,553** |
+
+Storing 32-byte coordinates instead of chunk text saves ~344 GB — but
+`attach_text` has to scan parquet row-batches to locate rows, so retrieving five
+snippets costs longer than the entire search. The storage win is real and so is
+the retrieval cost; a production fix needs a row-offset index into each parquet
+file, or the chunk text in a key-value store beside the vectors.
+
+Worth stating plainly: this cost was invisible until the end-to-end number was
+measured separately from the search number.
 
 ---
 

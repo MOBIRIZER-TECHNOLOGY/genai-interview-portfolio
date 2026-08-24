@@ -201,7 +201,8 @@ def main():
     biggest = max((r for r in results["scaling"] if r["candidates"] == 500),
                   key=lambda r: r["n_vectors"], default=None)
     if biggest and biggest["n_vectors"] > 0:
-        TARGET = 143_000_000                       # 200 GB / 350 tokens per chunk
+        # measured: 3.4M chunks per 2.15 GB shard x 93 shards
+        TARGET = 316_000_000
         factor = TARGET / biggest["n_vectors"]
         proj_bin = biggest["binary_p50_ms"] * factor      # O(n)
         proj_res = biggest["rescore_p50_ms"]              # O(candidates)
