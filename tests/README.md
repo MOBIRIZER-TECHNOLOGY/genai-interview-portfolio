@@ -6,7 +6,8 @@ instruments.
 ```powershell
 ..\activate.ps1
 
-pytest tests/ -m "not llm and not gpu"    # 48 tests, 0.4 s, no GPU, no network
+pytest tests/ -m "not llm and not gpu and not slow"   # 48 fast tests, 0.4 s
+pytest tests/ -m "not llm and not gpu"               # + 17 concurrency tests (~1 min)
 pytest tests/ -m llm -v                   # DeepEval quality gates (needs Ollama)
 pytest tests/                             # everything
 ```
@@ -175,7 +176,8 @@ judge-based gate were disabled.
 | `slow` | more than a few seconds |
 | `integration` | exercises several projects together |
 
-CI should run `-m "not llm and not gpu"` — 0.4 s, no infrastructure.
+CI should run `-m "not llm and not gpu"` — no infrastructure needed. Add
+`and not slow` for the 0.4 s pre-commit subset.
 
 ---
 
