@@ -1,6 +1,6 @@
 # 🧠 Sr GenAI Developer — Interview Prep Workspace
 
-Six self-contained projects covering the ground a senior GenAI interview actually
+Seven self-contained projects covering the ground a senior GenAI interview actually
 walks over: **retrieval, fine-tuning across three modalities, local GPU
 economics, and agent tooling.** Everything runs on one consumer GPU with no API
 keys and no data leaving the machine.
@@ -19,8 +19,9 @@ and answers you can defend.
 | **02** | [LoRA — text](02_lora_text/) | Fine-tuning a 0.5B LLM for structured extraction; bf16 vs QLoRA | exact match **0% → 84.2%** in **59 s**, 34 MB adapter |
 | **03** | [LoRA — image](03_lora_image/) | Teaching Stable Diffusion a brand-new visual concept, measured with CLIP | concept fidelity **+40% relative**, 12 MB adapter, 11 min — plus a documented failed first attempt |
 | **04** | [LoRA — voice](04_lora_voice/) | Domain adaptation of Whisper using TTS-synthesised training data | WER **52.1% → 2.5%**, domain terms **1% → 96%**, 78 s; **cross-engine holdout passed** (1.5% WER on SAPI); mic-recording pipeline included |
-| **05** | [MCP server](05_mcp_server/) | Tools, resources and prompts that expose projects 01 and 02 to any AI client | 4 tools live in Claude Code |
+| **05** | [MCP server](05_mcp_server/) | Tools/resources/prompts exposing projects 01+02, plus a full **OAuth 2.1** server with PKCE and per-tool scopes | flow verified end to end: PKCE rejects stolen codes, refresh rotates, revocation takes effect |
 | **06** | [Local GPU inference](06_local_gpu_inference/) | Quantisation and batching: memory, speed **and** the quality you pay for it | batching **32.5×** throughput; int4 costs **+9.2% perplexity**; found the benchmark refuted the textbook claim |
+| **07** | [RAG at 200 GB](07_rag_at_scale/) | Real 200 GB corpus, binary+int8 precision cascade, latency scaling, and modern retrieval techniques | **32× memory reduction** at **0.985 recall@10**, quality ratio **1.0000** |
 
 They share one fictional domain — the **"Atlas"** warehouse-robotics platform —
 on purpose. Project 05 calls projects 01 and 02 as tools, so the set reads as one

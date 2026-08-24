@@ -35,3 +35,6 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+
+# --- project 07: corpus and index live OUTSIDE the repo (C:\genai-data) ---
+07_rag_at_scale/latency_results.json

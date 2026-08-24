@@ -1,0 +1,13 @@
+# Project 07 - RAG at 200 GB scale
+# Install torch FIRST, matched to your GPU (see ../SETUP.md):
+#   uv pip install torch --index-url https://download.pytorch.org/whl/cu128
+
+sentence-transformers>=3.0   # embeddings (fp16, batched)
+transformers>=4.44           # ColBERT-style token encoders
+huggingface-hub>=0.24        # resumable corpus download
+pyarrow>=17.0                # streaming parquet reads
+numpy>=1.26
+httpx>=0.27                  # Ollama calls for query rewriting + LLM judge
+
+# Storage note: the corpus and index go OUTSIDE OneDrive (default C:\genai-data).
+# 200 GB corpus + ~184 GB int8 + ~23 GB binary. See README.

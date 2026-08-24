@@ -292,8 +292,7 @@ if __name__ == "__main__":
     args = ap.parse_args()
 
     if args.http:
-        server.settings.port = args.port
-        server.run(transport="streamable-http")
+        server.run(transport="streamable-http", host="127.0.0.1", port=args.port)
     else:
         # stdio: the client spawns this process and talks JSON-RPC over the pipes.
         # NOTHING may be printed to stdout -- it would corrupt the protocol stream.

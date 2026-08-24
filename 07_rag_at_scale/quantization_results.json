@@ -1,0 +1,78 @@
+{
+  "n": 20000,
+  "dim": 384,
+  "k": 10,
+  "queries": 300,
+  "rows": [
+    {
+      "stage": "binary_only",
+      "recall": 0.624,
+      "ms": 1.5670993333333172
+    },
+    {
+      "stage": "binary -> int8 rescore, cand=100",
+      "format": "int8",
+      "candidates": 100,
+      "recall": 0.96,
+      "quality": 0.9994135737419129,
+      "ms": 1.6751586666578078
+    },
+    {
+      "stage": "binary -> int8 rescore, cand=250",
+      "format": "int8",
+      "candidates": 250,
+      "recall": 0.9790000000000002,
+      "quality": 0.9998552332321803,
+      "ms": 1.7791593333337612
+    },
+    {
+      "stage": "binary -> int8 rescore, cand=500",
+      "format": "int8",
+      "candidates": 500,
+      "recall": 0.9853333333333334,
+      "quality": 0.999951029419899,
+      "ms": 1.8465313333338902
+    },
+    {
+      "stage": "binary -> int8 rescore, cand=1000",
+      "format": "int8",
+      "candidates": 1000,
+      "recall": 0.986,
+      "quality": 0.9999611473083496,
+      "ms": 3.0822689999937816
+    },
+    {
+      "stage": "binary -> float16 rescore, cand=100",
+      "format": "float16",
+      "candidates": 100,
+      "recall": 0.9683333333333334,
+      "quality": 0.9994300929705302,
+      "ms": 1.620251666669598
+    },
+    {
+      "stage": "binary -> float16 rescore, cand=250",
+      "format": "float16",
+      "candidates": 250,
+      "recall": 0.9920000000000001,
+      "quality": 0.9998791827758153,
+      "ms": 1.7292686666769441
+    },
+    {
+      "stage": "binary -> float16 rescore, cand=500",
+      "format": "float16",
+      "candidates": 500,
+      "recall": 0.9990000000000001,
+      "quality": 0.9999793281157812,
+      "ms": 1.9012953333367477
+    },
+    {
+      "stage": "binary -> float16 rescore, cand=1000",
+      "format": "float16",
+      "candidates": 1000,
+      "recall": 0.9996666666666666,
+      "quality": 0.9999881567557652,
+      "ms": 2.3894619999919087
+    }
+  ],
+  "synthetic_binary_only_recall": 0.18000000000000005
+}

@@ -89,9 +89,12 @@ the grounding discipline from project 01 survives the trip through the protocol.
 
 ```
 05_mcp_server/
-├── server.py         4 tools, 2 resources, 1 prompt
-├── client_demo.py    a Python MCP client that drives all of it
-├── .mcp.json         config for Claude Code
+├── server.py            4 tools, 2 resources, 1 prompt (stdio, no auth)
+├── client_demo.py       a Python MCP client that drives all of it
+├── auth_provider.py     full OAuth 2.1 authorization server
+├── auth_server.py       the same tools, but every call needs a token + scope
+├── auth_client_demo.py  the complete flow, step by step, over raw HTTP
+├── .mcp.json            config for Claude Code
 └── requirements.txt
 ```
 
@@ -138,6 +141,71 @@ start Claude Code there. Check it loaded with `/mcp`. Then just ask:
 ```powershell
 python server.py --http --port 8765
 ```
+
+---
+
+## 🔐 OAuth 2.1 (`auth_server.py`)
+
+`server.py` is stdio and unauthenticated — correct, because the client spawns it
+as a subprocess and the OS already decided you may run it. **An HTTP server is
+reachable, so it needs auth.** `auth_server.py` is the same tools behind a
+complete OAuth 2.1 authorization server.
+
+```powershell
+python auth_server.py        # terminal 1
+python auth_client_demo.py   # terminal 2 -- the whole flow, printed
+```
+
+### Per-tool scopes, not one scope per server
+
+| tool | required scope |
+|---|---|
+| `list_atlas_documents`, `search_atlas_docs` | `atlas:read` |
+| `ask_atlas` | `atlas:ask` |
+| `triage_incident` | `atlas:triage` (loads a model onto the GPU) |
+
+An MCP server is a bundle of capabilities with very different blast radii.
+Reading docs is cheap; `triage_incident` occupies your GPU. A token minted for a
+docs integration should not be able to do the second, and separating them costs
+one decorator.
+
+### Verified end to end
+
+```
+1. tool call with no token                    -> HTTP 401
+2. discovery /.well-known/oauth-*             -> S256 only, 3 scopes advertised
+3. dynamic client registration (RFC 7591)     -> client_id issued
+4. PKCE pair generated                        -> challenge = SHA256(verifier)
+5. /authorize                                 -> 302 with one-time code, state echoed
+6. exchange code + verifier                   -> access + refresh tokens
+   replay same code with a WRONG verifier     -> HTTP 400   <-- PKCE working
+7. tools/call with token                      -> HTTP 200, real results
+8. triage_incident without atlas:triage       -> denied, names the missing scope
+   ...with atlas:triage granted               -> runs, returns the triage JSON
+9. refresh                                    -> new pair issued
+   reuse the OLD refresh token                -> HTTP 400   <-- rotation working
+10. revoke, then call again                   -> HTTP 401   <-- revocation working
+```
+
+The negative results are the point. Anyone can turn auth on; what matters is
+demonstrating that PKCE actually rejects a stolen code, that refresh rotation
+actually invalidates the old token, and that revocation actually takes effect.
+
+### One gotcha worth knowing
+
+A valid token still gets `Bad Request: Missing session ID` if you skip MCP's
+`initialize` handshake — streamable HTTP issues an `Mcp-Session-Id` that every
+later request must carry. **An authentication success and a protocol failure look
+identical from the outside**, which cost me a debugging cycle. `open_session()`
+in the client does the handshake.
+
+### What is deliberately not production-grade
+
+Called out at the relevant lines in `auth_provider.py` rather than glossed over:
+in-memory token storage (needs Redis/Postgres to survive restarts and work across
+replicas), auto-approval instead of real user authentication and a consent
+screen, and opaque random tokens rather than signed JWTs (JWTs let a resource
+server validate locally with no round-trip, at the cost of instant revocation).
 
 ---
 

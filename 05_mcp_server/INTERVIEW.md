@@ -75,6 +75,53 @@ call and cache.
 Third: assuming the process is long-lived. stdio servers are spawned per client
 session and can be restarted at any time. Don't hold unsaved state in memory.
 
+### "You implemented OAuth 2.1. Walk me through it."
+
+Full authorization server: dynamic client registration (RFC 7591),
+authorization-code flow with **mandatory PKCE**, token exchange, refresh with
+rotation, revocation (RFC 7009), and per-tool scope enforcement.
+
+**What 2.1 changes from 2.0, and why each matters:**
+- **PKCE is mandatory for every client type**, not just public ones. The client
+  commits to `code_challenge = SHA256(verifier)` up front and must present the
+  raw verifier at exchange. An attacker who intercepts the redirect gets a code
+  that is useless without the verifier they never saw.
+- **Implicit flow removed** — no tokens in URL fragments, where they land in
+  browser history and referrer headers.
+- **Exact redirect-URI matching** — prefix/wildcard matching was a reliable
+  source of open redirects.
+- **Refresh rotation** — each refresh invalidates the old token, so if both an
+  attacker and the real client use it, the second use fails and you have a
+  detectable compromise signal.
+
+**The part I'd emphasise: I demonstrated the negatives.** Anyone can turn auth
+on. My client demo proves PKCE rejects a replayed code with a wrong verifier
+(400), that reusing a rotated refresh token fails (400), and that a revoked token
+stops working (401). Positive-path-only auth demos prove almost nothing.
+
+**Scopes per tool, not per server.** `atlas:read` for docs, `atlas:ask` for RAG,
+`atlas:triage` for the GPU model. An MCP server bundles capabilities with very
+different blast radii — a docs-browsing integration should not be able to occupy
+your GPU. That is least privilege at the tool boundary, and it is what makes
+"we exposed internal systems over MCP" defensible.
+
+**What I left non-production, and I'd say so unprompted:** in-memory token
+storage (needs Redis/Postgres to survive restarts and work across replicas),
+auto-approval standing in for real user authentication and a consent screen, and
+opaque tokens rather than signed JWTs. JWTs let the resource server validate
+locally with no round-trip, at the cost of instant revocation — that trade is a
+real design decision, not an oversight.
+
+### "When does an MCP server need auth at all?"
+
+stdio doesn't. The client spawns it as a subprocess; the OS already decided you
+may run that binary, and there is no network surface. Adding OAuth to a stdio
+server is pure ceremony.
+
+HTTP does, always, because it is reachable. That's the actual dividing line, and
+it's why this project ships both: `server.py` over stdio unauthenticated, and
+`auth_server.py` over HTTP with the full flow.
+
 ### "How would you secure an MCP server?"
 
 Depends on where the trust boundary is.
