@@ -124,6 +124,14 @@ class ShardPipeline:
         self.raw_q: queue.Queue = queue.Queue(maxsize=raw_queue_size)
         self.embed_q: queue.Queue = queue.Queue(maxsize=embed_queue_size)
         self.stop = threading.Event()
+        # Completion is signalled by Events, NOT by sentinels travelling through
+        # the bounded queues. A sentinel `put` into a full queue can time out and
+        # be dropped, after which the consumer waits forever for a message that
+        # no longer exists -- which is exactly how this pipeline aborted a shard
+        # at 3.25M chunks with "chunker: waited >900s for input". Events cannot
+        # be lost to backpressure.
+        self.reader_done = threading.Event()
+        self.chunkers_live = n_chunkers
         self.stats = PipelineStats()
         self._lock = threading.Lock()
 
@@ -183,12 +191,7 @@ class ShardPipeline:
                 self.stats.errors.append(f"reader: {type(exc).__name__}: {exc}")
             self.stop.set()
         finally:
-            # one sentinel per chunker, so each one terminates exactly once
-            for _ in range(self.n_chunkers):
-                try:
-                    self.raw_q.put(SENTINEL, timeout=30)
-                except queue.Full:
-                    pass
+            self.reader_done.set()
 
     def _chunker(self) -> None:
         """Pure-Python string slicing. Holds the GIL, runs while the GPU works."""
@@ -206,9 +209,14 @@ class ShardPipeline:
 
         try:
             while not self.stop.is_set():
-                item = self._get(self.raw_q, "chunker")
-                if item is SENTINEL:
-                    break
+                try:
+                    item = self.raw_q.get(timeout=POLL)
+                except queue.Empty:
+                    # Exit only when the reader is finished AND nothing is left.
+                    # Checking both, in that order, is what makes this race-free.
+                    if self.reader_done.is_set() and self.raw_q.empty():
+                        break
+                    continue
                 base_row, texts = item
                 for i, text in enumerate(texts):
                     if not text:
@@ -225,10 +233,8 @@ class ShardPipeline:
                 self.stats.errors.append(f"chunker: {type(exc).__name__}: {exc}")
             self.stop.set()
         finally:
-            try:
-                self.embed_q.put(SENTINEL, timeout=30)
-            except queue.Full:
-                pass
+            with self._lock:
+                self.chunkers_live -= 1
 
     # -------------------------------------------------------------- run
 
@@ -245,17 +251,20 @@ class ShardPipeline:
         for c in chunkers:
             c.start()
 
-        finished = 0
         next_report = progress_every
         try:
-            while finished < self.n_chunkers and not self.stop.is_set():
+            while not self.stop.is_set():
                 t0 = time.perf_counter()
-                item = self._get(self.embed_q, "main")
-                self.stats.gpu_wait_s += time.perf_counter() - t0
-
-                if item is SENTINEL:
-                    finished += 1
+                try:
+                    item = self.embed_q.get(timeout=POLL)
+                except queue.Empty:
+                    self.stats.gpu_wait_s += time.perf_counter() - t0
+                    with self._lock:
+                        live = self.chunkers_live
+                    if live == 0 and self.embed_q.empty():
+                        break
                     continue
+                self.stats.gpu_wait_s += time.perf_counter() - t0
 
                 texts, coords = item
 

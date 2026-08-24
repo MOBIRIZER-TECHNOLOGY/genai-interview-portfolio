@@ -165,5 +165,7 @@ def memory_report(n_vectors: int, dim: int) -> dict:
         "float16_gb": round(f16 / 1e9, 2),
         "int8_gb": round(i8 / 1e9, 2),
         "binary_gb": round(binr / 1e9, 3),
-        "binary_reduction": f"{f32 / binr:.0f}x",
+        # an empty index is a legitimate state -- a run that aborted before its
+        # first commit leaves n_chunks=0 with dim already set
+        "binary_reduction": f"{f32 / binr:.0f}x" if binr else "n/a",
     }

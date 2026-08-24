@@ -182,20 +182,19 @@ def truncate_uncommitted(out: Path, manifest: dict) -> int:
     if not dim:
         return 0
     n = manifest["n_chunks"]
-    expected = {
-        "binary.u8": n * (dim // 8),
-        "int8.i8": n * dim,
-        "coords.i64": n * 4 * 8,
-    }
+    # bytes per row are a property of `dim`, not of the current row count --
+    # deriving them from `n` breaks exactly when n == 0, which is the case an
+    # aborted first shard leaves behind.
+    row_bytes = {"binary.u8": dim // 8, "int8.i8": dim, "coords.i64": 4 * 8}
     discarded = 0
-    for name, want in expected.items():
+    for name, per_row in row_bytes.items():
         p = out / name
         if not p.exists():
             continue
+        want = n * per_row
         have = p.stat().st_size
         if have > want:
-            row_bytes = want // n if n else 1
-            discarded = max(discarded, (have - want) // max(row_bytes, 1))
+            discarded = max(discarded, (have - want) // per_row)
             with open(p, "r+b") as f:
                 f.truncate(want)
         elif have < want:
