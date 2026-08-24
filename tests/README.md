@@ -13,7 +13,7 @@ pytest tests/                             # everything
 
 ---
 
-## Layer 1 — deterministic (48 tests, 0.38 s)
+## Layer 1 — deterministic (65 tests)
 
 Fast, exact, no GPU, no network, CI-safe. **Every test here is a regression test
 for a bug that actually happened in this repo.**
@@ -23,6 +23,7 @@ for a bug that actually happened in this repo.**
 | `test_chunking.py` | chunk boundaries | the **42× chunker** — a 500-char doc produced ~180 near-identical chunks |
 | `test_quantization.py` | binary/int8 codec + methodology | the **self-in-corpus** 0.9 recall cap, and the **synthetic-vector** trap |
 | `test_crash_safety.py` | append-only index invariants | **resume duplication**, and `ScaleIndex` sizing from file length not manifest |
+| `test_pipeline_concurrency.py` | the threaded index builder | the **lost sentinel** that killed a shard at 3.25 M chunks |
 
 ### Why this layer earns its place
 
@@ -51,6 +52,63 @@ FAILED test_terminates_on_pathological_input
 
 **11 tests fire.** A suite that passes on known-broken code is worse than no
 suite, because it manufactures confidence. This one was mutation-checked.
+
+---
+
+## The concurrency test, and two failed attempts at it
+
+`test_pipeline_concurrency.py` guards the bug that aborted a shard after 3.25 M
+successfully embedded chunks:
+
+```
+ERROR chunker: waited >900s for input
+```
+
+Completion was signalled by sentinels pushed through the **bounded** queues:
+
+```python
+try: self.raw_q.put(SENTINEL, timeout=30)
+except queue.Full: pass          # <- silently drops the shutdown signal
+```
+
+**My first two attempts at testing this both passed on known-broken code.**
+
+*Attempt 1* used a merely-slow consumer (20 ms/batch). The dropped sentinel needs
+`raw_q` to stay full for longer than the 30 s `put` timeout at the exact moment
+the reader finishes; a fast-draining queue never gets there.
+
+*Attempt 2* gated the consumer to force that stall — and the setup assertion
+failed, revealing the state is **unreachable by that route**: a fully-gated
+consumer blocks the reader before it can finish, so `reader_done` never fires.
+
+Chasing the timing was the wrong instinct. The invariant is what matters:
+
+> **A completion signal must not travel through a channel that can drop it.**
+
+A bounded queue can always reject a `put` under backpressure, so sentinel-based
+shutdown is broken *by construction* — whether or not a given run happens to hit
+the timeout. `test_completion_is_never_signalled_through_a_bounded_queue` spies
+on both queues and asserts no sentinel is ever enqueued. It is deterministic, it
+cannot flake, and mutation-checking confirms **9 tests fire** on the old design:
+
+```
+FAILED test_completion_is_never_signalled_through_a_bounded_queue
+  AssertionError: completion was signalled through bounded queue(s)
+                  ['embed_q', 'raw_q']
+FAILED test_survives_a_long_consumer_stall
+FAILED test_terminates_under_severe_backpressure
+FAILED test_terminates_with_more_chunkers_than_work
+FAILED test_terminates_across_chunker_counts[1|2|4]
+FAILED test_no_chunks_are_lost_under_backpressure
+FAILED test_empty_shard_terminates_cleanly
+```
+
+The lesson generalises: **when a race is hard to reproduce, test the property
+that makes it impossible rather than the timing that makes it visible.**
+
+A deadlocked pipeline burns 0% CPU and prints nothing, so every test here runs
+`run()` on a daemon thread and joins with a timeout — a hang fails with a
+diagnostic instead of wedging CI.
 
 ---
 
@@ -131,9 +189,7 @@ of lie:
   revocation — but that is a script, not pytest. It should be ported.
 - **Training loops** (projects 02/03/04) have no tests. Their `evaluate.py`
   harnesses measure output quality but assert nothing.
-- **The threaded pipeline** (`scale/pipeline.py`) has no concurrency test. The
-  lost-sentinel bug that killed a shard at 3.25 M chunks would not be caught
-  here — it needs a test that fills the bounded queues and forces the shutdown
-  path under backpressure.
+- **Training loops** (projects 02/03/04) still have none. Their `evaluate.py`
+  harnesses measure output quality but assert nothing.
 
-That last one is the most valuable gap, and the one I'd close next.
+`scale/pipeline.py` was the biggest gap and is now covered — see above.
