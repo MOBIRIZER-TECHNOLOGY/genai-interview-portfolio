@@ -1,0 +1,11 @@
+# Project 01 - Local RAG
+# Install torch FIRST, matched to your GPU (see ../SETUP.md):
+#   uv pip install torch --index-url https://download.pytorch.org/whl/cu128
+
+sentence-transformers>=3.0     # bi-encoder embeddings + cross-encoder reranker
+faiss-cpu>=1.8                 # exact vector index (IndexFlatIP)
+rank-bm25>=0.2.2               # lexical arm of hybrid retrieval
+httpx>=0.27                    # talks to the local Ollama server
+fastapi>=0.115                 # serve.py
+uvicorn[standard]>=0.30
+rich>=13.0                     # readable CLI output

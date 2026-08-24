@@ -1,0 +1,97 @@
+{
+  "model": "openai/whisper-small",
+  "n": 60,
+  "base": {
+    "wer": 0.5668103448275862,
+    "cer": 0.12430668841761827,
+    "domain_term_accuracy": 0.10655737704918032,
+    "domain_terms": 122,
+    "sentence_accuracy": 0.016666666666666666,
+    "n": 60
+  },
+  "lora": {
+    "wer": 0.015086206896551725,
+    "cer": 0.005872756933115824,
+    "domain_term_accuracy": 1.0,
+    "domain_terms": 122,
+    "sentence_accuracy": 0.9166666666666666,
+    "n": 60
+  },
+  "samples": [
+    {
+      "ref": "atlas-console is in the auction loop and this is a SEV1.",
+      "base": "Atlas console is in the auction loop and this is a SEV-1.",
+      "lora": "atlas-console is in the auction loop and this is a SEV1."
+    },
+    {
+      "ref": "Page on call, TLM-330 in Rotterdam is a SEV3.",
+      "base": "Page on call, TLM 330 in Rotterdam is a Sev 3.",
+      "lora": "Page on call, TLM-330 in Rotterdam is a SEV3."
+    },
+    {
+      "ref": "We are seeing TLM-204 on atlas-telemetry in Rotterdam.",
+      "base": "We are seeing TLM204 on Atlas Telemetry in Rotterdam.",
+      "lora": "We are seeing TLM-204 on atlas-telemetry in Rotterdam."
+    },
+    {
+      "ref": "Raise a SEV1 for atlas-sim, error TLM-204.",
+      "base": "Rays a 7-1 for Atlas Sim. Error TLM204.",
+      "lora": "Raise a SEV1 for atlas-sim, error TLM-204."
+    },
+    {
+      "ref": "Page on call, VIS-207 in Hamburg is a SEV3.",
+      "base": "Page on call, VIS-207 in Hamburg is a SEV-3.",
+      "lora": "Page on call, VIS-207 in Hamburg is a SEV3."
+    },
+    {
+      "ref": "nw-barcode-ocr-v2 is failing on atlas-vision in Hamburg.",
+      "base": "and W. Barko go see ARRV2 is failing on Atlas Vision in Hamburg.",
+      "lora": "nw-barcode-ocr-v2 is failing on atlas-vision in Hamburg."
+    },
+    {
+      "ref": "TLM-330 cleared on atlas-roll after a restart.",
+      "base": "TLM 330 cleared on Atlas Roll after a restart.",
+      "lora": "TLM-330 cleared on atlas-roll after a restart."
+    },
+    {
+      "ref": "Page on call, VIS-207 in Bristol is a SEV2.",
+      "base": "Page on call, VIS-207 in Bristol is a Sev 2.",
+      "lora": "Page on call, VIS-207 in Bristol is a SEV2."
+    },
+    {
+      "ref": "Raise a SEV3 for atlas-console, error TLM-330.",
+      "base": "Raise a Cep3 for Atlas console error TLM 330",
+      "lora": "Raise a SEV3 for atlas-console, error TLM-330."
+    },
+    {
+      "ref": "atlas-telemetry threw DSP-500 again, escalating as SEV2.",
+      "base": "Atlas telemetry through DSP 500 again, escalating as serve 2.",
+      "lora": "atlas-telemetry threw DSP-500 again, escalating as SEV2."
+    },
+    {
+      "ref": "Lyon reports a hypertable chunk on atlas-console.",
+      "base": "Leon reports a high-fruitable chunk on Atlas console.",
+      "lora": "Lyon reports a hypertable chunk on atlas-console."
+    },
+    {
+      "ref": "nw-pallet-detect-v4 is failing on atlas-telemetry in Lyon.",
+      "base": "And W-Pallet Detect B4 is failing on Atlas Telemetry in Lyon.",
+      "lora": "nw-pallet-detect-v4 is failing on atlas-telemetry in Lyon."
+    },
+    {
+      "ref": "nw-pallet-detect-v4 is failing on atlas-console in Hamburg.",
+      "base": "And W-Pallet Detect V4 is failing on Atlas console in Hamburg.",
+      "lora": "nw-pallet-detect-v4 is failing on atlas-console in Hamburg."
+    },
+    {
+      "ref": "atlas-dispatch threw TLM-402 again, escalating as SEV1.",
+      "base": "Atlas dispatch through TLM-402 again, escalating as Sev 1.",
+      "lora": "atlas-dispatch threw TLM-402 again, escalating as SEV1."
+    },
+    {
+      "ref": "atlas-dispatch is in the manual inspection lane and this is a SEV1.",
+      "base": "Atlas dispatches in the manual inspection lane and this is a SEV-1.",
+      "lora": "atlas-dispatch is in the manual inspection lane and this is a SEV1."
+    }
+  ]
+}

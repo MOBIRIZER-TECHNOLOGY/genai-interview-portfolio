@@ -1,0 +1,11 @@
+# Project 03 - LoRA fine-tuning Stable Diffusion
+# Install torch FIRST, matched to your GPU (see ../SETUP.md):
+#   uv pip install torch --index-url https://download.pytorch.org/whl/cu128
+
+diffusers>=0.30       # SD pipeline, UNet, VAE, schedulers
+transformers>=4.44    # CLIP text encoder + CLIP scorer used by evaluate.py
+peft>=0.12            # LoRA adapters on the UNet
+accelerate>=0.34
+safetensors>=0.4
+pillow>=10.0
+numpy>=1.26

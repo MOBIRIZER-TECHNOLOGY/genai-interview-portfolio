@@ -1,0 +1,145 @@
+{
+  "description": "Hand-labelled evaluation set for the Atlas corpus. `gold_sources` is the document(s) that actually contain the answer -- that is the retrieval label. `must_contain` are strings the answer text must include -- that is the generation label. Questions tagged 'unanswerable' are NOT in the corpus and the system is expected to abstain with NOT_FOUND.",
+  "questions": [
+    {
+      "id": "q01",
+      "question": "How many robots can a single Atlas cell support?",
+      "gold_sources": ["01-atlas-overview.md"],
+      "must_contain": ["240"],
+      "type": "lookup"
+    },
+    {
+      "id": "q02",
+      "question": "What does error code TLM-330 mean and what should I do?",
+      "gold_sources": ["03-telemetry-ingest.md"],
+      "must_contain": ["hypertable", "dba"],
+      "type": "rare_token"
+    },
+    {
+      "id": "q03",
+      "question": "What is the Rotterdam rule?",
+      "gold_sources": ["02-dispatch-auction.md"],
+      "must_contain": ["12", "1.5"],
+      "type": "named_concept"
+    },
+    {
+      "id": "q04",
+      "question": "How long do we keep camera footage from the warehouse?",
+      "gold_sources": ["06-data-retention-policy.md"],
+      "must_contain": ["14 day"],
+      "type": "paraphrase"
+    },
+    {
+      "id": "q05",
+      "question": "What is the default value of ATLAS_STARVATION_ROUNDS?",
+      "gold_sources": ["02-dispatch-auction.md"],
+      "must_contain": ["12"],
+      "type": "rare_token"
+    },
+    {
+      "id": "q06",
+      "question": "When does telemetry enter shed mode and how does it clear?",
+      "gold_sources": ["03-telemetry-ingest.md"],
+      "must_contain": ["80", "55"],
+      "type": "multi_fact"
+    },
+    {
+      "id": "q07",
+      "question": "What barcode confidence threshold triggers a retry?",
+      "gold_sources": ["04-vision-service.md"],
+      "must_contain": ["0.92"],
+      "type": "lookup"
+    },
+    {
+      "id": "q08",
+      "question": "Which incident causes the most pages, and what fraction?",
+      "gold_sources": ["05-oncall-runbook.md"],
+      "must_contain": ["41", "clock skew"],
+      "type": "multi_fact"
+    },
+    {
+      "id": "q09",
+      "question": "Can I ship a code change to Atlas in December?",
+      "gold_sources": ["05-oncall-runbook.md"],
+      "must_contain": ["freeze"],
+      "type": "reasoning"
+    },
+    {
+      "id": "q10",
+      "question": "What makes atlas-sim reproducible run to run?",
+      "gold_sources": ["07-atlas-sim.md"],
+      "must_contain": ["seed"],
+      "type": "paraphrase"
+    },
+    {
+      "id": "q11",
+      "question": "What happens if a model release is missing fallback_version?",
+      "gold_sources": ["08-model-deployment.md"],
+      "must_contain": ["reject"],
+      "type": "rare_token"
+    },
+    {
+      "id": "q12",
+      "question": "What mAP does a pallet detection model need to pass?",
+      "gold_sources": ["08-model-deployment.md"],
+      "must_contain": ["0.94"],
+      "type": "lookup"
+    },
+    {
+      "id": "q13",
+      "question": "Who can look at vision frames?",
+      "gold_sources": ["06-data-retention-policy.md"],
+      "must_contain": ["atlas-vision-review"],
+      "type": "paraphrase"
+    },
+    {
+      "id": "q14",
+      "question": "How is a robot's bid calculated in the dispatch auction?",
+      "gold_sources": ["02-dispatch-auction.md"],
+      "must_contain": ["travel_time", "congestion"],
+      "type": "multi_fact"
+    },
+    {
+      "id": "q15",
+      "question": "Why does nw-barcode-ocr-v2 struggle with shrink wrap?",
+      "gold_sources": ["04-vision-service.md"],
+      "must_contain": ["glare"],
+      "type": "rare_token"
+    },
+    {
+      "id": "q16",
+      "question": "What is the response time for a SEV2?",
+      "gold_sources": ["05-oncall-runbook.md"],
+      "must_contain": ["15 min"],
+      "type": "lookup"
+    },
+    {
+      "id": "q17",
+      "question": "What is the salary band for a senior Atlas engineer?",
+      "gold_sources": [],
+      "must_contain": [],
+      "type": "unanswerable"
+    },
+    {
+      "id": "q18",
+      "question": "How do I configure the Atlas Kafka consumer group offsets?",
+      "gold_sources": [],
+      "must_contain": [],
+      "type": "unanswerable"
+    },
+    {
+      "id": "q19",
+      "question": "Which cloud region does the Tokyo cell write to?",
+      "gold_sources": [],
+      "must_contain": [],
+      "type": "unanswerable"
+    },
+    {
+      "id": "q20",
+      "question": "How often is the aisle occupancy grid refreshed?",
+      "gold_sources": ["02-dispatch-auction.md"],
+      "must_contain": ["500"],
+      "type": "lookup"
+    }
+  ]
+}

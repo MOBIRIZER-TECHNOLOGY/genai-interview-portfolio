@@ -1,0 +1,15 @@
+# Project 04 - LoRA fine-tuning Whisper for domain ASR
+# Install torch FIRST, matched to your GPU (see ../SETUP.md):
+#   uv pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu128
+
+transformers>=4.44     # Whisper + SpeechT5
+peft>=0.12             # LoRA adapters
+accelerate>=0.34
+soundfile>=0.12        # 16 kHz WAV read/write
+librosa>=0.10          # audio utilities
+jiwer>=3.0             # WER / CER
+huggingface-hub>=0.24  # pulls the CMU Arctic x-vector archive
+sentencepiece          # SpeechT5 tokenizer
+numpy>=1.26
+sounddevice>=0.5       # record.py (microphone capture)
+pywin32; sys_platform == "win32"   # make_holdout.py (Windows SAPI cross-engine eval)

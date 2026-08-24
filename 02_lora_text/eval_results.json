@@ -1,0 +1,210 @@
+{
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "n": 120,
+  "base": {
+    "n": 120,
+    "json_valid": 1.0,
+    "schema_valid": 1.0,
+    "exact_match": 0.0,
+    "fields": {
+      "action": 0.0,
+      "component": 0.008333333333333333,
+      "error_code": 0.5166666666666667,
+      "page_oncall": 0.35833333333333334,
+      "severity": 0.31666666666666665
+    }
+  },
+  "base_failures": [
+    {
+      "reason": "field mismatch",
+      "output": "```json\n{\n  \"component\": \"Atlas-Sim\",\n  \"severity\": \"SEV1\",\n  \"error_code\": null,\n  \"page_oncall\": false,\n  \"action\": \"Contact the owner of the Atlas-Sim instance to resolve the is",
+      "gold": {
+        "component": "atlas-sim",
+        "severity": "SEV1",
+        "error_code": null,
+        "page_oncall": true,
+        "action": "re-run the scenario with a pinned seed and compare output hashes"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "```json\n{\n  \"component\": \"Atlas\",\n  \"severity\": \"SEV1\",\n  \"error_code\": \"TLM-101\",\n  \"page_oncall\": false,\n  \"action\": \"escalate\"\n}\n```",
+      "gold": {
+        "component": "atlas-telemetry",
+        "severity": "SEV2",
+        "error_code": "TLM-101",
+        "page_oncall": true,
+        "action": "restart ntp-relay in the cell namespace"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\n  \"component\": \"Atlas Console\",\n  \"severity\": \"SEV1\",\n  \"error_code\": null,\n  \"page_oncall\": false,\n  \"action\": \"Check the fleet map and metrics to see if there's any issue with ",
+      "gold": {
+        "component": "atlas-console",
+        "severity": "SEV3",
+        "error_code": null,
+        "page_oncall": false,
+        "action": "restart the console session service"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "```json\n{\n  \"component\": \"Atlas Telemetry\",\n  \"severity\": \"SEV1\",\n  \"error_code\": null,\n  \"page_oncall\": false,\n  \"action\": \"Monitor and investigate\"\n}\n```",
+      "gold": {
+        "component": "atlas-telemetry",
+        "severity": "SEV3",
+        "error_code": "TLM-402",
+        "page_oncall": false,
+        "action": "upgrade the robot firmware to match the schema version"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "```json\n{\n  \"component\": \"Katowice\",\n  \"severity\": \"SEV1\",\n  \"error_code\": null,\n  \"page_oncall\": false,\n  \"action\": \"Filed\"\n}\n```",
+      "gold": {
+        "component": "atlas-vision",
+        "severity": "SEV2",
+        "error_code": "VIS-311",
+        "page_oncall": true,
+        "action": "power cycle the affected gantry"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "```json\n{\n  \"component\": \"Atlas\",\n  \"severity\": \"SEV3\",\n  \"error_code\": \"TLM-330\",\n  \"page_oncall\": false,\n  \"action\": \"Review logs for more details\"\n}\n```",
+      "gold": {
+        "component": "atlas-telemetry",
+        "severity": "SEV2",
+        "error_code": "TLM-330",
+        "page_oncall": true,
+        "action": "page the DBA and check disk on tsdb-0"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "```json\n{\n  \"component\": \"Atlas-SIM\",\n  \"severity\": \"SEV1\",\n  \"error_code\": null,\n  \"page_oncall\": false,\n  \"action\": \"Restart the SIM\"\n}\n```",
+      "gold": {
+        "component": "atlas-sim",
+        "severity": "SEV2",
+        "error_code": "SIM-110",
+        "page_oncall": true,
+        "action": "re-run the scenario with a pinned seed and compare output hashes"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "```json\n{\n  \"component\": \"Atlas Console\",\n  \"severity\": \"SEV1\",\n  \"error_code\": null,\n  \"page_oncall\": false,\n  \"action\": \"Restart the Atlas Console\"\n}\n```",
+      "gold": {
+        "component": "atlas-console",
+        "severity": "SEV1",
+        "error_code": null,
+        "page_oncall": true,
+        "action": "restart the console session service"
+      }
+    }
+  ],
+  "lora": {
+    "n": 120,
+    "json_valid": 1.0,
+    "schema_valid": 1.0,
+    "exact_match": 0.8416666666666667,
+    "fields": {
+      "action": 0.9666666666666667,
+      "component": 1.0,
+      "error_code": 0.8416666666666667,
+      "page_oncall": 1.0,
+      "severity": 1.0
+    }
+  },
+  "lora_failures": [
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV2\",\"error_code\": null,\"page_oncall\": true,\"action\": \"power cycle the affected gantry\"}",
+      "gold": {
+        "component": "atlas-vision",
+        "severity": "SEV2",
+        "error_code": "VIS-311",
+        "page_oncall": true,
+        "action": "power cycle the affected gantry"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-sim\",\"severity\": \"SEV1\",\"error_code\": null,\"page_oncall\": true,\"action\": \"re-run the scenario with a pinned seed and compare output hashes\"}",
+      "gold": {
+        "component": "atlas-sim",
+        "severity": "SEV1",
+        "error_code": "SIM-110",
+        "page_oncall": true,
+        "action": "re-run the scenario with a pinned seed and compare output hashes"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"scale atlas-dispatch replicas from 3 to 5\"}",
+      "gold": {
+        "component": "atlas-dispatch",
+        "severity": "SEV3",
+        "error_code": "DSP-500",
+        "page_oncall": false,
+        "action": "scale atlas-dispatch replicas from 3 to 5"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-telemetry\",\"severity\": \"SEV3\",\"error_code\": \"TLM-402\",\"page_oncall\": false,\"action\": \"upgrade the robot firmware to match the schema version\"}",
+      "gold": {
+        "component": "atlas-telemetry",
+        "severity": "SEV3",
+        "error_code": null,
+        "page_oncall": false,
+        "action": "check the telemetry write buffer and NTP sync"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"power cycle the affected gantry\"}",
+      "gold": {
+        "component": "atlas-vision",
+        "severity": "SEV3",
+        "error_code": "VIS-207",
+        "page_oncall": false,
+        "action": "power cycle the affected gantry"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-telemetry\",\"severity\": \"SEV1\",\"error_code\": \"TLM-402\",\"page_oncall\": true,\"action\": \"upgrade the robot firmware to match the schema version\"}",
+      "gold": {
+        "component": "atlas-telemetry",
+        "severity": "SEV1",
+        "error_code": null,
+        "page_oncall": true,
+        "action": "check the telemetry write buffer and NTP sync"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-telemetry\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"check the telemetry write buffer and NTP sync\"}",
+      "gold": {
+        "component": "atlas-telemetry",
+        "severity": "SEV3",
+        "error_code": "TLM-402",
+        "page_oncall": false,
+        "action": "upgrade the robot firmware to match the schema version"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV1\",\"error_code\": null,\"page_oncall\": true,\"action\": \"power cycle the affected gantry\"}",
+      "gold": {
+        "component": "atlas-vision",
+        "severity": "SEV1",
+        "error_code": "VIS-207",
+        "page_oncall": true,
+        "action": "power cycle the affected gantry"
+      }
+    }
+  ]
+}

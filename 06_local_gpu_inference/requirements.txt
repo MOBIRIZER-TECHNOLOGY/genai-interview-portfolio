@@ -1,0 +1,8 @@
+# Project 06 - Local GPU inference benchmarking
+# Install torch FIRST, matched to your GPU (see ../SETUP.md):
+#   uv pip install torch --index-url https://download.pytorch.org/whl/cu128
+
+transformers>=4.44     # model loading + generate()
+accelerate>=0.34       # device placement for quantized loads
+bitsandbytes>=0.43     # int8 (LLM.int8) and int4 (NF4) quantization
+matplotlib>=3.8        # plot_results.py

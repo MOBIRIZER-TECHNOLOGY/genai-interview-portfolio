@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# Policy: commit code, docs, and the EVIDENCE behind every number in the
+# READMEs (eval results, training_info, curated comparison images).
+# Exclude what is bulky AND regenerable with one command per project.
+# ---------------------------------------------------------------------------
+
+# --- regenerable datasets (make_dataset.py / ingest.py rebuild these) ---
+01_rag_local/index/
+02_lora_text/data/
+03_lora_image/dataset/
+04_lora_voice/data/
+04_lora_voice/data_sapi/
+
+# real recordings are personal audio; keep them out of the repo by default
+04_lora_voice/data_real/
+
+# --- large binary adapter weights (regenerable in <15 min each; the
+#     training_info.json + adapter_config.json that describe them ARE kept) ---
+**/lora-out*/*.safetensors
+02_lora_text/merged/
+
+# --- the 36-image-per-run eval dumps (the curated grids in samples/ are kept) ---
+03_lora_image/samples/eval/
+03_lora_image/samples/eval07/
+
+# --- python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# --- os / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,89 @@
+{
+  "model": "openai/whisper-small",
+  "n": 60,
+  "lora": {
+    "wer": 0.024896265560165973,
+    "cer": 0.018035426731078906,
+    "domain_term_accuracy": 0.97,
+    "domain_terms": 100,
+    "sentence_accuracy": 0.9333333333333333,
+    "n": 60
+  },
+  "samples": [
+    {
+      "ref": "nw-pallet-detect-v4 confidence dropped, routing to the Rotterdam rule.",
+      "base": null,
+      "lora": "nw-pallet-detect-v2 confidence dropped, routing to the Rotterdam rule."
+    },
+    {
+      "ref": "Bristol reports the starvation guard on atlas-roll.",
+      "base": null,
+      "lora": "Bristol reports the starvation guard on atlas-roll."
+    },
+    {
+      "ref": "Page on call, TLM-101 in Lyon is a SEV1.",
+      "base": null,
+      "lora": "Page on call, TLM-101 in Lyon is a SEV1."
+    },
+    {
+      "ref": "Check the Rotterdam rule before you file the SEV2.",
+      "base": null,
+      "lora": "Check the Rotterdam rule before you file the SEV2."
+    },
+    {
+      "ref": "Check shed mode before you file the SEV2.",
+      "base": null,
+      "lora": "Check shed mode before you file the SEV2."
+    },
+    {
+      "ref": "Check the auction loop before you file the SEV3.",
+      "base": null,
+      "lora": "Check the auction loop before you file the SEV3."
+    },
+    {
+      "ref": "nw-pallet-detect-v4 is failing on atlas-vision in Rotterdam.",
+      "base": null,
+      "lora": "nw-pallet-detect-v4 is failing on atlas-vision in Rotterdam."
+    },
+    {
+      "ref": "Raise a SEV2 for atlas-roll, error TLM-101.",
+      "base": null,
+      "lora": "Raise a SEV2 for atlas-roll, error TLM-101."
+    },
+    {
+      "ref": "TLM-402 cleared on atlas-telemetry after a restart.",
+      "base": null,
+      "lora": "TLM-402 cleared on atlas-telemetry after a restart."
+    },
+    {
+      "ref": "Raise a SEV2 for atlas-roll, error DSP-500.",
+      "base": null,
+      "lora": "Raise a SEV2 for atlas-roll, error DSP-500."
+    },
+    {
+      "ref": "Memphis reports the starvation guard on atlas-console.",
+      "base": null,
+      "lora": "Memphis reports the starvation guard on atlas-console."
+    },
+    {
+      "ref": "atlas-vision is in the auction loop and this is a SEV3.",
+      "base": null,
+      "lora": "atlas-vision is in the auction loop and this is a SEV3."
+    },
+    {
+      "ref": "Page on call, TLM-204 in Lyon is a SEV3.",
+      "base": null,
+      "lora": "Page on call, TLM-204 in Lyon is a SEV3."
+    },
+    {
+      "ref": "Memphis reports shed mode on atlas-vision.",
+      "base": null,
+      "lora": "Memphis reports shed mode on atlas-vision."
+    },
+    {
+      "ref": "nw-barcode-ocr-v2 confidence dropped, routing to shed mode.",
+      "base": null,
+      "lora": "nw-barcode-ocr-v2 confidence dropped, routing to shed mode."
+    }
+  ]
+}

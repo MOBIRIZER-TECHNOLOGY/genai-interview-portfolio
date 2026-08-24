@@ -1,0 +1,13 @@
+{
+  "_comment": "Drop this file at the ROOT of a project (or merge it into an existing .mcp.json) and Claude Code will load the server for that project. Forward slashes work fine on Windows and avoid JSON escaping. Adjust both paths to your machine.",
+  "mcpServers": {
+    "atlas-knowledge": {
+      "command": "C:/Users/mobirizer/.venvs/genai/Scripts/python.exe",
+      "args": ["C:/Users/mobirizer/OneDrive/Desktop/learning/05_mcp_server/server.py"],
+      "env": {
+        "HF_HUB_DISABLE_SYMLINKS_WARNING": "1",
+        "TRANSFORMERS_VERBOSITY": "error"
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+# Project 05 - MCP server
+# This server calls into projects 01 (RAG) and 02 (LoRA triage), so install
+# their requirements too if you want every tool to work.
+
+mcp>=2.0                # Model Context Protocol SDK (server + client)
+
+# --- needed by the tools this server wraps ---
+# from ../01_rag_local/requirements.txt
+sentence-transformers>=3.0
+faiss-cpu>=1.8
+rank-bm25>=0.2.2
+httpx>=0.27
+# from ../02_lora_text/requirements.txt  (only for triage_incident)
+transformers>=4.44
+peft>=0.12

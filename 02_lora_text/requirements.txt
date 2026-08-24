@@ -1,0 +1,11 @@
+# Project 02 - LoRA fine-tuning a text LLM
+# Install torch FIRST, matched to your GPU (see ../SETUP.md):
+#   uv pip install torch --index-url https://download.pytorch.org/whl/cu128
+
+transformers>=4.44      # model + tokenizer + chat templates
+peft>=0.12              # LoRA / QLoRA adapters
+accelerate>=0.34        # device placement
+datasets>=2.20
+safetensors>=0.4
+sentencepiece           # tokenizer backend for some bases
+bitsandbytes>=0.43      # only needed for --load-4bit (QLoRA)

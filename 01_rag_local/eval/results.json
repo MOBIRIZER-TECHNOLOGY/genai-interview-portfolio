@@ -1,0 +1,306 @@
+{
+  "retrieval": {
+    "dense": {
+      "recall@1": 0.8823529411764706,
+      "recall@3": 1.0,
+      "mrr": 0.9313725490196079,
+      "p50_ms": 7.249100000080944,
+      "n": 17
+    },
+    "bm25": {
+      "recall@1": 0.8235294117647058,
+      "recall@3": 0.9411764705882353,
+      "mrr": 0.8725490196078431,
+      "p50_ms": 0.07129999994504033,
+      "n": 17
+    },
+    "hybrid": {
+      "recall@1": 0.8823529411764706,
+      "recall@3": 1.0,
+      "mrr": 0.9313725490196079,
+      "p50_ms": 4.3643999997584615,
+      "n": 17
+    },
+    "dense + rerank": {
+      "recall@1": 0.9411764705882353,
+      "recall@3": 1.0,
+      "mrr": 0.9607843137254902,
+      "p50_ms": 46.04040000003806,
+      "n": 17
+    },
+    "bm25 + rerank": {
+      "recall@1": 0.9411764705882353,
+      "recall@3": 1.0,
+      "mrr": 0.9607843137254902,
+      "p50_ms": 37.63070000013613,
+      "n": 17
+    },
+    "hybrid + rerank": {
+      "recall@1": 0.9411764705882353,
+      "recall@3": 1.0,
+      "mrr": 0.9607843137254902,
+      "p50_ms": 44.06199999993987,
+      "n": 17
+    }
+  },
+  "config": {
+    "top_k": 4,
+    "mode": "hybrid"
+  },
+  "generation": {
+    "fact_recall": 1.0,
+    "citation_valid": 1.0,
+    "gold_in_context": 1.0,
+    "abstain_correct": 1.0,
+    "p50_latency_ms": 367.6170999997339,
+    "n_answerable": 17,
+    "n_unanswerable": 3,
+    "details": [
+      {
+        "id": "q01",
+        "type": "lookup",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "A single Atlas cell supports a maximum of 240 concurrent robots [1].",
+        "ms": 260
+      },
+      {
+        "id": "q02",
+        "type": "rare_token",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "Error code TLM-330 means Hypertable chunk write failed [1]. You should page the DBA and check the disk on `tsdb-0` [1].",
+        "ms": 416
+      },
+      {
+        "id": "q03",
+        "type": "named_concept",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          2
+        ],
+        "invalid_citations": [],
+        "answer": "The Rotterdam rule is an escalation mechanism where a task that loses 12 consecutive auctions has its priority multiplied by 1.5 and is pinned to the next auction round regardless of bids [2].",
+        "ms": 381
+      },
+      {
+        "id": "q04",
+        "type": "paraphrase",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "Vision frames, which include camera footage from the warehouse, are kept for 14 days [1].",
+        "ms": 292
+      },
+      {
+        "id": "q05",
+        "type": "rare_token",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "[1] The default value of ATLAS_STARVATION_ROUNDS is `12`.",
+        "ms": 298
+      },
+      {
+        "id": "q06",
+        "type": "multi_fact",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "Telemetry enters *shed mode* when the write buffer exceeds **80%** capacity [1]. Shed mode clears when the buffer falls under 55% for 30 consecutive seconds [1].",
+        "ms": 442
+      },
+      {
+        "id": "q07",
+        "type": "lookup",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "The barcode confidence threshold that triggers a retry is **0.92** [1].",
+        "ms": 282
+      },
+      {
+        "id": "q08",
+        "type": "multi_fact",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "The incident causing the most pages is `TLM-101` clock skew storms, which account for 41% of pages [1].",
+        "ms": 368
+      },
+      {
+        "id": "q09",
+        "type": "reasoning",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          3
+        ],
+        "invalid_citations": [],
+        "answer": "[3] No Atlas deploys between **1 November and 7 January**, which is peak season. Exceptions need VP Engineering sign-off, filed as an `ATLAS-FREEZE-EXC` ticket.",
+        "ms": 440
+      },
+      {
+        "id": "q10",
+        "type": "paraphrase",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "The reproducibility of atlas-sim run to run is guaranteed by:\n\n- Using the same **scenario file** and **seed**.\n- Driving the auction loop with **simulated time** rather than wall-clock time.\n- Using ",
+        "ms": 800
+      },
+      {
+        "id": "q11",
+        "type": "rare_token",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "A release without `fallback_version` is rejected by the admission webhook. [1]",
+        "ms": 275
+      },
+      {
+        "id": "q12",
+        "type": "lookup",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "[1] A pallet detection model needs to have an mAP@0.5 of at least 0.94 to pass [1].",
+        "ms": 359
+      },
+      {
+        "id": "q13",
+        "type": "paraphrase",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          2
+        ],
+        "invalid_citations": [],
+        "answer": "According to the data and privacy policy for Atlas, vision frames can be accessed by members of the `atlas-vision-review` group who have an approved justification ticket [2].",
+        "ms": 390
+      },
+      {
+        "id": "q14",
+        "type": "multi_fact",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "A robot's bid in the dispatch auction is calculated using the formula:\n\n```\nbid = travel_time_s + (0.4 * battery_penalty) + (2.1 * congestion_score)\n```\n\nWhere:\n- `battery_penalty` is `0` above 60% ch",
+        "ms": 814
+      },
+      {
+        "id": "q15",
+        "type": "rare_token",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "[1] `nw-barcode-ocr-v2` struggles with shrink wrap due to specular glare, which degrades the read rate from 99.1% to 84%.",
+        "ms": 425
+      },
+      {
+        "id": "q16",
+        "type": "lookup",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "The response time for a SEV2 is 15 min [1].",
+        "ms": 273
+      },
+      {
+        "id": "q17",
+        "type": "unanswerable",
+        "abstained": true,
+        "pass": true,
+        "answer": "NOT_FOUND: The salary band for a senior Atlas engineer is not mentioned in the provided context blocks.",
+        "ms": 282
+      },
+      {
+        "id": "q18",
+        "type": "unanswerable",
+        "abstained": true,
+        "pass": true,
+        "answer": "NOT_FOUND: Information about configuring Atlas Kafka consumer group offsets is not provided in the given context blocks.",
+        "ms": 264
+      },
+      {
+        "id": "q19",
+        "type": "unanswerable",
+        "abstained": true,
+        "pass": true,
+        "answer": "NOT_FOUND: The context does not mention the cloud region for the Tokyo cell.",
+        "ms": 263
+      },
+      {
+        "id": "q20",
+        "type": "lookup",
+        "pass": true,
+        "missing": [],
+        "gold_retrieved": true,
+        "citations": [
+          1
+        ],
+        "invalid_citations": [],
+        "answer": "The aisle occupancy grid is refreshed every 500 ms [1].",
+        "ms": 240
+      }
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "base": {
+    "concept_fidelity": 0.23166234542926153,
+    "prompt_adherence": 0.24533652265866598,
+    "diversity": 0.19895778761969674,
+    "per_prompt": [
+      {
+        "prompt": "a photo of a sks beacon, dark background",
+        "fidelity": 0.22389844059944153,
+        "adherence": 0.2035176008939743,
+        "diversity": 0.2676691214243571
+      },
+      {
+        "prompt": "a photo of a sks beacon on a wooden workbench",
+        "fidelity": 0.22089287638664246,
+        "adherence": 0.2663872241973877,
+        "diversity": 0.20493030548095703
+      },
+      {
+        "prompt": "a photo of a sks beacon in a snowy forest",
+        "fidelity": 0.2403242290019989,
+        "adherence": 0.249942809343338,
+        "diversity": 0.20074496666590372
+      },
+      {
+        "prompt": "a photo of a sks beacon held in a human hand",
+        "fidelity": 0.2313433140516281,
+        "adherence": 0.2253226488828659,
+        "diversity": 0.2523982524871826
+      },
+      {
+        "prompt": "a photo of a sks beacon on a beach at sunset",
+        "fidelity": 0.255562961101532,
+        "adherence": 0.254491925239563,
+        "diversity": 0.13102195660273233
+      },
+      {
+        "prompt": "a photo of a sks beacon next to a coffee mug",
+        "fidelity": 0.21795225143432617,
+        "adherence": 0.27235692739486694,
+        "diversity": 0.13698212305704752
+      }
+    ]
+  },
+  "lora": {
+    "concept_fidelity": 0.3245717038710912,
+    "prompt_adherence": 0.20938474436601004,
+    "diversity": 0.11771341496043736,
+    "per_prompt": [
+      {
+        "prompt": "a photo of a sks beacon, dark background",
+        "fidelity": 0.33381137251853943,
+        "adherence": 0.2418942153453827,
+        "diversity": 0.06797397136688232
+      },
+      {
+        "prompt": "a photo of a sks beacon on a wooden workbench",
+        "fidelity": 0.3301955461502075,
+        "adherence": 0.19216249883174896,
+        "diversity": 0.12148431936899821
+      },
+      {
+        "prompt": "a photo of a sks beacon in a snowy forest",
+        "fidelity": 0.333382785320282,
+        "adherence": 0.18387898802757263,
+        "diversity": 0.12097320954004924
+      },
+      {
+        "prompt": "a photo of a sks beacon held in a human hand",
+        "fidelity": 0.3284751772880554,
+        "adherence": 0.20075026154518127,
+        "diversity": 0.1189570426940918
+      },
+      {
+        "prompt": "a photo of a sks beacon on a beach at sunset",
+        "fidelity": 0.33962416648864746,
+        "adherence": 0.1699257344007492,
+        "diversity": 0.06770505507787068
+      },
+      {
+        "prompt": "a photo of a sks beacon next to a coffee mug",
+        "fidelity": 0.28194117546081543,
+        "adherence": 0.2676967680454254,
+        "diversity": 0.20918689171473184
+      }
+    ]
+  },
+  "seeds": [
+    1000,
+    1137,
+    1274
+  ],
+  "lora_scale": 1.0,
+  "concept_text": "a glowing amber hexagonal warning beacon with black chevron stripes"
+}
