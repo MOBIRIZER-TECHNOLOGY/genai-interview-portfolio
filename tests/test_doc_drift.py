@@ -34,6 +34,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TESTS = ROOT / "tests"
 ROOT_README = ROOT / "README.md"
 TESTS_README = TESTS / "README.md"
+TESTS_INTERVIEW = TESTS / "INTERVIEW.md"
 
 # Markers CI excludes; the documented counts are all for this subset.
 DETERMINISTIC = "not llm and not gpu"
@@ -51,6 +52,9 @@ COUNT_CLAIMS = [
     (ROOT_README, r"(\d+) deterministic tests \(\d+% coverage\)"),
     (TESTS_README, r"#\s*(\d+) tests, ~\d+ s, \d+% coverage"),
     (TESTS_README, r"## Layer 1 — deterministic \((\d+) tests, \d+% coverage\)"),
+    # the pitch in tests/INTERVIEW.md is a number you would say out loud in a
+    # room -- the worst possible place for a stale figure
+    (TESTS_INTERVIEW, r"deterministic layer — (\d+) tests, \d+% coverage"),
 ]
 
 COVERAGE_CLAIMS = [
@@ -58,6 +62,7 @@ COVERAGE_CLAIMS = [
     (ROOT_README, r"\d+ deterministic tests \((\d+)% coverage\)"),
     (TESTS_README, r"#\s*\d+ tests, ~\d+ s, (\d+)% coverage"),
     (TESTS_README, r"## Layer 1 — deterministic \(\d+ tests, (\d+)% coverage\)"),
+    (TESTS_INTERVIEW, r"deterministic layer — \d+ tests, (\d+)% coverage"),
 ]
 
 
@@ -210,6 +215,16 @@ def test_bug_ledger_count_matches_its_rows():
     # and the rows must be numbered 1..N with no gaps or repeats
     numbers = [int(re.match(r"^\|\s*(\d+)", r).group(1)) for r in rows]
     assert numbers == list(range(1, len(rows) + 1)), f"ledger numbering: {numbers}"
+
+    # the ledger is cited by size from the interview notes ("a 14-row ledger"),
+    # which are the documents you would read aloud -- check every such mention
+    for md in sorted(ROOT.glob("*.md")) + sorted(ROOT.glob("*/*.md")):
+        if "\\.venv" in str(md) or ".venvs" in str(md):
+            continue
+        for n in re.findall(r"(\d+)-row ledger", _read(md)):
+            assert int(n) == len(rows), (
+                f"{md.relative_to(ROOT)} says a {n}-row ledger; it has {len(rows)} rows"
+            )
 
 
 def test_every_ledger_bug_names_a_test_that_exists():

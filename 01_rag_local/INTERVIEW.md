@@ -46,6 +46,27 @@ large and you dilute the embedding — a 2000-token chunk averages so many topic
 that its vector points nowhere in particular, and you burn context window on
 irrelevant text.
 
+**The part I'd actually lead with, because it's the part that bit me:** the
+budget is not the invariant that matters — *the embedder's window* is. My
+chunker had two separate bugs that both ended in the same place, content past
+512 tokens silently truncated and unretrievable:
+
+1. A paragraph with no blank lines had no boundary to split on, so it passed
+   through whole — 1,128 tokens against a 320 budget. Fixed with a hard split
+   on sentence/space boundaries.
+2. The fix was **incomplete**, and this is the more interesting one. The overlap
+   carry copies the tail of the previous chunk forward, and it carried *whole
+   paragraphs*. After the hard split, a paragraph **is** the whole budget — so
+   every chunk after the first came out at 320 + 320 = **640 tokens**. The
+   truncation bug, reintroduced one loop below its own fix.
+
+Neither raised an error. Retrieval kept working, slightly worse, forever. The
+lesson I'd offer: **assert the property, not the mechanism.** A test that says
+"the section got split" passes on both broken versions. A test that says "no
+chunk exceeds the embedder's window" fails on both — and that is the one I
+now have, parametrised over the pathological inputs (one paragraph, no
+sentences, no spaces at all).
+
 ### "Why hybrid retrieval? Aren't embeddings strictly better?"
 
 They fail in opposite directions.
@@ -185,6 +206,36 @@ letting the caller pick.
 Runner-up: **the asymmetric prefix.** BGE expects an instruction prefix on
 queries only. Forget it and recall drops a few points with nothing in the logs
 to tell you.
+
+**And the one I actually hit, which I'd rather talk about than either:** chunks
+being silently truncated by the embedder because the overlap carry pushed them
+to 2× the token budget (see the chunking answer above). It shares a shape with
+both bugs above and it's the shape worth naming — **the failure is invisible at
+every layer that could report it.** The chunker returns chunks. The embedder
+returns vectors. Search returns results. Nothing is null, nothing throws, and
+the answer is merely a bit worse than it should be, which is indistinguishable
+from "RAG is hard".
+
+That class — *degradation without an error* — is why I hold that grounding and
+retrieval need **mechanical** checks rather than eyeballing: verified citations,
+an abstention path, and invariant tests on the ingest side. If a failure can't
+raise, it has to be asserted.
+
+### "How do you know your tests are worth anything?"
+
+Because I break the code and check they fail. Every regression test in this repo
+was mutation-checked: reintroduce the original bug, confirm the suite goes red,
+and note *how many* tests fire. Reintroducing the chunker bug fires 11.
+
+That habit caught something worth admitting to. One of my chunking tests
+asserted `chunks[0].body[-40:] in chunks[0].body` — a tautology. It passes for
+any input, including no input. It had been sitting there advertising that
+overlap was tested while testing nothing at all.
+
+**A suite that passes on known-broken code is worse than no suite, because it
+manufactures confidence.** The full argument, plus a 14-row ledger of the real
+bugs and the test that pins each one, is in
+[tests/INTERVIEW.md](../tests/INTERVIEW.md).
 
 ---
 

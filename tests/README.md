@@ -1,5 +1,8 @@
 # 🧪 Test suite — pytest + DeepEval
 
+> Interview prep for this layer — how to test a non-deterministic system, calibrating a judge, and what *isn't* tested — is in
+> **[INTERVIEW.md](INTERVIEW.md)**.
+
 Two layers, because LLM systems have two failure modes and they need different
 instruments.
 
