@@ -426,6 +426,49 @@ python validate_quantization.py --include-synthetic   # ~2 min, no index needed
 32x reduction numbers do not improve with more shards — a bigger index buys a
 bigger number in the README, not a stronger claim.
 
+### 🔁 Reproduced from scratch — 2026-08-25
+
+Both harnesses re-run months later, against the same 13.6 M-chunk index.
+
+**Quantisation: identical.** recall@10 **0.985**, quality **1.0000** at
+cand=500, 32× memory reduction — every figure the same as the recorded run.
+Deterministic, as it should be: fixed corpus, fixed model, fixed codec.
+
+**Latency: within 2% everywhere**, across a 136× range of index sizes:
+
+| vectors | ms/M documented | ms/M reproduced |
+|---:|---:|---:|
+| 100 K | 86.00 | 89.00 |
+| 1 M | 89.10 | 89.52 |
+| 5 M | 91.06 | 92.79 |
+| 13.6 M | **91.25** | **93.01** |
+| rescore @ 13.6 M | 0.45 ms | 0.41 ms |
+| 200 GB projection | 28.8 s | **29.4 s** |
+
+The O(n) line and the flat rescore both hold, so the conclusion holds: **the
+architecture provably does not reach 200 GB**, and that is the measured argument
+for IVF/HNSW.
+
+#### Why this reproduces at 2% when project 06 reproduced at 36%
+
+Same machine, same week — and [project 06](../06_local_gpu_inference/)'s decode
+speeds moved by up to 36% between runs while these moved by 2%. Two reasons, and
+both are methodology rather than luck:
+
+1. **This harness already did it right.** `bench_latency.py` takes `--repeats`
+   (default 3) and reports **p50/p95/p99**, not a single sample. Project 06 took
+   one timed run per variant, and that is precisely the gap that let a 36% noise
+   floor masquerade as a finding.
+2. **The workload is different.** A binary scan over hundreds of megabytes is
+   memory-bandwidth-bound and saturates the machine — a stable regime.
+   Single-stream decode of a 0.5 B model is *overhead*-bound: Python loop and
+   kernel-launch latency, which is exactly what jitters with clocks and
+   scheduling.
+
+The irony is worth keeping: project 06's headline finding is that decoding at
+this scale is overhead-bound — and the noise in its own measurements is the same
+phenomenon, showing up as measurement error instead of as a result.
+
 ## 📉 Measured latency — and why the flat scan loses
 
 Four committed shards: **13,597,793 chunks**, binary 0.653 GB in RAM, int8

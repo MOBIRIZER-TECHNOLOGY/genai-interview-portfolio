@@ -482,3 +482,30 @@ def test_empty_shard_terminates_cleanly(tmp_path):
     stats = run_with_timeout(pipe, timeout=60.0)
     assert not stats.errors
     assert stats.chunks == 0
+
+
+def test_text_bytes_are_accounted(shard):
+    """`Stats.text_bytes` must equal the bytes of chunk text actually indexed.
+
+    The manifest carried a `bytes_text` field that was initialised to zero and
+    then re-assigned to itself on every shard commit -- a no-op that looked like
+    bookkeeping. The visible symptom was `bench_latency.py` printing "13,597,793
+    chunks from 0.0 GB of text": not a missing number, a wrong one.
+
+    Sizes are the easiest thing in a pipeline to leave unwired, because nothing
+    fails when they are wrong.
+    """
+    sink = Collector()
+    pipe = ShardPipeline(
+        shard_path=shard, shard_id=0,
+        chunk_fn=fixed_chunker, embed_fn=sink.embed, write_fn=sink.write,
+        n_chunkers=2, row_group_rows=50, embed_batch=64,
+        raw_queue_size=8, embed_queue_size=8, stall_timeout_s=30.0,
+    )
+    stats = run_with_timeout(pipe, timeout=120.0)
+
+    assert not stats.errors
+    assert stats.text_bytes == sum(len(t) for t in sink.texts), (
+        "text_bytes must count exactly the text that reached the embedder"
+    )
+    assert stats.text_bytes > 0, "a non-empty shard must report non-zero text bytes"

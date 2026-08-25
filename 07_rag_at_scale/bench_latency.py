@@ -160,7 +160,11 @@ def main():
     st = index.stats()
 
     print("=" * 84)
-    print(f"  Latency benchmark  |  {st['n_chunks']:,} chunks from {st['text_gb']} GB of text")
+    # shards indexed before bytes_text was tracked report 0; say so rather
+    # than printing "from 0.0 GB of text" next to 13.6M chunks
+    text_note = (f"from {st['text_gb']} GB of text" if st["text_gb"]
+                 else "text size not recorded for these shards")
+    print(f"  Latency benchmark  |  {st['n_chunks']:,} chunks, {text_note}")
     print(f"  binary {st['binary_gb']} GB in RAM | int8 {st['int8_gb']} GB memmapped | "
           f"float32 avoided: {st['float32_avoided_gb']} GB")
     print("=" * 84)

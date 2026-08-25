@@ -10,14 +10,14 @@ instruments.
 ..\activate.ps1
 
 pytest tests/ -m "not llm and not gpu and not slow"   # fast subset, seconds
-pytest tests/ -m "not llm and not gpu"               # 170 tests, ~90 s, 99% coverage
+pytest tests/ -m "not llm and not gpu"               # 171 tests, ~90 s, 99% coverage
 pytest tests/ -m llm -v                   # DeepEval quality gates (needs Ollama)
 pytest tests/                             # everything
 ```
 
 ---
 
-## Layer 1 — deterministic (170 tests, 99% coverage)
+## Layer 1 — deterministic (171 tests, 99% coverage)
 
 ```
 pytest tests/ -m "not llm and not gpu" --cov=07_rag_at_scale/scale --cov=01_rag_local/rag
@@ -70,7 +70,7 @@ for a bug that actually happened in this repo.**
 
 ---
 
-## 🐞 The bug ledger — 15 real bugs, each pinned by a named test
+## 🐞 The bug ledger — 16 real bugs, each pinned by a named test
 
 Every row is a bug that actually happened in this repo, with the test that
 makes it stay fixed. The count in the root README is this table's row count, and
@@ -94,6 +94,7 @@ existing — the number cannot drift, and neither can the claim.
 | 13 | **hallucinated cold retention** — invented "indefinitely" from a table cell reading `none`, carrying a *valid* citation | 01 generation | `test_no_invented_cold_retention` |
 | 14 | **doc drift** — the test count went stale in three documents at once (105 / 141 / actually 143) | docs | `test_documented_test_counts_match_the_suite` |
 | 15 | **PKCE was enforced only by the SDK** while `auth_provider._verify_pkce` — documented as "the single most important function in this file" — was never called, so nothing in the repo tested the property at all | 05 auth | `test_wrong_verifier_is_rejected` |
+| 16 | **`bytes_text` was never accumulated** — the manifest field re-assigned itself on every commit, so a 13.6 M-chunk index reported "0.0 GB of text": a wrong number rather than a missing one | 07 pipeline | `test_text_bytes_are_accounted` |
 
 Bugs 3, 11 and 15 were found by a **documentation audit**, not by a code review:
 checking whether the claim "pinned by test" was true turned up a fix with no

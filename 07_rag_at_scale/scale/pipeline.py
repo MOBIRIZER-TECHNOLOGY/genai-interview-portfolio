@@ -61,6 +61,7 @@ POLL = 1.0          # seconds; how often a blocked stage re-checks for shutdown
 class PipelineStats:
     """Where the wall clock went. The point of the whole exercise."""
     chunks: int = 0
+    text_bytes: int = 0
     read_batches: int = 0
     gpu_wait_s: float = 0.0        # main blocked waiting for input  -> producers too slow
     gpu_busy_s: float = 0.0        # main embedding                  -> GPU is the bottleneck
@@ -287,6 +288,11 @@ class ShardPipeline:
                 self.stats.write_s += time.perf_counter() - t0
 
                 self.stats.chunks += len(texts)
+                # bytes of chunk text actually indexed. Tracked because the
+                # manifest field existed, was never populated, and made
+                # bench_latency print "from 0.0 GB of text" for a 13.6M-chunk
+                # index -- a number that was wrong rather than merely absent.
+                self.stats.text_bytes += sum(len(t) for t in texts)
                 if self.stats.chunks >= next_report:
                     el = time.perf_counter() - t_start
                     print(f"      {self.stats.chunks:,} chunks  "

@@ -331,7 +331,7 @@ def main():
             # commit point
             manifest["shards_done"].append(shard.name)
             manifest["n_chunks"] += stats.chunks
-            manifest["bytes_text"] = manifest.get("bytes_text", 0)
+            manifest["bytes_text"] = manifest.get("bytes_text", 0) + stats.text_bytes
             total_new += stats.chunks
             save_manifest(out, manifest)
 
