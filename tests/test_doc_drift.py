@@ -353,6 +353,27 @@ def test_setup_only_tells_you_to_pull_models_the_code_calls():
     )
 
 
+def test_env_check_knows_about_every_project():
+    """check_env.py's library list must name every numbered project.
+
+    The checker stopped at project 05: no pyarrow for 07's parquet streaming,
+    no networkx for 08's graph. So the one command SETUP.md tells a newcomer to
+    run before anything else would report a clean environment and then let
+    project 07 die on an import. Same shape as SETUP.md's VRAM table stopping
+    at 06 -- new projects land, the shared entry points don't hear about it.
+    """
+    env_check = _read(ROOT / "00_shared" / "check_env.py")
+    projects = {d.name[:2] for d in ROOT.iterdir()
+                if d.is_dir() and re.match(r"^0[1-9]_", d.name)}
+    mentioned = set(re.findall(r"projects? ((?:\d\d)(?:,\s*\d\d)*)", env_check))
+    covered = {n.strip() for group in mentioned for n in group.split(",")}
+    missing = sorted(projects - covered)
+    assert not missing, (
+        f"00_shared/check_env.py never mentions project(s) {missing}. Add the "
+        "library that project needs, so the environment check can warn about it."
+    )
+
+
 def test_no_documented_test_file_has_been_deleted():
     """The mirror check: the README must not advertise files that are gone."""
     doc = _read(TESTS_README)

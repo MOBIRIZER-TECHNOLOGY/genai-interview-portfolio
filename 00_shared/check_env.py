@@ -72,6 +72,10 @@ def check_libs() -> None:
         ("bitsandbytes", "4-bit quantization (projects 02, 06)"),
         ("mcp", "Model Context Protocol SDK (project 05)"),
         ("soundfile", "audio I/O (project 04)"),
+        ("pyarrow", "streaming parquet reads (project 07)"),
+        ("networkx", "knowledge graph (project 08)"),
+        ("httpx", "Ollama calls (projects 01, 05, 07, 08)"),
+        ("pytest", "the test suite (tests/)"),
     ]
     print("\n-- optional libraries " + "-" * 44)
     for mod, why in wanted:
