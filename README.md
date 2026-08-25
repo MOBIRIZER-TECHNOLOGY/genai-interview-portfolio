@@ -23,7 +23,7 @@ and answers you can defend.
 | **06** | [Local GPU inference](06_local_gpu_inference/) | Quantisation and batching: memory, speed **and** the quality you pay for it | batching **32.5×** throughput; int4 costs **+9.2% perplexity**; found the benchmark refuted the textbook claim |
 | **07** | [RAG at scale](07_rag_at_scale/) | Real FineWeb-Edu corpus, binary+int8 precision cascade, measured latency scaling, and modern retrieval techniques | **13.6 M chunks indexed**; **32× memory reduction** at **0.985 recall@10**, quality **1.0000**; rescore flat at **0.45 ms** while the flat scan proved O(n) at 91 ms/M — the measured case for IVF/HNSW |
 | **08** | [RAG paradigms](08_rag_paradigms/) | GraphRAG + Agentic RAG vs the vector baseline — same corpus, same questions, cost included | **vector won everything, incl. multihop (100% vs 29%)** — and the mechanism (co-retrieval at small scale) is the finding |
-| **tests** | [pytest + DeepEval](tests/) | **148 deterministic tests at 99% coverage** (regression tests mutation-verified against the real bugs) + judge-calibrated LLM quality gates | the DeepEval layer **found a real hallucination** that carried a valid citation and passed every mechanical check |
+| **tests** | [pytest + DeepEval](tests/) | **156 deterministic tests at 99% coverage** (regression tests mutation-verified against the real bugs) + judge-calibrated LLM quality gates | the DeepEval layer **found a real hallucination** that carried a valid citation and passed every mechanical check |
 
 They share one fictional domain — the **"Atlas"** warehouse-robotics platform —
 on purpose. Project 05 calls projects 01 and 02 as tools, so the set reads as one
@@ -137,7 +137,7 @@ learning/
 ├── 06_local_gpu_inference/
 ├── 07_rag_at_scale/
 ├── 08_rag_paradigms/
-└── tests/               148 deterministic tests (99% coverage) + DeepEval gates
+└── tests/               156 deterministic tests (99% coverage) + DeepEval gates
 ```
 
 Each project directory:
@@ -172,7 +172,9 @@ the architecture provably does not reach 200 GB, and the benchmark exists
 precisely to prove that rather than hide it. That is the measured argument for
 IVF/HNSW partitioning.
 
-**Eleven real bugs found and pinned by tests across the build**, including a chunker
+**Fourteen real bugs found and pinned by tests across the build** — the full
+ledger, each with the test that keeps it fixed, is in
+[tests/README.md](tests/README.md#-the-bug-ledger--14-real-bugs-each-pinned-by-a-named-test) — including a chunker
 producing 42× too many chunks, a resume path that silently duplicated data, a
 lost-sentinel deadlock in the threading, and a RAG hallucination that carried a
 *valid* citation — caught only by the DeepEval judge layer, then fixed in the

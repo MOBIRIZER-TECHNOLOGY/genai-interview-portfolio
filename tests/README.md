@@ -7,14 +7,14 @@ instruments.
 ..\activate.ps1
 
 pytest tests/ -m "not llm and not gpu and not slow"   # fast subset, seconds
-pytest tests/ -m "not llm and not gpu"               # 148 tests, ~90 s, 99% coverage
+pytest tests/ -m "not llm and not gpu"               # 156 tests, ~90 s, 99% coverage
 pytest tests/ -m llm -v                   # DeepEval quality gates (needs Ollama)
 pytest tests/                             # everything
 ```
 
 ---
 
-## Layer 1 — deterministic (148 tests, 99% coverage)
+## Layer 1 — deterministic (156 tests, 99% coverage)
 
 ```
 pytest tests/ -m "not llm and not gpu" --cov=07_rag_at_scale/scale --cov=01_rag_local/rag
@@ -33,7 +33,11 @@ pass closed that the right way round:
 - **It found another real bug**: a single paragraph with no blank lines passed
   through `_split_long` whole — a 1,128-token chunk against a 320 budget, whose
   tail the 512-token embedding model then silently truncated. Fixed with
-  `_hard_split`, pinned by test.
+  `_hard_split`. **That fix turned out to be incomplete** — a later
+  documentation audit found the overlap carry re-inflating chunks to 640 tokens,
+  past the same window, because it carried whole paragraphs and after
+  `_hard_split` a paragraph *is* the whole budget. Both halves are now pinned
+  (ledger rows 2 and 3).
 - **It found a real regression**: the event-based shutdown rewrite had silently
   dropped stall detection from the main and chunker polling loops, resurrecting
   the eternal-silent-hang failure the detector was built to kill. Restored,
@@ -53,12 +57,44 @@ for a bug that actually happened in this repo.**
 | `test_quantization.py` | binary/int8 codec + methodology | the **self-in-corpus** 0.9 recall cap, and the **synthetic-vector** trap |
 | `test_crash_safety.py` | append-only index invariants | **resume duplication**, and `ScaleIndex` sizing from file length not manifest |
 | `test_pipeline_concurrency.py` | the threaded index builder | the **lost sentinel** that killed a shard at 3.25 M chunks |
-| `test_rag_components.py` | store / retrieval fusion / generation plumbing | the **unsplittable paragraph** silently truncated past the embedder window |
+| `test_rag_components.py` | store / retrieval fusion / generation plumbing | the **unsplittable paragraph** and the **2×-budget overlap carry**, both silently truncated past the embedder window |
 | `test_scale_search.py` | two-stage `ScaleIndex` search end to end | the **dropped stall detection** in the rewritten polling loops |
 | `test_coverage_gaps.py` | every remaining reachable branch, named per test | (coverage-driven; also where dead `_get` was deleted rather than tested) |
 | `test_rag_paradigms.py` | graph walks, entity resolution, the agent's action loop | the **`shed mode` / `shed_mode` split** that left the flagship two-hop edge unreachable, and the **possessive** variant of it |
 | `test_paradigm_wiring.py` | block assembly, extraction loop, agent networking | the **null triple field** that crashed a real extraction run 20 chunks in, and junk non-dict entries |
 | `test_doc_drift.py` | the numbers in these READMEs | the **test count that went stale in three places at once** (105 / 141 / actually 143), and two test files documented nowhere |
+
+---
+
+## 🐞 The bug ledger — 14 real bugs, each pinned by a named test
+
+Every row is a bug that actually happened in this repo, with the test that
+makes it stay fixed. The count in the root README is this table's row count, and
+`test_doc_drift.py` fails if they disagree or if any test named here stops
+existing — the number cannot drift, and neither can the claim.
+
+| # | bug | where | pinned by |
+|---|---|---|---|
+| 1 | **42× chunker** — a 500-char doc produced ~180 near-identical chunks | 01 chunking | `test_short_document_yields_one_chunk` |
+| 2 | **unsplittable paragraph** — no blank lines, so a 1,128-token chunk passed through whole and the embedder silently truncated its tail | 01 chunking | `test_chunk_markdown_splits_oversized_section` |
+| 3 | **the overlap carry re-inflated chunks to 2× budget** (640 tokens against a 320 budget) — reintroducing bug 2 one loop later | 01 chunking | `test_no_chunk_exceeds_the_embedding_window` |
+| 4 | **resume duplication** — a restarted shard silently re-appended rows | 07 crash safety | `test_no_duplicate_chunks` |
+| 5 | **index sized from file length, not the manifest** — happily benchmarked 3.4 M rows the manifest said didn't exist | 07 crash safety | `test_index_uses_manifest_count_not_file_length` |
+| 6 | **lost sentinel deadlock** — killed a shard after 3.25 M embedded chunks | 07 pipeline | `test_completion_is_never_signalled_through_a_bounded_queue` |
+| 7 | **dropped stall detection** — the event-based rewrite silently removed it, resurrecting the eternal-silent-hang | 07 pipeline | `test_stall_detector_reports_blocked_producer` |
+| 8 | **self-in-corpus recall cap** — a methodology trap that looked like a plausible 0.899 plateau | 07 quantisation | `test_self_in_corpus_caps_recall_at_exactly_0_9` |
+| 9 | **synthetic isotropic vectors understate recall** — the benchmark measured the fixture, not the codec | 07 quantisation | `test_synthetic_isotropic_understates_recall` |
+| 10 | **`shed mode` vs `shed_mode`** — two disconnected nodes, the two-hop edge present but unreachable | 08 graphrag | `test_underscore_and_space_variants_unify` |
+| 11 | **possessives** — "shed mode's" normalised to "shed modes", matching no node | 08 graphrag | `test_possessive_links_to_the_base_entity` |
+| 12 | **null fields inside valid triples** — crashed a real extraction run 20 chunks in | 08 graphrag | `test_extract_graph_full_run_with_mocked_llm` |
+| 13 | **hallucinated cold retention** — invented "indefinitely" from a table cell reading `none`, carrying a *valid* citation | 01 generation | `test_no_invented_cold_retention` |
+| 14 | **doc drift** — the test count went stale in three documents at once (105 / 141 / actually 143) | docs | `test_documented_test_counts_match_the_suite` |
+
+Bugs 3 and 11 were found by a **documentation audit**, not by a code review:
+checking whether the claim "pinned by test" was true turned up a fix with no
+test behind it (11) and a fix that was **incomplete** (3). Both claims had been
+sitting in the READMEs asserting otherwise. The lesson is uncomfortable and
+worth keeping: *"pinned by test" is itself a claim that needs verifying.*
 
 ### Why this layer earns its place
 

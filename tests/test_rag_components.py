@@ -188,8 +188,46 @@ def test_chunk_markdown_splits_oversized_section(tmp_path):
     assert len(chunks) > 1, "oversized section must be split"
     assert all(isinstance(c, Chunk) for c in chunks)
     assert all(c.meta["of"] == len(chunks) for c in chunks)
-    # overlap: consecutive pieces share text
-    assert chunks[0].body[-40:] in chunks[0].body
+    # overlap: consecutive pieces share text.
+    # (This previously read `chunks[0].body[-40:] in chunks[0].body` -- a
+    # tautology that passes for any input whatsoever, so the overlap property
+    # was advertised as tested and was not.)
+    assert len(chunks) >= 2
+    tail = chunks[0].body[-40:]
+    assert tail in chunks[1].body, "consecutive chunks must share the carried tail"
+
+
+@pytest.mark.parametrize("body,label", [
+    ("word " * 900, "one paragraph, spaces only -- no blank line to split on"),
+    ("sentence. " * 400, "one paragraph of sentences"),
+    ("x" * 6000, "no whitespace at all -- nothing to break on"),
+    ("a, " * 1500, "commas only"),
+])
+def test_no_chunk_exceeds_the_embedding_window(tmp_path, body, label):
+    """No chunk may exceed the budget -- the bug `_hard_split` exists to fix.
+
+    A paragraph with no blank lines used to pass through `_split_long` whole:
+    a 1,128-token chunk against a 320 budget, whose tail the 512-token embedding
+    model then silently truncated. Never indexed, never retrievable, no error.
+
+    `test_chunk_markdown_splits_oversized_section` asserts only `len(chunks) > 1`,
+    which the *broken* code also satisfied once the section had several
+    paragraphs. The property that actually pins the bug is this one: **every**
+    chunk fits the window, including the pathological single-paragraph inputs
+    above where there is no paragraph boundary to exploit.
+    """
+    doc = tmp_path / "big.md"
+    doc.write_text(f"# Title\n\n{body}", encoding="utf-8")
+    chunks = chunk_markdown(doc, max_tokens=320, overlap_tokens=60)
+
+    assert chunks, f"{label}: produced no chunks at all"
+    worst = max(approx_tokens(c.body) for c in chunks)
+    # the carried overlap can push a chunk over the nominal budget, but never
+    # past the embedder's 512-token window -- that is the line that matters
+    assert worst <= 512, (
+        f"{label}: largest chunk is {worst} tokens; anything past the 512-token "
+        "embedding window is silently truncated and unretrievable"
+    )
 
 
 def test_chunk_markdown_nested_headings(tmp_path):

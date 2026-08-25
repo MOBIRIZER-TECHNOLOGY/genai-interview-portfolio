@@ -77,7 +77,7 @@ uv pip install --python $py --link-mode=copy `
     fastapi "uvicorn[standard]" httpx pydantic python-dotenv mcp rich tqdm
 ```
 
-## 5. Ollama (projects 01 and 05)
+## 5. Ollama (projects 01, 05, 07 and 08)
 
 Install from <https://ollama.com/download>, then:
 
@@ -149,6 +149,8 @@ a model resident for 5 minutes after use (`ollama stop <model>` frees it).
 | 04 LoRA voice | ~6 GB | Whisper-small, batch 4 |
 | 05 MCP | inherits 01 + 02 | lazy-loaded |
 | 06 Benchmarks | scales with the variant | fp32 is the ceiling |
+| 07 RAG at scale | ~1 GB (unmeasured) + Ollama | `bge-small` in fp16; **RAM and disk are the real constraints here, not VRAM** — see below |
+| 08 RAG paradigms | Ollama only (~5 GB for the 7B) | graph extraction and the agent loop are LLM calls, no local training |
 
 ## 💽 Disk
 
@@ -158,6 +160,21 @@ a model resident for 5 minutes after use (`ollama stop <model>` frees it).
 | HuggingFace model cache | ~8 GB (SD 1.5, Whisper, BGE, CLIP, SpeechT5) |
 | Ollama models | ~5 GB |
 | Generated datasets + adapters | < 1 GB |
+| **Project 07 corpus + index (`C:\genai-data`)** | **171 GB measured** — see below |
 
 The HF cache lives in `%USERPROFILE%\.cache\huggingface` — outside OneDrive by
 default, which is what you want. Override with `HF_HOME` if you need it elsewhere.
+
+### Project 07 needs its own disk, deliberately
+
+Projects 01–06 and 08 fit in the numbers above. **Project 07 does not**: its
+FineWeb-Edu corpus and index live at `C:\genai-data` and currently occupy
+**171 GB**.
+
+That path is chosen, not incidental — it is **outside the repo** (so nothing that
+large is ever a candidate for git) and **outside OneDrive** (so the sync client
+never tries to upload a 2 GB parquet shard mid-write). Both downloads and index
+builds are resumable; `python build_index.py --status` reports where they stand.
+
+You can work through project 07's code and read its measurements without any of
+this — only re-running the index build needs the corpus.

@@ -93,8 +93,27 @@ def _split_long(section: str, max_tokens: int, overlap_tokens: int) -> list[str]
             for p in reversed(cur):
                 if carried >= overlap_tokens:
                     break
+                pt_p = approx_tokens(p)
+                room = overlap_tokens - carried
+                if pt_p > room:
+                    # A single paragraph can BE the whole budget -- after
+                    # _hard_split it usually is exactly max_tokens. Carrying it
+                    # whole made the next chunk max_tokens + max_tokens, i.e.
+                    # 2x the budget (measured: 640 tokens against a 320 budget),
+                    # which walks straight past the embedder's 512-token window
+                    # and silently truncates -- the very bug _hard_split was
+                    # added to fix, reintroduced one loop later. Carry the tail
+                    # only, trimmed to a word boundary.
+                    tail = p[-room * 4:]
+                    sp = tail.find(" ")
+                    if sp != -1:
+                        tail = tail[sp + 1:]
+                    if tail:
+                        carry.insert(0, tail)
+                        carried += approx_tokens(tail)
+                    break
                 carry.insert(0, p)
-                carried += approx_tokens(p)
+                carried += pt_p
             cur, cur_tokens = carry, carried
         cur.append(para)
         cur_tokens += pt

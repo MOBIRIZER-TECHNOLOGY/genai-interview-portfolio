@@ -44,11 +44,30 @@ def test_underscore_and_space_variants_unify():
     assert normalize_entity("SHED  MODE") == "shed mode"
 
 
+def test_possessive_links_to_the_base_entity():
+    """The second normalisation regression: "shed mode's" must not become "shed modes".
+
+    Order matters and that is the whole bug. Stripping quote characters first
+    turns "shed mode's severity" into "shed modes severity" -- a token matching
+    no node, so the hop silently returns nothing. The possessive rule therefore
+    runs BEFORE quote-stripping in `normalize_entity`, and this pins that order.
+
+    Both `extract.py` and project 08's README claimed this was "found by test,
+    also pinned" while no such test existed -- the code fix was real, the
+    pinning was not. Written when a documentation audit caught the gap.
+    """
+    assert normalize_entity("shed mode's") == normalize_entity("shed mode")
+    assert normalize_entity("SEV3's") == "sev3"
+    # the trailing-possessive rule must not eat a legitimate terminal s
+    assert normalize_entity("vision frames") == "vision frames"
+
+
 @pytest.mark.parametrize("raw,expected", [
     ("TLM 330", "tlm-330"),           # identifier folding
     ("`sev2`", "sev2"),               # markdown backticks stripped
     ("Sev 3", "sev3"),                # spaced severity folded
     ("Atlas-Dispatch", "atlas-dispatch"),
+    ("shed mode's", "shed mode"),     # possessive stripped, base entity intact
 ])
 def test_normalize_entity_canonical_forms(raw, expected):
     assert normalize_entity(raw) == expected

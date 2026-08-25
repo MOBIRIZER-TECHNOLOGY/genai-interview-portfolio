@@ -240,3 +240,19 @@ actually sent. An unverifiable citation is decoration.
 **Ollama isn't responding?**
 `ollama serve` in another terminal, then `ollama list` to confirm the model is
 pulled. `serve.py` returns HTTP 502 with the underlying error rather than hanging.
+
+---
+
+## Related projects
+
+This is the project the rest of the retrieval work is built on — four others
+import it or extend it:
+
+- **[05_mcp_server](../05_mcp_server/)** — wraps this pipeline as an
+  authenticated MCP tool, grounding discipline intact
+- **[07_rag_at_scale](../07_rag_at_scale/)** — the same ideas at 13.6 M chunks,
+  where flat search stops being viable and quantisation earns its keep
+- **[08_rag_paradigms](../08_rag_paradigms/)** — GraphRAG and Agentic RAG
+  measured against this pipeline; **this one won**, and the README explains why
+- **[06_local_gpu_inference](../06_local_gpu_inference/)** — the generation half:
+  what quantisation and batching cost in quality

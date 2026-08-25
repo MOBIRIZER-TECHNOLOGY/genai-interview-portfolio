@@ -252,3 +252,14 @@ adapters. See the header of `merge_and_export.py`.
 Not cleanly — quantising the sum is not the sum of the quantised. Load the base
 in bf16, merge there, then re-quantise if needed. `merge_and_export.py` does it
 that way and says so.
+
+---
+
+## Related projects
+
+- **[03_lora_image](../03_lora_image/)** — the same low-rank trick on a
+  diffusion UNet
+- **[04_lora_voice](../04_lora_voice/)** — and on an ASR encoder-decoder
+- **[05_mcp_server](../05_mcp_server/)** — serves this adapter as a tool
+- **[06_local_gpu_inference](../06_local_gpu_inference/)** — why QLoRA lost here,
+  measured from the inference side

@@ -170,6 +170,72 @@ def test_every_test_file_is_documented():
     )
 
 
+def _ledger_rows() -> list[str]:
+    """The bug-ledger table rows in tests/README.md, as raw markdown lines."""
+    body = _read(TESTS_README).split("## 🐞 The bug ledger", 1)
+    assert len(body) == 2, "the bug ledger section is missing from tests/README.md"
+    rows = []
+    for line in body[1].splitlines():
+        m = re.match(r"^\|\s*(\d+)\s*\|", line)   # numbered rows only, not the header
+        if m:
+            rows.append(line)
+        elif rows and not line.startswith("|"):
+            break
+    return rows
+
+
+def test_bug_ledger_count_matches_its_rows():
+    """The headline "N real bugs" must equal the number of rows in the table.
+
+    Root README said "Eleven" for months after project 08 added four more. A
+    prose count with nothing checking it is a number that only ever gets stale.
+    """
+    rows = _ledger_rows()
+    for path, pattern in [
+        (TESTS_README, r"## 🐞 The bug ledger — (\d+) real bugs"),
+        (ROOT_README, r"\*\*(\w+) real bugs found and pinned by tests"),
+    ]:
+        m = re.search(pattern, _read(path))
+        assert m, f"bug-count claim missing from {path.name}: /{pattern}/"
+        claimed = m.group(1)
+        # the root README spells it in words, the ledger in digits
+        words = {"eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14,
+                 "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18,
+                 "nineteen": 19, "twenty": 20}
+        n = int(claimed) if claimed.isdigit() else words.get(claimed.lower())
+        assert n is not None, f"unrecognised bug count word: {claimed!r}"
+        assert n == len(rows), (
+            f"{path.name} claims {n} bugs; the ledger has {len(rows)} rows"
+        )
+    # and the rows must be numbered 1..N with no gaps or repeats
+    numbers = [int(re.match(r"^\|\s*(\d+)", r).group(1)) for r in rows]
+    assert numbers == list(range(1, len(rows) + 1)), f"ledger numbering: {numbers}"
+
+
+def test_every_ledger_bug_names_a_test_that_exists():
+    """Each ledger row cites a pinning test -- that test must actually exist.
+
+    This is the check that would have caught the two claims this ledger was
+    built from: `extract.py` and project 08's README both said the possessive
+    fix was "found by test, also pinned" while no such test existed, and the
+    `_hard_split` fix was called pinned when nothing asserted the property it
+    fixed. A citation to a test that does not exist is exactly as useful as a
+    citation to a block that was never sent.
+    """
+    defined = set()
+    for f in TESTS.glob("test_*.py"):
+        defined.update(re.findall(r"^def (test_[a-z0-9_]+)", _read(f), re.M))
+
+    missing = []
+    for row in _ledger_rows():
+        cited = re.findall(r"`(test_[a-z0-9_]+)`", row)
+        assert cited, f"ledger row names no pinning test:\n{row}"
+        missing += [t for t in cited if t not in defined]
+    assert not missing, (
+        f"the ledger cites tests that do not exist: {sorted(set(missing))}"
+    )
+
+
 def test_no_documented_test_file_has_been_deleted():
     """The mirror check: the README must not advertise files that are gone."""
     doc = _read(TESTS_README)
