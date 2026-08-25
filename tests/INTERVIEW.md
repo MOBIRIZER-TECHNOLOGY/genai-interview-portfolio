@@ -5,7 +5,7 @@
 ## The 60-second pitch
 
 > "LLM systems have two failure modes and they need two instruments, so my suite
-> has two layers. The deterministic layer — 158 tests, 99% coverage — pins
+> has two layers. The deterministic layer — 159 tests, 99% coverage — pins
 > everything that must never flake: chunk boundaries, quantisation codecs,
 > threading shutdown, entity resolution, citation verification. Every one of
 > those tests started life as a real bug in this repo; there's a 14-row ledger

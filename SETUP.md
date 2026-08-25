@@ -17,7 +17,7 @@ These projects were built and run end-to-end on:
 | Python | **3.12.13** (via `uv`) |
 | PyTorch | **2.11.0+cu128** |
 | Transformers / PEFT / Diffusers | 5.15.1 / 0.20.0 / 0.40.0 |
-| Ollama | `qwen2.5:7b`, `qwen2.5:0.5b`, `moondream` |
+| Ollama | `qwen2.5:7b` (the only model any project calls) |
 
 Any modern NVIDIA GPU with ≥8 GB works for most projects; see the VRAM table
 at the bottom.
@@ -83,8 +83,14 @@ Install from <https://ollama.com/download>, then:
 
 ```powershell
 ollama pull qwen2.5:7b
-ollama pull qwen2.5:0.5b
 ```
+
+**One model, deliberately.** Projects 02 and 06 also use a 0.5B — but that is
+`Qwen/Qwen2.5-0.5B-Instruct` loaded through **transformers**, from the
+HuggingFace cache, because those projects fine-tune and benchmark the weights
+directly. It is a different artifact from Ollama's `qwen2.5:0.5b`, and pulling
+the Ollama one gets you 400 MB you will never load. (This document used to tell
+you to pull it, and `check_env.py` used to nag when you hadn't.)
 
 ## 6. Verify
 
@@ -95,6 +101,21 @@ python 00_shared\check_env.py
 
 You want `[ OK ]` on Python, PyTorch, GPU, CUDA build and bfloat16. `[WARN]` on
 an optional library only matters for the project that uses it.
+
+### And run the test suite
+
+It is the most complete check in the repo — 159 deterministic tests in ~88
+seconds, no GPU and no Ollama required — and it verifies the documentation as
+well as the code, so a stale number in any README fails it:
+
+```powershell
+uv pip install --python $py --link-mode=copy -r tests
+equirements.txt
+pytest tests/ -m "not llm and not gpu"
+```
+
+The LLM-judged layer (`-m llm`) needs Ollama running; see
+[tests/README.md](tests/README.md).
 
 ---
 
@@ -169,7 +190,7 @@ default, which is what you want. Override with `HF_HOME` if you need it elsewher
 
 Projects 01–06 and 08 fit in the numbers above. **Project 07 does not**: its
 FineWeb-Edu corpus and index live at `C:\genai-data` and currently occupy
-**171 GB**.
+**171 GB** — 165 GB of corpus (82 parquet shards) plus 5.9 GB of index.
 
 That path is chosen, not incidental — it is **outside the repo** (so nothing that
 large is ever a candidate for git) and **outside OneDrive** (so the sync client

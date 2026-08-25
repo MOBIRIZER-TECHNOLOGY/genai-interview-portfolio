@@ -55,6 +55,8 @@ COUNT_CLAIMS = [
     # the pitch in tests/INTERVIEW.md is a number you would say out loud in a
     # room -- the worst possible place for a stale figure
     (TESTS_INTERVIEW, r"deterministic layer — (\d+) tests, \d+% coverage"),
+    # SETUP.md tells a newcomer what to expect from their first test run
+    (ROOT / "SETUP.md", r"(\d+) deterministic tests in ~\d+"),
 ]
 
 COVERAGE_CLAIMS = [
@@ -324,6 +326,31 @@ def test_internal_document_links_resolve():
                     broken.append(
                         f"{md.relative_to(ROOT)} -> {target} (no such heading)")
     assert not broken, "broken internal links:\n  " + "\n  ".join(broken)
+
+
+def test_setup_only_tells_you_to_pull_models_the_code_calls():
+    """Every `ollama pull X` in SETUP.md must be a model some project calls.
+
+    SETUP.md instructed a pull of `qwen2.5:0.5b` that nothing in the repo ever
+    loaded, and `check_env.py` nagged when it was missing -- 400 MB and a false
+    dependency, because projects 02 and 06 use `Qwen/Qwen2.5-0.5B-Instruct`
+    through transformers, a different artifact with a confusingly similar name.
+
+    Setup instructions are the highest-leverage documentation in a repo: they
+    are the first thing a reader executes and the last thing anyone re-reads.
+    """
+    setup = _read(ROOT / "SETUP.md")
+    instructed = set(re.findall(r"ollama pull ([\w.:-]+)", setup))
+    assert instructed, "SETUP.md no longer tells you to pull anything -- check the pattern"
+
+    code = "\n".join(_read(p) for p in ROOT.glob("*/*.py"))
+    code += "\n".join(_read(p) for p in ROOT.glob("*/*/*.py"))
+
+    unused = sorted(m for m in instructed if m not in code)
+    assert not unused, (
+        f"SETUP.md says to pull {unused}, but no .py file references them. "
+        "Either a project stopped using the model or the instruction was never true."
+    )
 
 
 def test_no_documented_test_file_has_been_deleted():

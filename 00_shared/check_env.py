@@ -101,7 +101,11 @@ def check_ollama() -> None:
     line(OK, "ollama", f"{len(models)} model(s) pulled")
     for m in models:
         print(f"         - {m}")
-    for need in ("qwen2.5:7b", "qwen2.5:0.5b"):
+    # only qwen2.5:7b is ever called through Ollama. Projects 02 and 06 use
+    # Qwen/Qwen2.5-0.5B-Instruct via transformers, which is a different artifact
+    # from Ollama's qwen2.5:0.5b -- this used to demand the Ollama one and send
+    # people to pull 400 MB that nothing loads.
+    for need in ("qwen2.5:7b",):
         if not any(m.startswith(need) for m in models):
             print(f"       -> missing '{need}':  ollama pull {need}")
 
