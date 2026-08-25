@@ -12,6 +12,7 @@
 03_lora_image/dataset-descriptive/
 04_lora_voice/data/
 04_lora_voice/data_sapi/
+04_lora_voice/data_general/
 
 # real recordings are personal audio; keep them out of the repo by default
 04_lora_voice/data_real/

@@ -129,6 +129,41 @@ and every frequency bin is wrong — the model still produces plausible text, ju
 worse. My loader raises rather than silently resampling, so a pipeline bug
 surfaces as an error instead of a quality mystery.
 
+### "What did the fine-tune cost you? Did it forget general English?"
+
+I measured it rather than reassuring you, because a domain eval structurally
+cannot see this: every number on it goes up while the model quietly gets worse
+at everything else.
+
+40 ordinary English sentences, zero domain vocabulary, same TTS voices so
+content is the only variable:
+
+| | base Whisper | + adapter |
+|---|---:|---:|
+| general-English WER | 1.9% | 3.8% |
+| exact sentence match | 90.0% | 85.0% |
+
+**+1.9 points absolute — but a doubling in relative terms.** I would give you
+both framings, because quoting only the first is how people hide a regression.
+The trade is still clearly worth it: ~2 points of general WER to take domain WER
+from 52.1% to 2.1%. "No cost" would be a lie.
+
+The interesting part is the *shape* of the damage, which is not what
+catastrophic forgetting usually means. The model has not stopped hearing — it
+has started writing everything in the domain's house style:
+
+```
+REF : the film starts at half past eight
+LORA: the film starts at half-past-eight     <- hyphenation learned from CON-401
+```
+
+Of six differing outputs, most are formatting drift or errors the base model
+makes too; exactly one is a new acoustic error. That is coherent with what this
+adapter was trained to do — it teaches *written form* for spoken identifiers, so
+written form is what leaked. It also suggests the cheap fix is a mixed-in
+general-speech set rather than a lower rank, and I would re-run the same probe
+to confirm the fix helped rather than assuming.
+
 ### "Fine-tuning vs simpler options for domain vocabulary?"
 
 Try the cheap things first, and say so:

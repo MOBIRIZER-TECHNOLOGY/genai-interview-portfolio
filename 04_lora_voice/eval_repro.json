@@ -1,0 +1,97 @@
+{
+  "model": "openai/whisper-small",
+  "n": 60,
+  "base": {
+    "wer": 0.520746887966805,
+    "cer": 0.1288244766505636,
+    "domain_term_accuracy": 0.01,
+    "domain_terms": 100,
+    "sentence_accuracy": 0.0,
+    "n": 60
+  },
+  "lora": {
+    "wer": 0.02074688796680498,
+    "cer": 0.01642512077294686,
+    "domain_term_accuracy": 0.96,
+    "domain_terms": 100,
+    "sentence_accuracy": 0.9166666666666666,
+    "n": 60
+  },
+  "samples": [
+    {
+      "ref": "nw-pallet-detect-v4 confidence dropped, routing to the Rotterdam rule.",
+      "base": "In double-upalit detect V, routing to the Rotterdam rule.",
+      "lora": "nw-pallet-detect-v2 confidence dropped, routing to the Rotterdam rule."
+    },
+    {
+      "ref": "Bristol reports the starvation guard on atlas-roll.",
+      "base": "Bristol reports the starvation guard on Atlas Roll.",
+      "lora": "Bristol reports the starvation guard on atlas-roll."
+    },
+    {
+      "ref": "Page on call, TLM-101 in Lyon is a SEV1.",
+      "base": "Page and call, TLM 101 and Lion is a 7.",
+      "lora": "Page on call, TLM-101 in Lyon is a SEV1."
+    },
+    {
+      "ref": "Check the Rotterdam rule before you file the SEV2.",
+      "base": "Check the Rotterdam rule before you file the SEPTU.",
+      "lora": "Check the Rotterdam rule before you file the SEV2."
+    },
+    {
+      "ref": "Check shed mode before you file the SEV2.",
+      "base": "Check shed mode before you file the Sev 2.",
+      "lora": "Check shed mode before you file the SEV2."
+    },
+    {
+      "ref": "Check the auction loop before you file the SEV3.",
+      "base": "Check the auction loop before you file the SEV-3.",
+      "lora": "Check the auction loop before you file the SEV3."
+    },
+    {
+      "ref": "nw-pallet-detect-v4 is failing on atlas-vision in Rotterdam.",
+      "base": "In W-Pallet Detect V4 is failing on Atlas Vision in Rotterdam.",
+      "lora": "nw-pallet-detect-v4 is failing on atlas-vision in Rotterdam."
+    },
+    {
+      "ref": "Raise a SEV2 for atlas-roll, error TLM-101.",
+      "base": "Raise a sub 2 for Atlas Roll, Air T-Atom 101.",
+      "lora": "Raise a SEV2 for atlas-roll, error TLM-101."
+    },
+    {
+      "ref": "TLM-402 cleared on atlas-telemetry after a restart.",
+      "base": "TLM. 402 cleared on Atlas telemetry after a restart.",
+      "lora": "TLM-402 cleared on atlas-telemetry after a restart."
+    },
+    {
+      "ref": "Raise a SEV2 for atlas-roll, error DSP-500.",
+      "base": "Raise a 7-2 for Atlas Roll, Air DSP 500.",
+      "lora": "Raise a SEV2 for atlas-roll, error DSP-500."
+    },
+    {
+      "ref": "Memphis reports the starvation guard on atlas-console.",
+      "base": "Memphis reports the starvation guard on Atlas console.",
+      "lora": "Memphis reports the starvation guard on atlas-console."
+    },
+    {
+      "ref": "atlas-vision is in the auction loop and this is a SEV3.",
+      "base": "Atlas Vision is in the auction loop and this is a Cep 3.",
+      "lora": "atlas-vision is in the auction loop and this is a SEV3."
+    },
+    {
+      "ref": "Page on call, TLM-204 in Lyon is a SEV3.",
+      "base": "page on call. TLM204 in Lyon is a CEP3.",
+      "lora": "Page on call, TLM-204 in Lyon is a SEV3."
+    },
+    {
+      "ref": "Memphis reports shed mode on atlas-vision.",
+      "base": "Memphis reports shed mode on Atlas Vision.",
+      "lora": "Memphis reports shed mode on atlas-vision."
+    },
+    {
+      "ref": "nw-barcode-ocr-v2 confidence dropped, routing to shed mode.",
+      "base": "in W barcode. OCRV, two confidence dropped, routing to shed mode.",
+      "lora": "nw-barcode-ocr-v2 confidence dropped, routing to shed mode."
+    }
+  ]
+}

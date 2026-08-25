@@ -1,0 +1,20 @@
+{
+ "n": 40,
+ "base": {
+  "wer": 0.019230769230769232,
+  "cer": 0.016967126193001062,
+  "domain_term_accuracy": 0.0,
+  "domain_terms": 0,
+  "sentence_accuracy": 0.9,
+  "n": 40
+ },
+ "lora": {
+  "wer": 0.038461538461538464,
+  "cer": 0.021739130434782608,
+  "domain_term_accuracy": 0.0,
+  "domain_terms": 0,
+  "sentence_accuracy": 0.85,
+  "n": 40
+ },
+ "wer_delta_pts": 1.9230769230769231
+}

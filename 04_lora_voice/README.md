@@ -70,6 +70,7 @@ audio), 8 epochs, **78 s**, peak VRAM **4.07 GB**, adapter **27 MB**
 | Metric | Base Whisper | LoRA | Δ |
 |---|---:|---:|---:|
 | **WER** ↓ | 52.1% | **2.5%** | −49.6 pts (**95% relative**) |
+<!-- reproduced 2026-08-25: base 52.1% (exact), LoRA 2.1% -->
 | **CER** ↓ | 12.9% | **1.6%** | −11.2 pts |
 | **domain-term accuracy** ↑ | 1.0% | **96.0%** | +95.0 pts |
 | **exact sentence match** ↑ | 0.0% | **91.7%** | +91.7 pts |
@@ -129,6 +130,27 @@ collapse here.
 | Metric | Base Whisper | LoRA (trained only on SpeechT5) | Δ |
 |---|---:|---:|---:|
 | **WER** ↓ | 56.7% | **1.5%** | −55.2 pts (97% relative) |
+
+**Reproduced from scratch, 2026-08-25.** Retrained (80 s vs 78.3 s; peak VRAM
+4.07 GB and adapter 27.04 MB **exactly**) and re-evaluated both sets:
+
+| | documented | reproduced |
+|---|---:|---:|
+| base WER, in-distribution | 52.1% | **52.1%** (exact) |
+| base domain-term accuracy | 1.0% | **1.0%** (exact) |
+| LoRA WER, in-distribution | 2.5% | 2.1% |
+| LoRA domain-term accuracy | 96.0% | **96.0%** (exact) |
+| LoRA exact sentence match | 91.7% | **91.7%** (exact) |
+| base WER, SAPI holdout | 56.7% | **56.7%** (exact) |
+| **LoRA WER, SAPI holdout** | 1.5% | **0.9%** |
+| LoRA domain terms, SAPI | — | **100.0%** |
+
+Every base number is identical to the digit, because base inference is greedy
+and deterministic. The adapted numbers came out slightly *better* than the
+recorded run — the same CUDA-nondeterminism-in-training effect documented in
+project 02, landing favourably this time. **The cross-engine claim is the one
+that matters and it held: a model trained only on SpeechT5 audio transcribes
+SAPI audio at 0.9% WER with 100% domain-term recall.**
 | **domain-term accuracy** ↑ | 10.7% | **100.0%** (122/122) | +89.3 pts |
 | exact sentence match ↑ | 1.7% | 91.7% | +90.0 pts |
 
@@ -370,10 +392,35 @@ and degrades as the list grows past what fits usefully in the prompt. Fine-tunin
 is what you reach for when the vocabulary is large, stable, and worth 78 seconds.
 
 **Does it forget general English?**
-Somewhat — that's catastrophic forgetting, and the risk rises with epochs and
-rank. LoRA is safer than full fine-tuning because the base is frozen, but you
-should keep a small general-speech eval in the loop. This project doesn't, which
-is a gap I'd close before shipping.
+**Measured, and mostly no** — `probe_general_speech.py` closes what used to be
+an admitted gap here. 40 ordinary English sentences with zero domain vocabulary,
+same TTS voices, so content is the only variable:
+
+| | base Whisper | + adapter |
+|---|---:|---:|
+| general-English WER | 1.9% | **3.8%** |
+| exact sentence match | 90.0% | 85.0% |
+
+Read both columns honestly: **+1.9 points absolute, but a doubling in relative
+terms.** The trade is still strongly favourable — you pay ~2 points of general
+WER to take domain WER from 52.1% to 2.1% — but "no cost" would be a lie.
+
+The *shape* of the damage is the useful part, and it is not what
+"catastrophic forgetting" usually means. The model has not stopped hearing;
+it has started **writing everything in the domain's house style**:
+
+```
+REF : the film starts at half past eight
+LORA: the film starts at half-past-eight        <- hyphenation, learned from CON-401
+```
+
+Of 6 differing outputs, most are formatting drift (hyphens, digits for numbers)
+or errors the *base* model makes too. Exactly one is a new acoustic error
+("cyclist that passed" → "cyclist in the past"). That makes sense: this adapter
+was trained to teach written form, and written form is what leaked.
+
+If you needed to fix it: mix general speech into training, drop the rank, or
+train fewer epochs — and re-run this probe to check the fix actually helped.
 
 ---
 
