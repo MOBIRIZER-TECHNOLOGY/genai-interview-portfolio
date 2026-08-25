@@ -13,21 +13,69 @@ and answers you can defend.
 
 ## The projects
 
-| # | Project | What it demonstrates | Headline result |
-|---|---|---|---|
-| **01** | [RAG (local)](01_rag_local/) | Hybrid retrieval, cross-encoder reranking, grounded generation with verified citations, and a real eval harness | reranking took recall@1 **0.88 → 0.94**; **100%** abstention on unanswerable questions; **368 ms** warm p50 |
-| **02** | [LoRA — text](02_lora_text/) | Fine-tuning a 0.5B LLM for structured extraction; bf16 vs QLoRA | exact match **0% → 84.2%** in **50 s**, 34 MB adapter — and the dataset was rebuilt after a baseline check showed one field was nearly a lookup |
-| **03** | [LoRA — image](03_lora_image/) | Teaching Stable Diffusion a brand-new visual concept, measured with CLIP | concept fidelity **+40% relative**, 12 MB adapter, 11 min — plus a failed first attempt whose caption-dilution diagnosis is now **confirmed by a controlled ablation** |
-| **04** | [LoRA — voice](04_lora_voice/) | Domain adaptation of Whisper using TTS-synthesised training data | WER **52.1% → 2.5%**, domain terms **1% → 96%**, 78 s; **cross-engine holdout passed** (1.5% WER on SAPI); mic-recording pipeline included; **general-speech regression now measured** (1.9% → 3.8% WER, mostly formatting drift) |
-| **05** | [MCP server](05_mcp_server/) | Tools/resources/prompts exposing projects 01+02, plus a full **OAuth 2.1** server with PKCE and per-tool scopes | flow verified end to end: PKCE rejects stolen codes, refresh rotates, revocation takes effect |
-| **06** | [Local GPU inference](06_local_gpu_inference/) | Quantisation and batching: memory, speed **and** the quality you pay for it | batching **~30×** throughput; int4 costs **+9.2% perplexity** (both reproduce exactly); the benchmark refuted the textbook claim — and a re-run found its **speed** numbers carry a **36% run-to-run spread**, so each claim is now marked robust or unsupported |
-| **07** | [RAG at scale](07_rag_at_scale/) | Real FineWeb-Edu corpus, binary+int8 precision cascade, measured latency scaling, and modern retrieval techniques | **13.6 M chunks indexed**; **32× memory reduction** at **0.985 recall@10**, quality **1.0000**; rescore flat at **0.45 ms** while the flat scan proved O(n) at 91 ms/M — the measured case for IVF/HNSW |
-| **08** | [RAG paradigms](08_rag_paradigms/) | GraphRAG + Agentic RAG vs the vector baseline — same corpus, same questions, cost included | **vector won everything, incl. multihop (100% vs 29%)** — and testing the mechanism corrected it: co-retrieval survives a **10,000× larger corpus**, so the crossover is **distractor competition**, not scale |
-| **tests** | [pytest + DeepEval](tests/) · [INTERVIEW](tests/INTERVIEW.md) | **171 deterministic tests at 99% coverage** (regression tests mutation-verified against the real bugs) + judge-calibrated LLM quality gates | the DeepEval layer **found a real hallucination** that carried a valid citation and passed every mechanical check |
+| # | Project | What it demonstrates | Headline result | Validated |
+|---|---|---|---|---|
+| **01** | [RAG (local)](01_rag_local/) | Hybrid retrieval, cross-encoder reranking, grounded generation with verified citations, and a real eval harness | reranking took recall@1 **0.88 → 0.94**; **100%** abstention on unanswerable questions; **368 ms** warm p50 | via tests + 08 |
+| **02** | [LoRA — text](02_lora_text/) | Fine-tuning a 0.5B LLM for structured extraction; bf16 vs QLoRA | exact match **0% → 84.2%** in **50 s**, 34 MB adapter; QLoRA *loses* | ✅ retrained |
+| **03** | [LoRA — image](03_lora_image/) | Teaching Stable Diffusion a brand-new visual concept, measured with CLIP | concept fidelity **+40% relative**, 12 MB adapter, 11 min | ✅ + ablation |
+| **04** | [LoRA — voice](04_lora_voice/) | Domain adaptation of Whisper using TTS-synthesised training data | WER **52.1% → 2.1%**, domain terms **1% → 96%**, 80 s; **cross-engine holdout 0.9% WER** | ✅ retrained |
+| **05** | [MCP server](05_mcp_server/) | Tools/resources/prompts exposing projects 01+02, plus a full **OAuth 2.1** server with PKCE and per-tool scopes | PKCE rejects stolen codes, refresh rotates, revocation takes effect | ✅ + 10 tests |
+| **06** | [Local GPU inference](06_local_gpu_inference/) | Quantisation and batching: memory, speed **and** the quality you pay for it | batching **~30×**; int4 costs **+9.2% perplexity**; decoding is **overhead**-bound, not bandwidth-bound | ⚠️ see below |
+| **07** | [RAG at scale](07_rag_at_scale/) | Real FineWeb-Edu corpus, binary+int8 precision cascade, measured latency scaling, and modern retrieval techniques | **13.6 M chunks**; **32×** memory reduction at **0.985 recall@10**; flat scan O(n) at 91 ms/M — the measured case for IVF/HNSW | ✅ within 2% |
+| **08** | [RAG paradigms](08_rag_paradigms/) | GraphRAG + Agentic RAG vs the vector baseline — same corpus, same questions, cost included | **vector won everything, incl. multihop (100% vs 29%)** | ⚠️ see below |
+| **tests** | [pytest + DeepEval](tests/) · [INTERVIEW](tests/INTERVIEW.md) | **171 deterministic tests at 99% coverage**, mutation-verified, + judge-calibrated LLM gates | the DeepEval layer **found a real hallucination** that carried a valid citation | 16-bug ledger |
 
 They share one fictional domain — the **"Atlas"** warehouse-robotics platform —
 on purpose. Project 05 calls projects 01 and 02 as tools, so the set reads as one
 system rather than eight disconnected demos. That's a much stronger portfolio story.
+
+---
+
+---
+
+## 🔬 The validation campaign — every project re-run from scratch
+
+Months after building them, all eight projects were re-run end to end: models
+retrained, benchmarks re-measured, servers restarted. **The point was not to
+confirm the numbers — it was to find out which ones were wrong.**
+
+Five of the eight turned up something real, and every finding is now in the
+project's own README rather than buried here.
+
+| project | reproduced? | what validating it found |
+|---|---|---|
+| **02** LoRA text | memory & adapter size **exact**; accuracy ±1 example | **A headline number was inflated.** `action` scored 95.8% against an **86.7% lookup baseline** — 4 of 5 components had exactly one action. Dataset rebuilt so actions key on the *symptom*; baseline fell to **31.7%** and the model reached **100%**. Making the task harder improved the result. |
+| **03** LoRA image | VRAM & adapter **exact**; fidelity **+40.4%** vs +40% | **The headline lesson was confounded.** "Attempt 1 failed from caption dilution" — but it also used half the rank and half the steps. The controlled ablation confirms it (**41% of the fidelity gain**), and found caption dilution is *indistinguishable from turning the adapter down*. |
+| **04** LoRA voice | every base number **exact**; SAPI holdout **better** (0.9% vs 1.5%) | **Closed a gap the README admitted to.** General-English WER **1.9% → 3.8%** — small absolutely, a *doubling* relatively. The damage is **formatting drift**, not lost hearing: "half past eight" → "half-past-eight", hyphenation learned from `CON-401`. |
+| **05** MCP + OAuth | full flow verified live | **PKCE had no test at all.** Porting the demo to pytest exposed that `_verify_pkce` — documented as "the single most important function in this file" — is **never called**. The SDK enforces PKCE; the repo's function was decorative. |
+| **06** GPU inference | memory & perplexity **exact**; speed **not** | **A 36% run-to-run noise floor**, larger than every difference between fp32/fp16/bf16/int4 combined. It flipped the sign of a published comparison. The benchmark now takes `--repeats` and reports medians + spread; each claim is marked robust or unsupported. |
+| **07** RAG at scale | **within 2%** across a 136× size range | **A number that was wrong rather than missing.** `bytes_text` re-assigned itself on every commit, so a 13.6 M-chunk index reported "0.0 GB of text". Fixed and pinned. |
+| **08** RAG paradigms | headline **exact** (100% vs 29%) | **The right answer for the wrong reason.** The scale argument ("top-4 of 30 is 13% of the corpus") was never tested. Co-retrieval survives a **10,000× larger corpus** — the crossover is driven by **distractor competition**, not size. |
+
+### What the campaign says about measurement itself
+
+Three patterns worth more than any single number:
+
+1. **What reproduces exactly vs what doesn't is not random.** Memory, adapter
+   size, perplexity, recall and quality reproduced *to the digit* everywhere.
+   Wall-clock speed did not, anywhere. Deterministic computation over fixed
+   inputs is reproducible; timing on a shared consumer GPU is a distribution.
+   Quote the first to three decimals, never the second.
+
+2. **The same machine gave 2% reproducibility in project 07 and 36% in project
+   06** — because 07's harness already took repeats and reported percentiles,
+   and its workload was bandwidth-bound and stable, while 06 took one sample of
+   an overhead-bound workload. Methodology explained the gap, not hardware.
+
+3. **Mechanisms reproduce better than numbers — and are worth more.** Project
+   02's bf16-vs-QLoRA gap sat entirely in `error_code` before *and* after a
+   complete dataset rebuild. Project 03's caption effect survived a controlled
+   re-test. An explanation that survives a re-run is defensible in a way a
+   percentage never is.
+
+**Nothing was quietly corrected.** Each project keeps the original number, the
+re-run number, and the reason they differ, because the reasoning is the part an
+interviewer can probe.
 
 ---
 
@@ -54,6 +102,13 @@ together.
 **Two weeks out —** run every project end-to-end yourself. Don't read the
 results; regenerate them. The numbers in each README came from this machine and
 you should be able to say "I measured this" and mean it.
+
+That is exactly what [the validation campaign](#-the-validation-campaign--every-project-re-run-from-scratch)
+above was, and it is worth doing for a reason beyond confidence: **re-running
+your own work is the cheapest way to find the claim you cannot defend.** Five of
+eight projects had one. An interviewer who asks "did you run that twice?" is
+asking whether you know which of your numbers are stable — and after this, you
+do.
 
 **One week out —** read the `INTERVIEW.md` files. Each one has a 60-second pitch,
 the questions that follow, and the trade-offs behind each answer. Practise the
@@ -97,14 +152,19 @@ get probed:
    Tool correctness vs tool selection. Concept fidelity vs prompt adherence.
    Every project measures both halves, because the fixes are different.
 
-5. **You verify your own claims.** This one was learned the hard way here. Two
-   documents in this repo said a bug was "pinned by test" when no such test
-   existed — and checking the claim turned up a **live bug**: chunks silently
-   truncated past the embedder's window because an overlap carry doubled them.
-   The audit found it, not a code review. So the numbers in these READMEs are
-   now compiled (`tests/test_doc_drift.py`): counts, coverage, and every test a
-   document cites are checked against the code, and CI goes red when prose
-   drifts. **"Pinned by test" is itself a claim, and claims need verifying.**
+5. **You verify your own claims.** This one was learned the hard way, twice.
+   A documentation audit found two places claiming a bug was "pinned by test"
+   when no such test existed — and chasing one turned up a **live bug** (chunks
+   silently truncated past the embedder's window). Then re-running all eight
+   projects found **five more claims that did not survive contact with a second
+   measurement**, including a headline number resting on a lookup table and a
+   36% noise floor underneath a published speed comparison.
+
+   So claims here are now compiled, not asserted: `tests/test_doc_drift.py`
+   checks counts, coverage and every cited test against the code, and CI goes
+   red when prose drifts. **A claim you have not re-tested is a claim you cannot
+   defend — and the fastest way to find your weakest one is to re-run your own
+   work.**
 
 ---
 
