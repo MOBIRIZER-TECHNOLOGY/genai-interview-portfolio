@@ -8,6 +8,8 @@
 01_rag_local/index/
 02_lora_text/data/
 03_lora_image/dataset/
+# caption-dilution ablation dataset, regenerable via --caption
+03_lora_image/dataset-descriptive/
 04_lora_voice/data/
 04_lora_voice/data_sapi/
 
@@ -22,6 +24,8 @@
 # --- the 36-image-per-run eval dumps (the curated grids in samples/ are kept) ---
 03_lora_image/samples/eval/
 03_lora_image/samples/eval07/
+# reproduction + ablation eval dumps
+03_lora_image/samples/eval-*/
 
 # --- python ---
 __pycache__/

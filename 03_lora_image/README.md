@@ -69,6 +69,51 @@ had to.
 CAPTION = "a photo of a sks beacon"
 ```
 
+#### The ablation this claim needed — run 2026-08-25
+
+The paragraph above was, for a while, a **confounded** claim. Attempt 1 differed
+from the successful run in three ways at once: the caption, but also rank 8 vs
+16 and 800 steps vs 1500. Blaming the caption was a hypothesis with two
+uncontrolled variables sitting next to it.
+
+So it was tested properly: the descriptive caption retrained at **rank 16, 1500
+steps** — identical to the successful run in every respect except the caption,
+on **md5-identical images**.
+
+| arm (all rank 16, 1500 steps) | concept fidelity | Δ vs base | prompt adherence |
+|---|---:|---:|---:|
+| base SD 1.5 | 0.2317 | — | 0.2453 |
+| **minimal caption** (`a photo of a sks beacon`) | **0.3251** | **+0.0935** | 0.2017 |
+| **descriptive caption** | 0.2701 | +0.0385 | 0.2524 |
+
+**Caption dilution confirmed: the descriptive caption captures only 41% of the
+fidelity gain**, with rank and steps held constant. The diagnosis was right; the
+original evidence for it was not clean, and now it is.
+
+The result is stronger than it looks, because the scoring is **biased in the
+descriptive caption's favour**. Concept fidelity is measured against the CLIP
+text `"a glowing amber hexagonal warning beacon with black chevron stripes"` —
+almost exactly the descriptive training caption. That arm was trained to
+associate those very words with these images and *still* lost by more than half
+the gain.
+
+#### And a finding that wasn't in the original write-up
+
+A diluted caption does not fail in some distinctive way. It produces **the same
+operating point as simply turning the adapter down**:
+
+| | fidelity | adherence | diversity |
+|---|---:|---:|---:|
+| descriptive caption @ scale 1.0 | 0.2701 | 0.2524 | 0.1724 |
+| **minimal caption @ scale 0.7** | **0.2766** | **0.2483** | 0.2074 |
+
+Within noise on both metrics that matter. **Caption dilution ≈ scale reduction.**
+It is not a different kind of damage, it is less learning — which is why the
+diluted model also keeps its prompt adherence (+0.0071) and looks "safer" on
+every axis except the one you trained it for. A LoRA that costs you nothing may
+simply be a LoRA that learned nothing.
+
+
 Strip the description and `sks beacon` becomes the **only** handle on the visual
 concept. This is the standard DreamBooth captioning rule: **describe what varies,
 name what is constant.** Backgrounds and poses vary → caption them. The subject
@@ -127,6 +172,14 @@ Top row is base, bottom row is LoRA, same six prompts. Two things jump out:
 | **prompt adherence** ↑ | 0.2453 | 0.2094 | **−0.0360** | **0.2520** | **+0.0066** |
 | **diversity** ↑ | 0.1990 | 0.1177 | −0.0812 | **0.2319** | +0.0330 |
 
+**Reproduced from scratch, 2026-08-25.** Retrained (633.4 s vs 640.3 s; peak
+VRAM 4.09 GB and adapter 12.2 MB **exactly**) and re-evaluated. The base arm is
+identical to the digit — base generation is seeded and deterministic. The LoRA
+arm: fidelity **0.3251** (documented 0.3246), adherence 0.2017 (0.2094),
+diversity 0.1427 (0.1177). **The +40% relative fidelity headline reproduces at
++40.4%.** Adherence and diversity are noisier than fidelity across runs, which is
+worth knowing before quoting either to three decimals.
+
 ### 🔍 How to read this — the part that matters
 
 **At scale 1.0 the adapter works and it costs you something.** Concept fidelity
@@ -163,7 +216,10 @@ before an interviewer says it for you.
 ├── evaluate.py         CLIP fidelity / adherence / diversity, base vs LoRA
 ├── dataset/            images/000..023.png + metadata.jsonl
 ├── lora-out/           pytorch_lora_weights.safetensors (12 MB) + training_info.json
-├── lora-out-attempt1/  the diluted-caption adapter, kept for comparison
+├── lora-out-attempt1/  the diluted-caption adapter (rank 8, 800 steps)
+├── lora-out-descriptive/ the CONTROLLED dilution ablation (rank 16, 1500 steps)
+├── eval_repro_*.json   the 2026-08-25 reproduction, scales 1.0 and 0.7
+├── eval_ablation_descriptive.json   the caption ablation result
 └── samples/
     ├── comparison.png
     ├── scale_sweep.png

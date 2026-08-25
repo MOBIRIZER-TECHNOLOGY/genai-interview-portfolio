@@ -122,6 +122,8 @@ def main():
     ap.add_argument("--num", type=int, default=24)
     ap.add_argument("--size", type=int, default=512, help="SD 1.5 native resolution")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--caption", default=CAPTION,
+                    help="override the caption (used for the caption-dilution ablation)")
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -131,7 +133,7 @@ def main():
     rows = []
     for i in range(args.num):
         make_beacon(args.size, rng).save(out / f"images/{i:03d}.png")
-        rows.append({"file_name": f"images/{i:03d}.png", "text": CAPTION})
+        rows.append({"file_name": f"images/{i:03d}.png", "text": args.caption})
 
     with open(out / "metadata.jsonl", "w", encoding="utf-8") as f:
         for r in rows:
@@ -139,7 +141,7 @@ def main():
 
     print(f"Wrote {len(rows)} images ({args.size}x{args.size}) to {out.resolve()}")
     print(f"Trigger token: {TRIGGER!r}")
-    print(f"Caption:       {CAPTION!r}")
+    print(f"Caption:       {args.caption!r}")
     print("\nNext:  python train_lora.py --max-train-steps 800")
 
 

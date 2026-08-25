@@ -80,6 +80,32 @@ nothing else — `"a photo of a sks beacon"`. Now that token is the *only* handl
 on the concept and it has to learn. Backgrounds and poses, which do vary, are
 what you'd caption if they varied in your data.
 
+**Then the follow-up I'd want asked, because I got it wrong first:** how do I
+know it was the caption? Originally I didn't. Attempt 1 also used rank 8 vs 16
+and 800 steps vs 1500 — three variables moved at once and I attributed the
+failure to one of them.
+
+So I ran the control: the descriptive caption at **rank 16, 1500 steps**, on
+md5-identical images. Caption as the only difference.
+
+| arm (rank 16, 1500 steps) | concept fidelity | Δ vs base |
+|---|---:|---:|
+| minimal caption | **0.3251** | **+0.0935** |
+| descriptive caption | 0.2701 | +0.0385 |
+
+**The descriptive caption captures 41% of the fidelity gain.** Dilution
+confirmed — and the test was rigged against my hypothesis, because fidelity is
+scored against CLIP text almost identical to the descriptive caption itself.
+That arm was trained on those exact words and still lost by more than half.
+
+The part I didn't expect: **caption dilution is indistinguishable from turning
+the adapter down.** The diluted model at scale 1.0 lands on the same operating
+point as the good model at scale 0.7 — fidelity 0.2701 vs 0.2766, adherence
+0.2524 vs 0.2483. It isn't a different kind of damage, it's less learning. Which
+means the diluted adapter also *keeps* its prompt adherence and looks safer on
+every axis except the one you trained it for. **A LoRA that costs you nothing may
+just be a LoRA that learned nothing.**
+
 ### "How do you know it learned a concept rather than memorising an image?"
 
 You measure two things that pull against each other, plus a third:
