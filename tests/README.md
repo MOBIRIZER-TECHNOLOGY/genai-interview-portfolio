@@ -51,6 +51,9 @@ for a bug that actually happened in this repo.**
 | `test_quantization.py` | binary/int8 codec + methodology | the **self-in-corpus** 0.9 recall cap, and the **synthetic-vector** trap |
 | `test_crash_safety.py` | append-only index invariants | **resume duplication**, and `ScaleIndex` sizing from file length not manifest |
 | `test_pipeline_concurrency.py` | the threaded index builder | the **lost sentinel** that killed a shard at 3.25 M chunks |
+| `test_rag_components.py` | store / retrieval fusion / generation plumbing | the **unsplittable paragraph** silently truncated past the embedder window |
+| `test_scale_search.py` | two-stage `ScaleIndex` search end to end | the **dropped stall detection** in the rewritten polling loops |
+| `test_coverage_gaps.py` | every remaining reachable branch, named per test | (coverage-driven; also where dead `_get` was deleted rather than tested) |
 
 ### Why this layer earns its place
 

@@ -22,7 +22,7 @@ and answers you can defend.
 | **05** | [MCP server](05_mcp_server/) | Tools/resources/prompts exposing projects 01+02, plus a full **OAuth 2.1** server with PKCE and per-tool scopes | flow verified end to end: PKCE rejects stolen codes, refresh rotates, revocation takes effect |
 | **06** | [Local GPU inference](06_local_gpu_inference/) | Quantisation and batching: memory, speed **and** the quality you pay for it | batching **32.5×** throughput; int4 costs **+9.2% perplexity**; found the benchmark refuted the textbook claim |
 | **07** | [RAG at scale](07_rag_at_scale/) | Real FineWeb-Edu corpus, binary+int8 precision cascade, measured latency scaling, and modern retrieval techniques | **13.6 M chunks indexed**; **32× memory reduction** at **0.985 recall@10**, quality **1.0000**; rescore flat at **0.45 ms** while the flat scan proved O(n) at 91 ms/M — the measured case for IVF/HNSW |
-| **tests** | [pytest + DeepEval](tests/) | 65 deterministic regression tests (each pinned to a real bug, mutation-verified) + judge-calibrated LLM quality gates | the DeepEval layer **found a real hallucination** that carried a valid citation and passed every mechanical check |
+| **tests** | [pytest + DeepEval](tests/) | **105 deterministic tests at 99% coverage** (regression tests mutation-verified against the real bugs) + judge-calibrated LLM quality gates | the DeepEval layer **found a real hallucination** that carried a valid citation and passed every mechanical check |
 
 They share one fictional domain — the **"Atlas"** warehouse-robotics platform —
 on purpose. Project 05 calls projects 01 and 02 as tools, so the set reads as one
@@ -168,11 +168,11 @@ the architecture provably does not reach 200 GB, and the benchmark exists
 precisely to prove that rather than hide it. That is the measured argument for
 IVF/HNSW partitioning.
 
-**Six real bugs found and pinned by tests along the way**, including a chunker
+**Eleven real bugs found and pinned by tests across the build**, including a chunker
 producing 42× too many chunks, a resume path that silently duplicated data, a
 lost-sentinel deadlock in the threading, and a RAG hallucination that carried a
 *valid* citation — caught only by the DeepEval judge layer, then fixed in the
-prompt and pinned deterministically.
+prompt and pinned deterministically. The coverage pass alone surfaced two more: an unsplittable-paragraph case that silently truncated content past the embedder's window, and a rewrite that had dropped stall detection from the pipeline's polling loops.
 
 The corpus (164 GB, 82 shards) and index live at `C:\genai-data`, outside the
 repo and outside OneDrive. Both the download and the index build are resumable;

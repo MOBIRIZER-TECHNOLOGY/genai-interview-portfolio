@@ -189,6 +189,7 @@ curl -N -X POST localhost:8000/ask/stream -H "content-type: application/json" `
 |---|---|---|
 | `--max-tokens` | `ingest.py` | Chunk size. Too small → facts split apart. Too large → the reranker and the LLM both drown in irrelevant text. 250–400 is a sane band for docs. |
 | `--overlap` | `ingest.py` | Insurance against a fact landing exactly on a boundary. ~20% of chunk size. |
+| *(automatic)* | `chunking.py` | A single paragraph longer than the budget is hard-split on sentence/space boundaries. Without this, its tail sails past the embedder's 512-token window and is silently never indexed — found by a test, fixed in `_hard_split`. |
 | `--candidates` | `ask.py` | How many chunks the reranker sees. More = better recall, linearly more rerank latency. |
 | `--top-k` | `ask.py` | How many blocks reach the LLM. **More is not better** — irrelevant context measurably degrades answers ("lost in the middle"). |
 | `rrf_k` | `retrieve.py` | RRF damping, default 60. Lower = the #1 hit from each arm dominates more. |
