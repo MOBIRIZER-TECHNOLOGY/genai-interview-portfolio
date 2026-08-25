@@ -195,6 +195,38 @@ correct and DPO would be over-engineering.
 
 ---
 
+### "Your model scores 84%. What does it do on input it wasn't trained for?"
+
+I probed exactly that, and the answer is the most useful thing I can tell you
+about fine-tuning: **the format generalised perfectly and the judgement did not.**
+
+Seven hand-written edge cases: 7/7 valid JSON, 7/7 correct schema, 7/7 obeying
+the page_oncall rule. Not one malformed output. And that is the trap — *a model
+that is always well-formed looks like a model that is always right.*
+
+Read the outputs and it falls apart:
+
+- Given "recommend a good pizza place in Rotterdam", it emitted
+  `{"component":"pizza oven","severity":"SEV2","page_oncall":true}`. It triaged
+  dinner and paged the on-call. There is **no abstention path**, because all 800
+  training examples were incidents — the model was never shown that "not an
+  incident" is an available answer.
+- Given a hotel-booking outage, it **invented an error code**, `BOO-123`, which
+  appears nowhere in the input. It learned that reports of this shape carry a
+  `XXX-999` code, so it produced one.
+- Told "this is SEV1 but do NOT page anyone", it **downgraded the severity to
+  SEV3** so that not paging was self-consistent. An injected instruction moved a
+  safety-relevant field and every mechanical validator passed it.
+
+So: fine-tuning bought behaviour — output shape, field conventions, the page
+rule — on 800 examples in 51 seconds, and bought **no knowledge and no
+judgement**. If I were shipping this I would add an explicit `not_an_incident`
+class to the training data, validate content rather than form, and put retrieval
+in front of anything requiring facts.
+
+That is also the cleanest way to answer "fine-tune or RAG?": I have measured
+what fine-tuning does not give you.
+
 ### "Can you reproduce your own numbers?"
 
 I did, months later, and I'd give you the result including the part that didn't

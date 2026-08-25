@@ -17,7 +17,7 @@
 # --- large binary adapter weights (regenerable in <15 min each; the
 #     training_info.json + adapter_config.json that describe them ARE kept) ---
 **/lora-out*/*.safetensors
-02_lora_text/merged/
+02_lora_text/merged*/
 
 # --- the 36-image-per-run eval dumps (the curated grids in samples/ are kept) ---
 03_lora_image/samples/eval/
