@@ -1,0 +1,1179 @@
+{
+ "model": "qwen2.5:7b",
+ "n_chunks": 30,
+ "triples": [
+  {
+   "s": "atlas",
+   "r": "runs_on",
+   "o": "rotterdam dc",
+   "source": "01-atlas-overview::000"
+  },
+  {
+   "s": "atlas",
+   "r": "runs_on",
+   "o": "eleven distribution centres",
+   "source": "01-atlas-overview::000"
+  },
+  {
+   "s": "atlas",
+   "r": "first_deployed_at",
+   "o": "rotterdam dc",
+   "source": "01-atlas-overview::000"
+  },
+  {
+   "s": "atlas",
+   "r": "first_deployed_in",
+   "o": "march 2023",
+   "source": "01-atlas-overview::000"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "runs_on",
+   "o": "go",
+   "source": "01-atlas-overview::001"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "assigns_tasks_to",
+   "o": "robots",
+   "source": "01-atlas-overview::001"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "triggers",
+   "o": "auction_loop",
+   "source": "01-atlas-overview::001"
+  },
+  {
+   "s": "atlas-telemetry",
+   "r": "runs_on",
+   "o": "rust",
+   "source": "01-atlas-overview::001"
+  },
+  {
+   "s": "atlas-telemetry",
+   "r": "ingests",
+   "o": "robot_sensor_streams_at_20_hz",
+   "source": "01-atlas-overview::001"
+  },
+  {
+   "s": "atlas-vision",
+   "r": "runs_on",
+   "o": "python",
+   "source": "01-atlas-overview::001"
+  },
+  {
+   "s": "atlas-vision",
+   "r": "performs",
+   "o": "pallet_barcode_recognition_on_edge_gpus",
+   "source": "01-atlas-overview::001"
+  },
+  {
+   "s": "atlas-console",
+   "r": "runs_on",
+   "o": "typescript",
+   "source": "01-atlas-overview::001"
+  },
+  {
+   "s": "atlas-console",
+   "r": "provides",
+   "o": "operator_web_ui",
+   "source": "01-atlas-overview::001"
+  },
+  {
+   "s": "atlas-sim",
+   "r": "runs_on",
+   "o": "python",
+   "source": "01-atlas-overview::001"
+  },
+  {
+   "s": "atlas-sim",
+   "r": "provides",
+   "o": "deterministic_replay_simulation_harness",
+   "source": "01-atlas-overview::001"
+  },
+  {
+   "s": "atlas-cell",
+   "r": "supports",
+   "o": "240 concurrent robots",
+   "source": "01-atlas-overview::002"
+  },
+  {
+   "s": "dispatch-auction-loop",
+   "r": "runs_every",
+   "o": "150 ms",
+   "source": "01-atlas-overview::002"
+  },
+  {
+   "s": "telemetry",
+   "r": "retained_for",
+   "o": "90 days hot, 7 years cold",
+   "source": "01-atlas-overview::002"
+  },
+  {
+   "s": "end-to-end_task_assignment_latency",
+   "r": "has_response_time",
+   "o": "p99 below 400 ms",
+   "source": "01-atlas-overview::002"
+  },
+  {
+   "s": "atlas-cell",
+   "r": "runs_on",
+   "o": "distribution centre",
+   "source": "01-atlas-overview::003"
+  },
+  {
+   "s": "atlas-cell",
+   "r": "is_independent",
+   "o": "true",
+   "source": "01-atlas-overview::003"
+  },
+  {
+   "s": "atlas-roll",
+   "r": "pulls",
+   "o": "read-only metrics",
+   "source": "01-atlas-overview::003"
+  },
+  {
+   "s": "atlas-roll",
+   "r": "pulls_from",
+   "o": "atlas-cell",
+   "source": "01-atlas-overview::003"
+  },
+  {
+   "s": "atlas-roll",
+   "r": "for",
+   "o": "executive dashboard",
+   "source": "01-atlas-overview::003"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "runs_on",
+   "o": "150 ms",
+   "source": "02-dispatch-auction::000"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "publishes",
+   "o": "set of open tasks",
+   "source": "02-dispatch-auction::000"
+  },
+  {
+   "s": "every idle robot",
+   "r": "submits",
+   "o": "bid representing its estimated cost to complete that task",
+   "source": "02-dispatch-auction::000"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "has_response_time",
+   "o": "bid = travel_time_s + (0.4 * battery_penalty) + (2.1 * congestion_score)",
+   "source": "02-dispatch-auction::001"
+  },
+  {
+   "s": "battery_penalty",
+   "r": "classified_as",
+   "o": "0 above 60% charge, and rises linearly to 30 at 10%",
+   "source": "02-dispatch-auction::001"
+  },
+  {
+   "s": "congestion_score",
+   "r": "triggers",
+   "o": "comes from the aisle occupancy grid, refreshed every 500 ms",
+   "source": "02-dispatch-auction::001"
+  },
+  {
+   "s": "bid",
+   "r": "means",
+   "o": "lowest bid wins",
+   "source": "02-dispatch-auction::001"
+  },
+  {
+   "s": "bid",
+   "r": "retained_for",
+   "o": "ties are broken by robot serial number, ascending",
+   "source": "02-dispatch-auction::001"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "has_response_time",
+   "o": "12 consecutive auctions",
+   "source": "02-dispatch-auction::002"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "triggers",
+   "o": "priority multiplied by 1.5 and pinned to the next auction round",
+   "source": "02-dispatch-auction::002"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "triggers",
+   "o": "17 pallets sat unassigned for 40 minutes",
+   "source": "02-dispatch-auction::002"
+  },
+  {
+   "s": "starvation guard",
+   "r": "classified_as",
+   "o": "rotterdam rule",
+   "source": "02-dispatch-auction::002"
+  },
+  {
+   "s": "rotterdam rule",
+   "r": "means",
+   "o": "priority multiplied by 1.5 and pinned to the next auction round",
+   "source": "02-dispatch-auction::002"
+  },
+  {
+   "s": "rotterdam rule",
+   "r": "triggers",
+   "o": "17 pallets sat unassigned for 40 minutes",
+   "source": "02-dispatch-auction::002"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "has_response_time",
+   "o": "150",
+   "source": "02-dispatch-auction::003"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "triggers",
+   "o": "bid rpc saturates",
+   "source": "02-dispatch-auction::003"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "retained_for",
+   "o": "100 ms",
+   "source": "02-dispatch-auction::003"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "runs_on",
+   "o": "atlas_auction_period_ms",
+   "source": "02-dispatch-auction::003"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "part_of",
+   "o": "auction loop",
+   "source": "02-dispatch-auction::003"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "has_response_time",
+   "o": "12",
+   "source": "02-dispatch-auction::003"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "triggers",
+   "o": "the rotterdam rule threshold",
+   "source": "02-dispatch-auction::003"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "part_of",
+   "o": "starvation_rounds",
+   "source": "02-dispatch-auction::003"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "has_response_time",
+   "o": "64",
+   "source": "02-dispatch-auction::003"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "triggers",
+   "o": "bids beyond this are dropped, nearest-first",
+   "source": "02-dispatch-auction::003"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "part_of",
+   "o": "max_bids_per_task",
+   "source": "02-dispatch-auction::003"
+  },
+  {
+   "s": "atlas-telemetry",
+   "r": "accepts",
+   "o": "20 hz sensor stream",
+   "source": "03-telemetry-ingest::000"
+  },
+  {
+   "s": "atlas-telemetry",
+   "r": "writes_to",
+   "o": "timescaledb hypertable",
+   "source": "03-telemetry-ingest::000"
+  },
+  {
+   "s": "timescaledb hypertable",
+   "r": "partitioned_by",
+   "o": "day",
+   "source": "03-telemetry-ingest::000"
+  },
+  {
+   "s": "atlas-telemetry",
+   "r": "has_response_time",
+   "o": "80%",
+   "source": "03-telemetry-ingest::001"
+  },
+  {
+   "s": "atlas-telemetry",
+   "r": "triggers",
+   "o": "shed mode",
+   "source": "03-telemetry-ingest::001"
+  },
+  {
+   "s": "imu_raw",
+   "r": "classified_as",
+   "o": "non-critical channel",
+   "source": "03-telemetry-ingest::001"
+  },
+  {
+   "s": "wheel_slip",
+   "r": "classified_as",
+   "o": "non-critical channel",
+   "source": "03-telemetry-ingest::001"
+  },
+  {
+   "s": "shed mode",
+   "r": "means",
+   "o": "dropping non-critical channels first",
+   "source": "03-telemetry-ingest::001"
+  },
+  {
+   "s": "shed mode",
+   "r": "means",
+   "o": "reducing sample rate to 5 hz",
+   "source": "03-telemetry-ingest::001"
+  },
+  {
+   "s": "shed mode",
+   "r": "retained_for",
+   "o": "30 consecutive seconds",
+   "source": "03-telemetry-ingest::001"
+  },
+  {
+   "s": "shed mode",
+   "r": "triggers",
+   "o": "telemetrydegraded alert",
+   "source": "03-telemetry-ingest::001"
+  },
+  {
+   "s": "shed mode",
+   "r": "does_not_page_on_call",
+   "o": "10 minutes",
+   "source": "03-telemetry-ingest::001"
+  },
+  {
+   "s": "shed mode",
+   "r": "clears_when",
+   "o": "buffer falls under 55% for 30 consecutive seconds",
+   "source": "03-telemetry-ingest::001"
+  },
+  {
+   "s": "tlm-101",
+   "r": "means",
+   "o": "clock skew above 250 ms between robot and cell",
+   "source": "03-telemetry-ingest::002"
+  },
+  {
+   "s": "tlm-101",
+   "r": "has_response_time",
+   "o": "re-sync ntp on the robot",
+   "source": "03-telemetry-ingest::002"
+  },
+  {
+   "s": "tlm-204",
+   "r": "means",
+   "o": "duplicate sequence number in stream",
+   "source": "03-telemetry-ingest::002"
+  },
+  {
+   "s": "tlm-204",
+   "r": "triggers",
+   "o": "benign, dedup handles it",
+   "source": "03-telemetry-ingest::002"
+  },
+  {
+   "s": "tlm-330",
+   "r": "means",
+   "o": "hypertable chunk write failed",
+   "source": "03-telemetry-ingest::002"
+  },
+  {
+   "s": "tlm-330",
+   "r": "fixed_by",
+   "o": "page dba, check disk on tsdb-0",
+   "source": "03-telemetry-ingest::002"
+  },
+  {
+   "s": "tlm-402",
+   "r": "means",
+   "o": "schema version mismatch",
+   "source": "03-telemetry-ingest::002"
+  },
+  {
+   "s": "tlm-402",
+   "r": "fixed_by",
+   "o": "robot firmware needs upgrade",
+   "source": "03-telemetry-ingest::002"
+  },
+  {
+   "s": "atlas-vision",
+   "r": "runs_on",
+   "o": "edge gpus",
+   "source": "04-vision-service::000"
+  },
+  {
+   "s": "atlas-vision",
+   "r": "uses",
+   "o": "nvidia a2 per aisle gantry",
+   "source": "04-vision-service::000"
+  },
+  {
+   "s": "atlas-vision",
+   "r": "answers",
+   "o": "what pallet is this",
+   "source": "04-vision-service::000"
+  },
+  {
+   "s": "atlas-vision",
+   "r": "answers",
+   "o": "is it safe to pick",
+   "source": "04-vision-service::000"
+  },
+  {
+   "s": "nw-pallet-detect-v4",
+   "r": "has_response_time",
+   "o": "18 ms",
+   "source": "04-vision-service::001"
+  },
+  {
+   "s": "nw-barcode-ocr-v2",
+   "r": "has_response_time",
+   "o": "7 ms",
+   "source": "04-vision-service::001"
+  },
+  {
+   "s": "nw-damage-clf-v1",
+   "r": "has_response_time",
+   "o": "4 ms",
+   "source": "04-vision-service::001"
+  },
+  {
+   "s": "atlas-vision",
+   "r": "has_response_time",
+   "o": "0.92",
+   "source": "04-vision-service::002"
+  },
+  {
+   "s": "atlas-vision",
+   "r": "triggers",
+   "o": "manual inspection lane",
+   "source": "04-vision-service::002"
+  },
+  {
+   "s": "barcode",
+   "r": "has_response_time",
+   "o": "0.92",
+   "source": "04-vision-service::002"
+  },
+  {
+   "s": "atlas-vision",
+   "r": "runs_on",
+   "o": "04-vision-service.md",
+   "source": "04-vision-service::002"
+  },
+  {
+   "s": "confidence policy",
+   "r": "retained_for",
+   "o": "3 times",
+   "source": "04-vision-service::002"
+  },
+  {
+   "s": "damage classifier",
+   "r": "means",
+   "o": "damagesuspected ticket",
+   "source": "04-vision-service::002"
+  },
+  {
+   "s": "nw-barcode-ocr-v2",
+   "r": "degrades_on",
+   "o": "shrink-wrapped pallets_with_specular_glare",
+   "source": "04-vision-service::003"
+  },
+  {
+   "s": "nw-barcode-ocr-v2",
+   "r": "read_rate_drops_from",
+   "o": "99.1% to 84%",
+   "source": "04-vision-service::003"
+  },
+  {
+   "s": "nw-barcode-ocr-v2",
+   "r": "has_response_time",
+   "o": "not_stated",
+   "source": "04-vision-service::003"
+  },
+  {
+   "s": "nw-barcode-ocr-v2",
+   "r": "fixed_by",
+   "o": "v3_model",
+   "source": "04-vision-service::003"
+  },
+  {
+   "s": "v3_model",
+   "r": "adds",
+   "o": "polarised_capture",
+   "source": "04-vision-service::003"
+  },
+  {
+   "s": "v3_model",
+   "r": "scheduled_for",
+   "o": "q3",
+   "source": "04-vision-service::003"
+  },
+  {
+   "s": "atlas-on-call-runbook",
+   "r": "has_response_time",
+   "o": "15 min",
+   "source": "05-oncall-runbook::000"
+  },
+  {
+   "s": "atlas-on-call-runbook",
+   "r": "retained_for",
+   "o": "one week",
+   "source": "05-oncall-runbook::000"
+  },
+  {
+   "s": "atlas-on-call-runbook",
+   "r": "handing_over",
+   "o": "tuesdays at 10:00 cet",
+   "source": "05-oncall-runbook::000"
+  },
+  {
+   "s": "atlas-on-call-runbook",
+   "r": "primary_carries",
+   "o": "pager",
+   "source": "05-oncall-runbook::000"
+  },
+  {
+   "s": "atlas-on-call-runbook",
+   "r": "escalation_after",
+   "o": "15 minutes",
+   "source": "05-oncall-runbook::000"
+  },
+  {
+   "s": "sev1",
+   "r": "means",
+   "o": "robots halted in a cell, or safety system offline",
+   "source": "05-oncall-runbook::001"
+  },
+  {
+   "s": "sev1",
+   "r": "has_response_time",
+   "o": "5 min, page immediately",
+   "source": "05-oncall-runbook::001"
+  },
+  {
+   "s": "sev2",
+   "r": "means",
+   "o": "throughput down more than 30%, or dispatch p99 above 2 s",
+   "source": "05-oncall-runbook::001"
+  },
+  {
+   "s": "sev2",
+   "r": "has_response_time",
+   "o": "15 min",
+   "source": "05-oncall-runbook::001"
+  },
+  {
+   "s": "sev3",
+   "r": "means",
+   "o": "degraded but throughput normal, e.g. shed mode",
+   "source": "05-oncall-runbook::001"
+  },
+  {
+   "s": "sev3",
+   "r": "has_response_time",
+   "o": "next business day",
+   "source": "05-oncall-runbook::001"
+  },
+  {
+   "s": "shed_mode",
+   "r": "classified_as",
+   "o": "sev3",
+   "source": "05-oncall-runbook::001"
+  },
+  {
+   "s": "tlm-101",
+   "r": "has_response_time",
+   "o": "41% of pages",
+   "source": "05-oncall-runbook::002"
+  },
+  {
+   "s": "tlm-101",
+   "r": "triggers",
+   "o": "failed ntp pod",
+   "source": "05-oncall-runbook::002"
+  },
+  {
+   "s": "tlm-101",
+   "r": "fixes",
+   "o": "restart ntp-relay in the cell namespace",
+   "source": "05-oncall-runbook::002"
+  },
+  {
+   "s": "dispatch auction stall",
+   "r": "triggers",
+   "o": "bid rpc pool exhausts",
+   "source": "05-oncall-runbook::002"
+  },
+  {
+   "s": "dispatch auction stall",
+   "r": "means",
+   "o": "auction period climbs above 400 ms",
+   "source": "05-oncall-runbook::002"
+  },
+  {
+   "s": "dispatch auction stall",
+   "r": "fixed_by",
+   "o": "scale atlas-dispatch replicas from 3 to 5",
+   "source": "05-oncall-runbook::002"
+  },
+  {
+   "s": "vision gantry gpu fell off the bus",
+   "r": "triggers",
+   "o": "physical power cycle of the gantry",
+   "source": "05-oncall-runbook::002"
+  },
+  {
+   "s": "vision gantry gpu fell off the bus",
+   "r": "retained_for",
+   "o": "14% of pages",
+   "source": "05-oncall-runbook::002"
+  },
+  {
+   "s": "atlas",
+   "r": "has_response_time",
+   "o": "15 min",
+   "source": "05-oncall-runbook::003"
+  },
+  {
+   "s": "atlas",
+   "r": "retained_for",
+   "o": "90 days",
+   "source": "05-oncall-runbook::003"
+  },
+  {
+   "s": "atlas",
+   "r": "runs_on",
+   "o": "1 november and 7 january",
+   "source": "05-oncall-runbook::003"
+  },
+  {
+   "s": "atlas",
+   "r": "triggers",
+   "o": "peak season",
+   "source": "05-oncall-runbook::003"
+  },
+  {
+   "s": "atlas-freeze-exc",
+   "r": "classified_as",
+   "o": "exception",
+   "source": "05-oncall-runbook::003"
+  },
+  {
+   "s": "robot telemetry",
+   "r": "retained_for",
+   "o": "90 days",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "robot telemetry",
+   "r": "retained_for",
+   "o": "7 years",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "robot telemetry",
+   "r": "retained_for",
+   "o": "7 years",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "vision frames",
+   "r": "retained_for",
+   "o": "14 days",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "vision frames",
+   "r": "retained_for",
+   "o": "none",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "vision frames",
+   "r": "retained_for",
+   "o": "14 days",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "operator audit log",
+   "r": "retained_for",
+   "o": "400 days",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "operator audit log",
+   "r": "retained_for",
+   "o": "10 years",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "operator audit log",
+   "r": "retained_for",
+   "o": "10 years",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "task/dispatch records",
+   "r": "retained_for",
+   "o": "2 years",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "task/dispatch records",
+   "r": "retained_for",
+   "o": "7 years",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "task/dispatch records",
+   "r": "retained_for",
+   "o": "7 years",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "vision frames",
+   "r": "has_response_time",
+   "o": "14 days",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "vision frames",
+   "r": "has_response_time",
+   "o": "none",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "vision frames",
+   "r": "has_response_time",
+   "o": "14 days",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "vision frames",
+   "r": "triggers",
+   "o": "blurred at the edge",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "vision frames",
+   "r": "means",
+   "o": "blurred at the edge before leaving the gantry",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "vision frames",
+   "r": "runs_on",
+   "o": "gantry cameras",
+   "source": "06-data-retention-policy::000"
+  },
+  {
+   "s": "telemetry_and_dispatch_data",
+   "r": "has_response_time",
+   "o": "any_atlas_engineer",
+   "source": "06-data-retention-policy::001"
+  },
+  {
+   "s": "vision_frames",
+   "r": "triggers",
+   "o": "membership_of_atlas_vision_review_group_and_approved_justification_ticket",
+   "source": "06-data-retention-policy::001"
+  },
+  {
+   "s": "vision_frames",
+   "r": "means",
+   "o": "atlas_vision_review_group_and_approved_justification_ticket",
+   "source": "06-data-retention-policy::001"
+  },
+  {
+   "s": "vision_frames",
+   "r": "retained_for",
+   "o": "logged_and_reviewed_monthly",
+   "source": "06-data-retention-policy::001"
+  },
+  {
+   "s": "operator_audit_log",
+   "r": "retained_for",
+   "o": "security_team_only",
+   "source": "06-data-retention-policy::001"
+  },
+  {
+   "s": "atlas-roll",
+   "r": "aggregates",
+   "o": "counts and percentiles",
+   "source": "06-data-retention-policy::002"
+  },
+  {
+   "s": "atlas-roll",
+   "r": "never_aggregates",
+   "o": "raw_records",
+   "source": "06-data-retention-policy::002"
+  },
+  {
+   "s": "atlas-roll",
+   "r": "is_exempt",
+   "o": "true",
+   "source": "06-data-retention-policy::002"
+  },
+  {
+   "s": "rotterdam",
+   "r": "classified_as",
+   "o": "sev3",
+   "source": "06-data-retention-policy::002"
+  },
+  {
+   "s": "hamburg",
+   "r": "classified_as",
+   "o": "sev3",
+   "source": "06-data-retention-policy::002"
+  },
+  {
+   "s": "memphis",
+   "r": "writes_to",
+   "o": "us-east-1",
+   "source": "06-data-retention-policy::002"
+  },
+  {
+   "s": "rotterdam",
+   "r": "writes_to",
+   "o": "eu-central-1",
+   "source": "06-data-retention-policy::002"
+  },
+  {
+   "s": "hamburg",
+   "r": "writes_to",
+   "o": "eu-central-1",
+   "source": "06-data-retention-policy::002"
+  },
+  {
+   "s": "atlas-sim",
+   "r": "replays",
+   "o": "recorded telemetry",
+   "source": "07-atlas-sim::000"
+  },
+  {
+   "s": "atlas-sim",
+   "r": "against",
+   "o": "candidate atlas-dispatch build",
+   "source": "07-atlas-sim::000"
+  },
+  {
+   "s": "atlas-sim",
+   "r": "measures",
+   "o": "a scheduling change",
+   "source": "07-atlas-sim::000"
+  },
+  {
+   "s": "atlas-sim",
+   "r": "does_not_affect",
+   "o": "real warehouse",
+   "source": "07-atlas-sim::000"
+  },
+  {
+   "s": "atlas-sim",
+   "r": "runs_on",
+   "o": "deterministic replay",
+   "source": "07-atlas-sim::001"
+  },
+  {
+   "s": "atlas-sim",
+   "r": "has_response_time",
+   "o": "byte-identical output",
+   "source": "07-atlas-sim::001"
+  },
+  {
+   "s": "atlas-sim",
+   "r": "determinism_guarantees",
+   "o": "byte-identical output",
+   "source": "07-atlas-sim::001"
+  },
+  {
+   "s": "auction loop",
+   "r": "driven_by",
+   "o": "simulated time",
+   "source": "07-atlas-sim::001"
+  },
+  {
+   "s": "random tie-breaks",
+   "r": "use",
+   "o": "seeded pcg64 generator",
+   "source": "07-atlas-sim::001"
+  },
+  {
+   "s": "seeded pcg64 generator",
+   "r": "generates",
+   "o": "one stream per robot",
+   "source": "07-atlas-sim::001"
+  },
+  {
+   "s": "floating point",
+   "r": "pinned_to",
+   "o": "float64",
+   "source": "07-atlas-sim::001"
+  },
+  {
+   "s": "sim build",
+   "r": "disables",
+   "o": "fma",
+   "source": "07-atlas-sim::001"
+  },
+  {
+   "s": "peak-friday.yaml",
+   "r": "classified_as",
+   "o": "sev3",
+   "source": "07-atlas-sim::002"
+  },
+  {
+   "s": "degraded-gantry.yaml",
+   "r": "classified_as",
+   "o": "sev3",
+   "source": "07-atlas-sim::002"
+  },
+  {
+   "s": "battery-cliff.yaml",
+   "r": "classified_as",
+   "o": "sev3",
+   "source": "07-atlas-sim::002"
+  },
+  {
+   "s": "214 robots",
+   "r": "part_of",
+   "o": "peak-friday.yaml",
+   "source": "07-atlas-sim::002"
+  },
+  {
+   "s": "2024",
+   "r": "part_of",
+   "o": "peak-friday.yaml",
+   "source": "07-atlas-sim::002"
+  },
+  {
+   "s": "black friday",
+   "r": "part_of",
+   "o": "peak-friday.yaml",
+   "source": "07-atlas-sim::002"
+  },
+  {
+   "s": "9 vision gantries",
+   "r": "part_of",
+   "o": "degraded-gantry.yaml",
+   "source": "07-atlas-sim::002"
+  },
+  {
+   "s": "2 vision gantries",
+   "r": "part_of",
+   "o": "degraded-gantry.yaml",
+   "source": "07-atlas-sim::002"
+  },
+  {
+   "s": "memphis",
+   "r": "part_of",
+   "o": "degraded-gantry.yaml",
+   "source": "07-atlas-sim::002"
+  },
+  {
+   "s": "15%",
+   "r": "part_of",
+   "o": "battery-cliff.yaml",
+   "source": "07-atlas-sim::002"
+  },
+  {
+   "s": "4 minutes",
+   "r": "part_of",
+   "o": "battery-cliff.yaml",
+   "source": "07-atlas-sim::002"
+  },
+  {
+   "s": "atlas-dispatch",
+   "r": "runs_on",
+   "o": "atlas-sim",
+   "source": "07-atlas-sim::003"
+  },
+  {
+   "s": "atlas-sim",
+   "r": "has_response_time",
+   "o": "400 ms",
+   "source": "07-atlas-sim::003"
+  },
+  {
+   "s": "atlas-sim",
+   "r": "triggers",
+   "o": "regression gate",
+   "source": "07-atlas-sim::003"
+  },
+  {
+   "s": "regression gate",
+   "r": "means",
+   "o": "fails if throughput drops more than 2% or p99 assignment latency rises above 400 ms on any scenario",
+   "source": "07-atlas-sim::003"
+  },
+  {
+   "s": "regression gate",
+   "r": "fixed_by",
+   "o": "6 regressions since it was added",
+   "source": "07-atlas-sim::003"
+  },
+  {
+   "s": "vision models",
+   "r": "are_shipped_as",
+   "o": "tensorrt engines",
+   "source": "08-model-deployment::000"
+  },
+  {
+   "s": "tensorrt engines",
+   "r": "built_per",
+   "o": "gpu architecture",
+   "source": "08-model-deployment::000"
+  },
+  {
+   "s": "engine",
+   "r": "runs_on",
+   "o": "same gpu as the target gantry",
+   "source": "08-model-deployment::001"
+  },
+  {
+   "s": "engine",
+   "r": "not_portable_across",
+   "o": "architectures",
+   "source": "08-model-deployment::001"
+  },
+  {
+   "s": "engine_plus_metadata",
+   "r": "go_to",
+   "o": "nw-models s3 bucket under vision/{model_name}/{version}/",
+   "source": "08-model-deployment::001"
+  },
+  {
+   "s": "model_release",
+   "r": "fixed_by",
+   "o": "modelrelease crd in the cell kubernetes namespace",
+   "source": "08-model-deployment::001"
+  },
+  {
+   "s": "rollout",
+   "r": "classified_as",
+   "o": "canary by aisle",
+   "source": "08-model-deployment::001"
+  },
+  {
+   "s": "canary_by_aisle",
+   "r": "means",
+   "o": "one gantry for 24 hours, then 25%, then all",
+   "source": "08-model-deployment::001"
+  },
+  {
+   "s": "card.yaml",
+   "r": "has",
+   "o": "training_data_snapshot",
+   "source": "08-model-deployment::002"
+  },
+  {
+   "s": "card.yaml",
+   "r": "has",
+   "o": "eval_report",
+   "source": "08-model-deployment::002"
+  },
+  {
+   "s": "card.yaml",
+   "r": "has",
+   "o": "fallback_version",
+   "source": "08-model-deployment::002"
+  },
+  {
+   "s": "card.yaml",
+   "r": "has",
+   "o": "owner",
+   "source": "08-model-deployment::002"
+  },
+  {
+   "s": "release",
+   "r": "triggers",
+   "o": "admission webhook",
+   "source": "08-model-deployment::002"
+  },
+  {
+   "s": "release",
+   "r": "must_have",
+   "o": "fallback_version",
+   "source": "08-model-deployment::002"
+  },
+  {
+   "s": "pallet detect",
+   "r": "has_response_time",
+   "o": "0.94",
+   "source": "08-model-deployment::003"
+  },
+  {
+   "s": "barcode ocr",
+   "r": "has_response_time",
+   "o": "0.985",
+   "source": "08-model-deployment::003"
+  },
+  {
+   "s": "damage classifier",
+   "r": "has_response_time",
+   "o": "0.80",
+   "source": "08-model-deployment::003"
+  }
+ ],
+ "chunk_text": {
+  "01-atlas-overview::000": "Atlas is the Northwind Robotics internal control plane for warehouse robot\nfleets. It was first deployed at the Rotterdam DC in March 2023 and now runs at\neleven distribution centres.",
+  "01-atlas-overview::001": "| Component | Purpose | Language |\n|---|---|---|\n| `atlas-dispatch` | Assigns tasks to robots, runs the auction loop | Go |\n| `atlas-telemetry` | Ingests robot sensor streams at 20 Hz | Rust |\n| `atlas-vision` | Pallet + barcode recognition on edge GPUs | Python |\n| `atlas-console` | Operator web UI | TypeScript |\n| `atlas-sim` | Deterministic replay + simulation harness | Python |",
+  "01-atlas-overview::002": "- A single Atlas cell supports a maximum of **240 concurrent robots**.\n- The dispatch auction loop runs every **150 ms**.\n- Telemetry retention is **90 days** hot, **7 years** cold.\n- Target end-to-end task assignment latency is **p99 below 400 ms**.",
+  "01-atlas-overview::003": "Each distribution centre runs its own Atlas cell. Cells are independent: there is\nno cross-cell scheduling. A regional aggregator called `atlas-roll` pulls\nread-only metrics from every cell for the executive dashboard.",
+  "02-dispatch-auction::000": "Task assignment in Atlas uses a **sealed-bid reverse auction**. Every 150 ms,\n`atlas-dispatch` publishes the set of open tasks, and every idle robot submits a\nbid representing its estimated cost to complete that task.",
+  "02-dispatch-auction::001": "```\nbid = travel_time_s + (0.4 * battery_penalty) + (2.1 * congestion_score)\n```\n\n- `battery_penalty` is `0` above 60% charge, and rises linearly to `30` at 10%.\n- `congestion_score` comes from the aisle occupancy grid, refreshed every 500 ms.\n- The lowest bid wins. Ties are broken by robot serial number, ascending.",
+  "02-dispatch-auction::002": "A task that loses **12 consecutive auctions** is escalated: its priority is\nmultiplied by 1.5 and it is pinned to the next auction round regardless of bids.\nThis is called the *Rotterdam rule*, added after a September 2023 incident where\n17 pallets sat unassigned for 40 minutes.",
+  "02-dispatch-auction::003": "| Env var | Default | Notes |\n|---|---|---|\n| `ATLAS_AUCTION_PERIOD_MS` | `150` | Below 100 ms the bid RPC saturates |\n| `ATLAS_STARVATION_ROUNDS` | `12` | The Rotterdam rule threshold |\n| `ATLAS_MAX_BIDS_PER_TASK` | `64` | Bids beyond this are dropped, nearest-first |",
+  "03-telemetry-ingest::000": "`atlas-telemetry` accepts a 20 Hz sensor stream from every robot over gRPC and\nwrites it to a TimescaleDB hypertable partitioned by day.",
+  "03-telemetry-ingest::001": "When the write buffer exceeds **80%** capacity, telemetry enters *shed mode*:\n\n1. Non-critical channels (`imu_raw`, `wheel_slip`) are dropped first.\n2. If the buffer still exceeds 80% after 5 seconds, sample rate for all channels\n   drops from 20 Hz to 5 Hz.\n3. Shed mode clears when the buffer falls under 55% for 30 consecutive seconds.\n\nShed mode raises the `TelemetryDegraded` alert but does **not** page on-call\nunless it persists for more than 10 minutes.",
+  "03-telemetry-ingest::002": "| Code | Meaning | Action |\n|---|---|---|\n| `TLM-101` | Clock skew above 250 ms between robot and cell | Re-sync NTP on the robot |\n| `TLM-204` | Duplicate sequence number in stream | Benign, dedup handles it |\n| `TLM-330` | Hypertable chunk write failed | Page DBA, check disk on `tsdb-0` |\n| `TLM-402` | Schema version mismatch | Robot firmware needs upgrade |",
+  "04-vision-service::000": "`atlas-vision` runs on edge GPUs, one NVIDIA A2 per aisle gantry, and answers two\nquestions: *what pallet is this* and *is it safe to pick*.",
+  "04-vision-service::001": "| Model | Task | Input | p50 latency |\n|---|---|---|---|\n| `nw-pallet-detect-v4` | Pallet bounding boxes | 1280x720 RGB | 18 ms |\n| `nw-barcode-ocr-v2` | Code-128 barcode read | 640x480 crop | 7 ms |\n| `nw-damage-clf-v1` | Damaged/intact classifier | 224x224 crop | 4 ms |",
+  "04-vision-service::002": "- Barcode reads below **0.92** confidence are re-attempted up to 3 times with a\n  different exposure.\n- After 3 failures the pallet is routed to the **manual inspection lane**.\n- The damage classifier is advisory only. It never blocks a pick, it files a\n  `DamageSuspected` ticket.",
+  "04-vision-service::003": "`nw-barcode-ocr-v2` degrades badly on shrink-wrapped pallets with specular glare.\nMeasured read rate drops from 99.1% to 84%. The v3 model, which adds polarised\ncapture, is scheduled for Q3.",
+  "05-oncall-runbook::000": "On-call rotation is **one week**, handing over Tuesdays at 10:00 CET.\nPrimary carries the pager, secondary is the escalation after 15 minutes.",
+  "05-oncall-runbook::001": "| Sev | Definition | Response time |\n|---|---|---|\n| SEV1 | Robots halted in a cell, or safety system offline | 5 min, page immediately |\n| SEV2 | Throughput down more than 30%, or dispatch p99 above 2 s | 15 min |\n| SEV3 | Degraded but throughput normal, e.g. shed mode | Next business day |",
+  "05-oncall-runbook::002": "1. **`TLM-101` clock skew storms** - usually a failed NTP pod. Restart\n   `ntp-relay` in the cell namespace. 41% of pages.\n2. **Dispatch auction stall** - the bid RPC pool exhausts. Symptom: auction\n   period climbs above 400 ms. Fix: scale `atlas-dispatch` replicas from 3 to 5.\n   22% of pages.\n3. **Vision gantry GPU fell off the bus** - requires a physical power cycle of\n   the gantry. 14% of pages.",
+  "05-oncall-runbook::003": "No Atlas deploys between **1 November and 7 January**, which is peak season.\nExceptions need VP Engineering sign-off, filed as an `ATLAS-FREEZE-EXC` ticket.",
+  "06-data-retention-policy::000": "| Data class | Hot | Cold | Deleted after |\n|---|---|---|---|\n| Robot telemetry | 90 days | 7 years | 7 years |\n| Vision frames | 14 days | none | 14 days |\n| Operator audit log | 400 days | 10 years | 10 years |\n| Task/dispatch records | 2 years | 7 years | 7 years |\n\nVision frames are the shortest-lived class because gantry cameras can\nincidentally capture warehouse staff. Frames are **blurred at the edge** before\nleaving the gantry, and only the blurred version is ever written to storage.",
+  "06-data-retention-policy::001": "- Telemetry and dispatch data: any Atlas engineer.\n- Vision frames: requires membership of the `atlas-vision-review` group and an\n  approved justification ticket. Access is logged and reviewed monthly.\n- Operator audit log: security team only.",
+  "06-data-retention-policy::002": "Data never leaves the region it was produced in. The Rotterdam and Hamburg cells\nwrite to `eu-central-1`, the Memphis cell writes to `us-east-1`. `atlas-roll`\naggregates only **counts and percentiles**, never raw records, so it is exempt.",
+  "07-atlas-sim::000": "`atlas-sim` replays recorded telemetry against a candidate `atlas-dispatch` build\nso you can measure a scheduling change before it touches a real warehouse.",
+  "07-atlas-sim::001": "Given the same **scenario file** and the same **seed**, atlas-sim produces\nbyte-identical output. This holds because:\n\n- The auction loop is driven by simulated time, not wall-clock time.\n- Random tie-breaks use a seeded PCG64 generator, one stream per robot.\n- Floating point is pinned to `float64` and FMA is disabled in the sim build.",
+  "07-atlas-sim::002": "Scenarios live in `sim/scenarios/*.yaml`. The three canonical ones:\n\n- `peak-friday.yaml` - Rotterdam, 214 robots, Black Friday 2024 trace.\n- `degraded-gantry.yaml` - Memphis with 2 of 9 vision gantries offline.\n- `battery-cliff.yaml` - a fleet that all hits 15% charge inside 4 minutes.",
+  "07-atlas-sim::003": "Any PR touching `atlas-dispatch` must run all three scenarios. The gate fails if\n**throughput drops more than 2%** or **p99 assignment latency rises above 400 ms**\non any scenario. This gate has blocked 6 regressions since it was added.",
+  "08-model-deployment::000": "Vision models are shipped as TensorRT engines, built per GPU architecture.",
+  "08-model-deployment::001": "1. Train in PyTorch, export ONNX (opset 17).\n2. `trtexec` builds the engine on a machine with the **same** GPU as the target\n   gantry. Engines are not portable across architectures.\n3. Engine plus metadata go to the `nw-models` S3 bucket under\n   `vision/{model_name}/{version}/`.\n4. A `ModelRelease` CRD in the cell Kubernetes namespace pins the version.\n5. Rollout is **canary by aisle**: one gantry for 24 hours, then 25%, then all.",
+  "08-model-deployment::002": "Every release must ship a `card.yaml` with:\n\n- `training_data_snapshot` - the dataset hash\n- `eval_report` - precision/recall on the frozen `vision-eval-2024q2` set\n- `fallback_version` - what to roll back to\n- `owner` - a named engineer, not a team\n\nA release without `fallback_version` is rejected by the admission webhook.",
+  "08-model-deployment::003": "| Model type | Metric | Minimum |\n|---|---|---|\n| Pallet detect | mAP@0.5 | 0.94 |\n| Barcode OCR | Exact-match read rate | 0.985 |\n| Damage classifier | Recall on damaged class | 0.80 |"
+ },
+ "extract_seconds": 39.1
+}

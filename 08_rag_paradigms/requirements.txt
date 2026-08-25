@@ -1,0 +1,7 @@
+# Project 08 - RAG paradigms (vector vs graph vs agentic)
+# Needs project 01 built (its index + corpus are the shared substrate)
+# and Ollama running with qwen2.5:7b.
+
+networkx>=3.0        # the knowledge graph
+httpx>=0.27          # Ollama calls (extraction + agent loop)
+# retrieval/generation come from ../01_rag_local (see its requirements.txt)

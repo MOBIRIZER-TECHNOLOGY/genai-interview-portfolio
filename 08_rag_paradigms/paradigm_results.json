@@ -1,0 +1,654 @@
+{
+ "standard": {
+  "vector": {
+   "fact_recall": 1.0,
+   "abstain_correct": 1.0,
+   "p50_ms": 353.2205500014243,
+   "mean_llm_calls": 1,
+   "details": [
+    {
+     "id": "q01",
+     "pass": true,
+     "answer": "A single Atlas cell supports a maximum of 240 concurrent robots [1].",
+     "ms": 2952,
+     "llm_calls": 1
+    },
+    {
+     "id": "q02",
+     "pass": true,
+     "answer": "Error code `TLM-330` means `Hypertable chunk write failed` [1]. You should page the DBA and check the disk on `tsdb-0` [1].",
+     "ms": 465,
+     "llm_calls": 1
+    },
+    {
+     "id": "q03",
+     "pass": true,
+     "answer": "The Rotterdam rule is a mechanism where a task that loses 12 consecutive auctions has its priority multiplied by 1.5 and is pinned to the next auction round reg",
+     "ms": 438,
+     "llm_calls": 1
+    },
+    {
+     "id": "q04",
+     "pass": true,
+     "answer": "Vision frames are kept for 14 days [1].",
+     "ms": 242,
+     "llm_calls": 1
+    },
+    {
+     "id": "q05",
+     "pass": true,
+     "answer": "The default value of ATLAS_STARVATION_ROUNDS is `12` [1].",
+     "ms": 308,
+     "llm_calls": 1
+    },
+    {
+     "id": "q06",
+     "pass": true,
+     "answer": "Telemetry enters shed mode when the write buffer exceeds 80% capacity [1]. Shed mode clears when the buffer falls under 55% for 30 consecutive seconds [1].",
+     "ms": 444,
+     "llm_calls": 1
+    },
+    {
+     "id": "q07",
+     "pass": true,
+     "answer": "The barcode confidence threshold that triggers a retry is **0.92** [1].",
+     "ms": 277,
+     "llm_calls": 1
+    },
+    {
+     "id": "q08",
+     "pass": true,
+     "answer": "The incident causing the most pages is `TLM-101` clock skew storms, which account for 41% of pages [1].",
+     "ms": 384,
+     "llm_calls": 1
+    },
+    {
+     "id": "q09",
+     "pass": true,
+     "answer": "No, you cannot ship a code change to Atlas in December as the freeze window is from **1 November to 7 January** [3]. Exceptions require VP Engineering sign-off ",
+     "ms": 384,
+     "llm_calls": 1
+    },
+    {
+     "id": "q10",
+     "pass": true,
+     "answer": "The reproducibility of atlas-sim run to run is guaranteed by:\n\n- Using the same **scenario file** and **seed**.\n- The auction loop being driven by **simulated t",
+     "ms": 749,
+     "llm_calls": 1
+    },
+    {
+     "id": "q11",
+     "pass": true,
+     "answer": "A release without `fallback_version` is rejected by the admission webhook. [1]",
+     "ms": 274,
+     "llm_calls": 1
+    },
+    {
+     "id": "q12",
+     "pass": true,
+     "answer": "[1] The pallet detection model needs to achieve an mAP@0.5 of at least 0.94 to pass.",
+     "ms": 346,
+     "llm_calls": 1
+    },
+    {
+     "id": "q13",
+     "pass": true,
+     "answer": "According to the access policy, vision frames can be viewed by members of the `atlas-vision-review` group and require an approved justification ticket [2].",
+     "ms": 361,
+     "llm_calls": 1
+    },
+    {
+     "id": "q14",
+     "pass": true,
+     "answer": "A robot's bid in the dispatch auction is calculated using the formula:\n\n```\nbid = travel_time_s + (0.4 * battery_penalty) + (2.1 * congestion_score)\n```\n\nWhere:",
+     "ms": 815,
+     "llm_calls": 1
+    },
+    {
+     "id": "q15",
+     "pass": true,
+     "answer": "[1] `nw-barcode-ocr-v2` degrades badly on shrink-wrapped pallets with specular glare.Measured read rate drops from 99.1% to 84%. The v3 model, which adds polari",
+     "ms": 556,
+     "llm_calls": 1
+    },
+    {
+     "id": "q16",
+     "pass": true,
+     "answer": "The response time for a SEV2 is 15 min [1].",
+     "ms": 269,
+     "llm_calls": 1
+    },
+    {
+     "id": "q17",
+     "pass": true,
+     "answer": "NOT_FOUND: The salary band for a senior Atlas engineer is not mentioned in the provided context blocks.",
+     "ms": 266,
+     "llm_calls": 1
+    },
+    {
+     "id": "q18",
+     "pass": true,
+     "answer": "NOT_FOUND: Information about configuring Atlas Kafka consumer group offsets is not provided in the given context blocks.",
+     "ms": 274,
+     "llm_calls": 1
+    },
+    {
+     "id": "q19",
+     "pass": true,
+     "answer": "NOT_FOUND: The context does not mention the cloud region for the Tokyo cell.",
+     "ms": 235,
+     "llm_calls": 1
+    },
+    {
+     "id": "q20",
+     "pass": true,
+     "answer": "The aisle occupancy grid is refreshed every 500 ms [1].",
+     "ms": 253,
+     "llm_calls": 1
+    }
+   ],
+   "wall_s": 10.3
+  },
+  "graph": {
+   "fact_recall": 0.6470588235294118,
+   "abstain_correct": 1.0,
+   "p50_ms": 296.0312499999418,
+   "mean_llm_calls": 0.75,
+   "details": [
+    {
+     "id": "q01",
+     "pass": false,
+     "answer": "NOT_FOUND: The number of robots a single Atlas cell can support is not provided in the given context.",
+     "ms": 363,
+     "llm_calls": 1
+    },
+    {
+     "id": "q02",
+     "pass": true,
+     "answer": "Error code TLM-330 means hypertable chunk write failed [2]. You should page the DBA and check the disk on `tsdb-0` [1].",
+     "ms": 335,
+     "llm_calls": 1
+    },
+    {
+     "id": "q03",
+     "pass": true,
+     "answer": "The Rotterdam rule means that a task which loses 12 consecutive auctions has its priority multiplied by 1.5 and is pinned to the next auction round regardless o",
+     "ms": 337,
+     "llm_calls": 1
+    },
+    {
+     "id": "q04",
+     "pass": false,
+     "answer": "NOT_FOUND: no known entity in the question matched the graph.",
+     "ms": 0,
+     "llm_calls": 0
+    },
+    {
+     "id": "q05",
+     "pass": true,
+     "answer": "The default value of ATLAS_STARVATIONS_ROUNDS is 12 [2].",
+     "ms": 343,
+     "llm_calls": 1
+    },
+    {
+     "id": "q06",
+     "pass": true,
+     "answer": "Telemetry enters shed mode when the write buffer exceeds 80% capacity [2].\n\nShed mode clears when the buffer falls under 55% for 30 consecutive seconds [2].",
+     "ms": 502,
+     "llm_calls": 1
+    },
+    {
+     "id": "q07",
+     "pass": true,
+     "answer": "- Barcode reads below **0.92** confidence are re-attempted up to 3 times with a different exposure. [2]",
+     "ms": 257,
+     "llm_calls": 1
+    },
+    {
+     "id": "q08",
+     "pass": false,
+     "answer": "NOT_FOUND: no known entity in the question matched the graph.",
+     "ms": 0,
+     "llm_calls": 0
+    },
+    {
+     "id": "q09",
+     "pass": true,
+     "answer": "[3] Atlas does not deploy between 1 November and 7 January, which includes December. Exceptions require VP Engineering sign-off, filed as an `ATLAS-FREEZE-EXC` ",
+     "ms": 433,
+     "llm_calls": 1
+    },
+    {
+     "id": "q10",
+     "pass": true,
+     "answer": "The reproducibility of atlas-sim run-to-run is ensured by:\n\n- The auction loop being driven by simulated time, not wall-clock time [4].\n- Random tie-breaks usin",
+     "ms": 736,
+     "llm_calls": 1
+    },
+    {
+     "id": "q11",
+     "pass": true,
+     "answer": "[2] A release without `fallback_version` is rejected by the admission webhook.",
+     "ms": 243,
+     "llm_calls": 1
+    },
+    {
+     "id": "q12",
+     "pass": false,
+     "answer": "NOT_FOUND: no known entity in the question matched the graph.",
+     "ms": 0,
+     "llm_calls": 0
+    },
+    {
+     "id": "q13",
+     "pass": true,
+     "answer": "According to the policy, vision frames can be accessed by members of the `atlas-vision-review` group and only after an approved justification ticket is obtained",
+     "ms": 354,
+     "llm_calls": 1
+    },
+    {
+     "id": "q14",
+     "pass": false,
+     "answer": "A robot's bid in the dispatch auction is calculated as follows:\n\\[ \\text{bid} = \\text{travel\\_time\\_s} + (0.4 \\times \\text{battery\\_penalty}) + (2.1 \\times \\tex",
+     "ms": 669,
+     "llm_calls": 1
+    },
+    {
+     "id": "q15",
+     "pass": true,
+     "answer": "[1] [2]nw-barcode-ocr-v2 struggles with shrink wrap because it degrades badly on shrink-wrapped pallets with specular glare, dropping the read rate from 99.1% t",
+     "ms": 431,
+     "llm_calls": 1
+    },
+    {
+     "id": "q16",
+     "pass": true,
+     "answer": "The response time for a SEV2 is 15 min [2].",
+     "ms": 210,
+     "llm_calls": 1
+    },
+    {
+     "id": "q17",
+     "pass": true,
+     "answer": "NOT_FOUND: The salary band for a senior Atlas engineer is not mentioned in the provided context blocks.",
+     "ms": 200,
+     "llm_calls": 1
+    },
+    {
+     "id": "q18",
+     "pass": true,
+     "answer": "NOT_FOUND: The provided context does not contain information about configuring Atlas Kafka consumer group offsets.",
+     "ms": 177,
+     "llm_calls": 1
+    },
+    {
+     "id": "q19",
+     "pass": true,
+     "answer": "NOT_FOUND: no known entity in the question matched the graph.",
+     "ms": 0,
+     "llm_calls": 0
+    },
+    {
+     "id": "q20",
+     "pass": false,
+     "answer": "NOT_FOUND: no known entity in the question matched the graph.",
+     "ms": 0,
+     "llm_calls": 0
+    }
+   ],
+   "wall_s": 5.6
+  },
+  "agentic": {
+   "fact_recall": 0.9411764705882353,
+   "abstain_correct": 1.0,
+   "p50_ms": 801.0600499910652,
+   "mean_llm_calls": 3.2,
+   "details": [
+    {
+     "id": "q01",
+     "pass": true,
+     "answer": "A single Atlas cell can support a maximum of 240 concurrent robots [1].",
+     "ms": 3036,
+     "llm_calls": 2,
+     "trajectory": "Q: How many robots can a single Atlas cell support?\n  1. search: Atlas cell robot capacity  (+3 blocks)\n  2. answer: A single Atlas cell can support a maximum of 240 concurrent robots [1].\n  -> answered"
+    },
+    {
+     "id": "q02",
+     "pass": true,
+     "answer": "Error code TLM-330 means Hypertable chunk write failed [1]. You should page DBA and check the disk on `tsdb-0` [1].",
+     "ms": 1044,
+     "llm_calls": 4,
+     "trajectory": "Q: What does error code TLM-330 mean and what should I do?\n  1. search: TLM-330  (+3 blocks)\n  2. search: TLM-330 meaning  (+1 blocks)\n  3. search(repeat-ignored): TLM-330\n  4. answer: Error code TLM-330 means Hypertable chunk write failed [1]. You should page DBA and check \n  -> answered"
+    },
+    {
+     "id": "q03",
+     "pass": true,
+     "answer": "The Rotterdam rule is a task escalation mechanism in the Atlas platform. It states that if a task loses 12 consecutive auctions, its priority is multiplied by 1",
+     "ms": 873,
+     "llm_calls": 2,
+     "trajectory": "Q: What is the Rotterdam rule?\n  1. search: Rotterdam rule  (+3 blocks)\n  2. answer: The Rotterdam rule is a task escalation mechanism in the Atlas platform. It states that if\n  -> answered (UNGROUNDED)"
+    },
+    {
+     "id": "q04",
+     "pass": true,
+     "answer": "We keep camera footage from the warehouse for 14 days [2].",
+     "ms": 828,
+     "llm_calls": 4,
+     "trajectory": "Q: How long do we keep camera footage from the warehouse?\n  1. search: camera footage warehouse retention policy  (+3 blocks)\n  2. search: camera footage warehouse retention  (+1 blocks)\n  3. search(repeat-ignored): camera footage warehouse retention\n  4. answer: We keep camera footage from the warehouse for 14 days [2].\n  -> answered"
+    },
+    {
+     "id": "q05",
+     "pass": true,
+     "answer": "The default value of ATLAS_STARVATION_ROUNDS is 12 [1].",
+     "ms": 546,
+     "llm_calls": 2,
+     "trajectory": "Q: What is the default value of ATLAS_STARVATION_ROUNDS?\n  1. search: ATLAS_STARVATION_ROUNDS default value  (+3 blocks)\n  2. answer: The default value of ATLAS_STARVATION_ROUNDS is 12 [1].\n  -> answered"
+    },
+    {
+     "id": "q06",
+     "pass": true,
+     "answer": "Telemetry enters shed mode when the write buffer exceeds 80% capacity [1]. It clears when the buffer falls under 55% for 30 consecutive seconds [1].",
+     "ms": 624,
+     "llm_calls": 2,
+     "trajectory": "Q: When does telemetry enter shed mode and how does it clear?\n  1. search: telemetry shed mode  (+3 blocks)\n  2. answer: Telemetry enters shed mode when the write buffer exceeds 80% capacity [1]. It clears when \n  -> answered"
+    },
+    {
+     "id": "q07",
+     "pass": true,
+     "answer": "A barcode confidence threshold of 0.92 triggers a retry [1].",
+     "ms": 760,
+     "llm_calls": 4,
+     "trajectory": "Q: What barcode confidence threshold triggers a retry?\n  1. search: barcode confidence threshold retry  (+3 blocks)\n  2. search(repeat-ignored): barcode confidence threshold retry\n  3. search(repeat-ignored): barcode confidence threshold retry\n  4. answer: A barcode confidence threshold of 0.92 triggers a retry [1].\n  -> answered"
+    },
+    {
+     "id": "q08",
+     "pass": true,
+     "answer": "The incident that causes the most pages is `TLM-101` clock skew storms, accounting for 41% of pages [1].",
+     "ms": 990,
+     "llm_calls": 4,
+     "trajectory": "Q: Which incident causes the most pages, and what fraction?\n  1. search: incident causes most pages  (+3 blocks)\n  2. search: pages incident fraction  (+1 blocks)\n  3. search: pages incidents fraction  (+1 blocks)\n  4. answer: The incident that causes the most pages is `TLM-101` clock skew storms, accounting for 41%\n  -> answered"
+    },
+    {
+     "id": "q09",
+     "pass": true,
+     "answer": "No, you cannot ship a code change to Atlas in December as per the on-call runbook, which states that no Atlas deploys occur between 1 November and 7 January, wh",
+     "ms": 1153,
+     "llm_calls": 4,
+     "trajectory": "Q: Can I ship a code change to Atlas in December?\n  1. search: Atlas code change shipping schedule December  (+3 blocks)\n  2. search: Atlas December deploy  (+1 blocks)\n  3. search(repeat-ignored): Atlas December deploy\n  4. answer: No, you cannot ship a code change to Atlas in December as per the on-call runbook, which s\n  -> answered"
+    },
+    {
+     "id": "q10",
+     "pass": true,
+     "answer": "Atlas-sim is reproducible run-to-run because it uses the same scenario file and seed, drives the auction loop by simulated time, uses a seeded PCG64 generator f",
+     "ms": 782,
+     "llm_calls": 2,
+     "trajectory": "Q: What makes atlas-sim reproducible run to run?\n  1. search: atlas-sim reproducibility  (+3 blocks)\n  2. answer: Atlas-sim is reproducible run-to-run because it uses the same scenario file and seed, driv\n  -> answered"
+    },
+    {
+     "id": "q11",
+     "pass": true,
+     "answer": "If a model release is missing `fallback_version`, it is rejected by the admission webhook [1].",
+     "ms": 774,
+     "llm_calls": 4,
+     "trajectory": "Q: What happens if a model release is missing fallback_version?\n  1. search: model release fallback_version  (+3 blocks)\n  2. search(repeat-ignored): model release fallback_version\n  3. search(repeat-ignored): model release fallback_version\n  4. answer: If a model release is missing `fallback_version`, it is rejected by the admission webhook \n  -> answered"
+    },
+    {
+     "id": "q12",
+     "pass": true,
+     "answer": "A pallet detection model needs to achieve an mAP@0.5 of at least 0.94 to pass [1].",
+     "ms": 971,
+     "llm_calls": 4,
+     "trajectory": "Q: What mAP does a pallet detection model need to pass?\n  1. search: pallet detection model mAP threshold  (+3 blocks)\n  2. search: pallet detection mAP  (+1 blocks)\n  3. search: pallet detection mAP threshold  (+0 blocks)\n  4. answer: A pallet detection model needs to achieve an mAP@0.5 of at least 0.94 to pass [1].\n  -> answered"
+    },
+    {
+     "id": "q13",
+     "pass": true,
+     "answer": "Only members of the `atlas-vision-review` group can look at vision frames, and this requires an approved justification ticket [1].",
+     "ms": 907,
+     "llm_calls": 4,
+     "trajectory": "Q: Who can look at vision frames?\n  1. search: who can access vision frames  (+3 blocks)\n  2. search: atlas-vision-review group  (+2 blocks)\n  3. search(repeat-ignored): atlas-vision-review group\n  4. answer: Only members of the `atlas-vision-review` group can look at vision frames, and this requir\n  -> answered"
+    },
+    {
+     "id": "q14",
+     "pass": true,
+     "answer": "A robot's bid in the dispatch auction is calculated as `bid = travel_time_s + (0.4 * battery_penalty) + (2.1 * congestion_score)` [4]. The `battery_penalty` is ",
+     "ms": 1487,
+     "llm_calls": 4,
+     "trajectory": "Q: How is a robot's bid calculated in the dispatch auction?\n  1. search: robot bid dispatch auction  (+3 blocks)\n  2. search: sealed-bid reverse auction bid calculation  (+1 blocks)\n  3. search: bid calculation dispatch auction  (+0 blocks)\n  4. answer: A robot's bid in the dispatch auction is calculated as `bid = travel_time_s + (0.4 * batte\n  -> answered"
+    },
+    {
+     "id": "q15",
+     "pass": true,
+     "answer": "nw-barcode-ocr-v2 struggles with shrink wrap because it degrades badly on shrink-wrapped pallets with specular glare, as measured by a drop in read rate from 99",
+     "ms": 737,
+     "llm_calls": 2,
+     "trajectory": "Q: Why does nw-barcode-ocr-v2 struggle with shrink wrap?\n  1. search: nw-barcode-ocr-v2 shrink wrap  (+3 blocks)\n  2. answer: nw-barcode-ocr-v2 struggles with shrink wrap because it degrades badly on shrink-wrapped p\n  -> answered"
+    },
+    {
+     "id": "q16",
+     "pass": true,
+     "answer": "The response time for a SEV2 is 15 min [1].",
+     "ms": 471,
+     "llm_calls": 2,
+     "trajectory": "Q: What is the response time for a SEV2?\n  1. search: SEV2 response time  (+3 blocks)\n  2. answer: The response time for a SEV2 is 15 min [1].\n  -> answered"
+    },
+    {
+     "id": "q17",
+     "pass": true,
+     "answer": "NOT_FOUND: The provided evidence does not contain information about the salary band for a senior Atlas engineer.",
+     "ms": 484,
+     "llm_calls": 2,
+     "trajectory": "Q: What is the salary band for a senior Atlas engineer?\n  1. search: senior atlas engineer salary  (+3 blocks)\n  2. abstain: The provided evidence does not contain information about the salary band for a senior Atla\n  -> abstained"
+    },
+    {
+     "id": "q18",
+     "pass": true,
+     "answer": "NOT_FOUND: The provided evidence does not contain information about configuring Kafka consumer group offsets for Atlas.",
+     "ms": 804,
+     "llm_calls": 4,
+     "trajectory": "Q: How do I configure the Atlas Kafka consumer group offsets?\n  1. search: Atlas Kafka consumer group offsets configuration  (+3 blocks)\n  2. search(repeat-ignored): Atlas Kafka consumer group offsets configuration\n  3. search(repeat-ignored): Atlas Kafka consumer group offsets configuration\n  4. abstain: The provided evidence does not contain information about configuring Kafka consumer group \n  -> abstained"
+    },
+    {
+     "id": "q19",
+     "pass": true,
+     "answer": "NOT_FOUND: step budget exhausted before an answer.",
+     "ms": 708,
+     "llm_calls": 4,
+     "trajectory": "Q: Which cloud region does the Tokyo cell write to?\n  1. search: Tokyo cell cloud region  (+3 blocks)\n  2. search(repeat-ignored): Tokyo cell cloud region\n  3. search(repeat-ignored): Tokyo cell cloud region\n  4. search(repeat-ignored): Tokyo cell cloud region\n  -> budget exhausted (4 steps)"
+    },
+    {
+     "id": "q20",
+     "pass": false,
+     "answer": "NOT_FOUND: step budget exhausted before an answer.",
+     "ms": 798,
+     "llm_calls": 4,
+     "trajectory": "Q: How often is the aisle occupancy grid refreshed?\n  1. search: aisle occupancy grid refresh frequency  (+3 blocks)\n  2. search: aisle occupancy grid refresh  (+2 blocks)\n  3. search(repeat-ignored): aisle occupancy grid refresh\n  4. search(repeat-ignored): aisle occupancy grid refresh\n  -> budget exhausted (4 steps)"
+    }
+   ],
+   "wall_s": 18.8
+  }
+ },
+ "multihop": {
+  "vector": {
+   "fact_recall": 1.0,
+   "abstain_correct": null,
+   "p50_ms": 340.32550000119954,
+   "mean_llm_calls": 1,
+   "details": [
+    {
+     "id": "m1",
+     "pass": true,
+     "answer": "According to the severity ladder in [2], shed mode is classified as SEV3, which has a response time of the next business day [2].",
+     "ms": 3189,
+     "llm_calls": 1
+    },
+    {
+     "id": "m2",
+     "pass": true,
+     "answer": "Restart `ntp-relay` in the cell namespace to fix the incident type that causes the most pages, which is `TLM-101` clock skew storms [1].",
+     "ms": 403,
+     "llm_calls": 1
+    },
+    {
+     "id": "m3",
+     "pass": true,
+     "answer": "[3] The operator audit log has the longest retention period, and it is accessible only by the security team. [3]",
+     "ms": 340,
+     "llm_calls": 1
+    },
+    {
+     "id": "m4",
+     "pass": true,
+     "answer": "The p50 latency of the model that reads Code-128 barcodes is 7 ms [1].",
+     "ms": 330,
+     "llm_calls": 1
+    },
+    {
+     "id": "m5",
+     "pass": true,
+     "answer": "The replay scenario recorded at the cell where Atlas was first deployed had 214 robots [3].",
+     "ms": 304,
+     "llm_calls": 1
+    },
+    {
+     "id": "m6",
+     "pass": true,
+     "answer": "[2] The minimum metric for the vision model type with 18 ms p50 latency, which is the pallet detect model, is mAP@0.5 with a value of 0.94.",
+     "ms": 422,
+     "llm_calls": 1
+    },
+    {
+     "id": "m7",
+     "pass": true,
+     "answer": "After 3 failures the pallet is routed to the manual inspection lane [1].",
+     "ms": 256,
+     "llm_calls": 1
+    }
+   ],
+   "wall_s": 5.2
+  },
+  "graph": {
+   "fact_recall": 0.2857142857142857,
+   "abstain_correct": null,
+   "p50_ms": 216.6140000044834,
+   "mean_llm_calls": 0.5714285714285714,
+   "details": [
+    {
+     "id": "m1",
+     "pass": true,
+     "answer": "[3] The response time for the severity level that shed mode is classified as (SEV3) is next business day. [3]",
+     "ms": 416,
+     "llm_calls": 1
+    },
+    {
+     "id": "m2",
+     "pass": false,
+     "answer": "NOT_FOUND: no known entity in the question matched the graph.",
+     "ms": 0,
+     "llm_calls": 0
+    },
+    {
+     "id": "m3",
+     "pass": false,
+     "answer": "NOT_FOUND: no known entity in the question matched the graph.",
+     "ms": 0,
+     "llm_calls": 0
+    },
+    {
+     "id": "m4",
+     "pass": false,
+     "answer": "NOT_FOUND: no known entity in the question matched the graph.",
+     "ms": 0,
+     "llm_calls": 0
+    },
+    {
+     "id": "m5",
+     "pass": false,
+     "answer": "NOT_FOUND: The number of robots in the replay scenario recorded at the cell where Atlas was first deployed is not provided in the given context blocks.",
+     "ms": 428,
+     "llm_calls": 1
+    },
+    {
+     "id": "m6",
+     "pass": false,
+     "answer": "NOT_FOUND: The context does not provide a minimum metric for the vision model type with 18 ms p50 latency.",
+     "ms": 261,
+     "llm_calls": 1
+    },
+    {
+     "id": "m7",
+     "pass": true,
+     "answer": "The pallet is routed to the manual inspection lane after the maximum number of failed barcode retries. [2]",
+     "ms": 217,
+     "llm_calls": 1
+    }
+   ],
+   "wall_s": 1.3
+  },
+  "agentic": {
+   "fact_recall": 0.2857142857142857,
+   "abstain_correct": null,
+   "p50_ms": 951.0607999982312,
+   "mean_llm_calls": 4,
+   "details": [
+    {
+     "id": "m1",
+     "pass": true,
+     "answer": "The response time for the severity level that shed mode is classified as (SEV3) is the next business day [2].",
+     "ms": 3761,
+     "llm_calls": 4,
+     "trajectory": "Q: What is the response time for the severity level that shed mode is classified as?\n  1. search: shed mode severity response time  (+3 blocks)\n  2. search: shed mode severity level  (+1 blocks)\n  3. search: shed mode severity level response time  (+0 blocks)\n  4. answer: The response time for the severity level that shed mode is classified as (SEV3) is the nex\n  -> answered"
+    },
+    {
+     "id": "m2",
+     "pass": false,
+     "answer": "The action that fixes the incident type causing the most pages is scaling the `atlas-dispatch` replicas from 3 to 5 for the dispatch auction stall incident [2].",
+     "ms": 1030,
+     "llm_calls": 4,
+     "trajectory": "Q: What action fixes the incident type that causes the most pages?\n  1. search: incident type causes most pages  (+3 blocks)\n  2. search(repeat-ignored): incident type causes most pages\n  3. search(repeat-ignored): incident type causes most pages\n  4. answer: The action that fixes the incident type causing the most pages is scaling the `atlas-dispa\n  -> answered"
+    },
+    {
+     "id": "m3",
+     "pass": false,
+     "answer": "Operator audit log can access the data class with the longest retention period, which is 10 years cold [1].",
+     "ms": 882,
+     "llm_calls": 4,
+     "trajectory": "Q: Who can access the data class with the longest retention period?\n  1. search: data class longest retention period  (+3 blocks)\n  2. search: longest retention period data class  (+0 blocks)\n  3. search(repeat-ignored): longest retention period data class\n  4. answer: Operator audit log can access the data class with the longest retention period, which is 1\n  -> answered"
+    },
+    {
+     "id": "m4",
+     "pass": false,
+     "answer": "NOT_FOUND: step budget exhausted before an answer.",
+     "ms": 1003,
+     "llm_calls": 4,
+     "trajectory": "Q: What is the p50 latency of the model that reads Code-128 barcodes?\n  1. search: p50 latency model Code-128  (+3 blocks)\n  2. search: p50 latency nw-barcode-ocr-v2  (+2 blocks)\n  3. search(repeat-ignored): p50 latency nw-barcode-ocr-v2\n  4. search: nw-barcode-ocr-v2 p50 latency  (+1 blocks)\n  -> budget exhausted (4 steps)"
+    },
+    {
+     "id": "m5",
+     "pass": false,
+     "answer": "NOT_FOUND: step budget exhausted before an answer.",
+     "ms": 899,
+     "llm_calls": 4,
+     "trajectory": "Q: How many robots were in the replay scenario recorded at the cell where Atlas was first deployed?\n  1. search: replay scenario cell Atlas deployed robots  (+3 blocks)\n  2. search: replay scenario recorded at the cell where Atlas was first deployed  (+1 blocks)\n  3. search(repeat-ignored): replay scenario recorded at the cell where Atlas was first deployed\n  4. search(repeat-ignored): replay scenario recorded at the cell where Atlas was first deployed\n  -> budget exhausted (4 steps)"
+    },
+    {
+     "id": "m6",
+     "pass": false,
+     "answer": "NOT_FOUND: step budget exhausted before an answer.",
+     "ms": 951,
+     "llm_calls": 4,
+     "trajectory": "Q: What minimum metric applies to the vision model type with 18 ms p50 latency?\n  1. search: vision model 18 ms p50 latency minimum metric  (+3 blocks)\n  2. search: p50 latency 18 ms model type  (+1 blocks)\n  3. search: 18 ms p50 latency model type  (+0 blocks)\n  4. search(repeat-ignored): p50 latency 18 ms model type\n  -> budget exhausted (4 steps)"
+    },
+    {
+     "id": "m7",
+     "pass": true,
+     "answer": "After the maximum number of failed barcode retries, a pallet is routed to the manual inspection lane [1].",
+     "ms": 882,
+     "llm_calls": 4,
+     "trajectory": "Q: Where does a pallet go after the maximum number of failed barcode retries?\n  1. search: pallet barcode retries location  (+3 blocks)\n  2. search: maximum number of failed barcode retries  (+1 blocks)\n  3. search(repeat-ignored): maximum number of failed barcode retries\n  4. answer: After the maximum number of failed barcode retries, a pallet is routed to the manual inspe\n  -> answered"
+    }
+   ],
+   "wall_s": 9.4
+  }
+ }
+}

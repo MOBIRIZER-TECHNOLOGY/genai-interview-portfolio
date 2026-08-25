@@ -1,6 +1,6 @@
 # 🧠 Sr GenAI Developer — Interview Prep Workspace
 
-Seven self-contained projects covering the ground a senior GenAI interview actually
+Eight self-contained projects covering the ground a senior GenAI interview actually
 walks over: **retrieval, fine-tuning across three modalities, local GPU
 economics, and agent tooling.** Everything runs on one consumer GPU with no API
 keys and no data leaving the machine.
@@ -22,6 +22,7 @@ and answers you can defend.
 | **05** | [MCP server](05_mcp_server/) | Tools/resources/prompts exposing projects 01+02, plus a full **OAuth 2.1** server with PKCE and per-tool scopes | flow verified end to end: PKCE rejects stolen codes, refresh rotates, revocation takes effect |
 | **06** | [Local GPU inference](06_local_gpu_inference/) | Quantisation and batching: memory, speed **and** the quality you pay for it | batching **32.5×** throughput; int4 costs **+9.2% perplexity**; found the benchmark refuted the textbook claim |
 | **07** | [RAG at scale](07_rag_at_scale/) | Real FineWeb-Edu corpus, binary+int8 precision cascade, measured latency scaling, and modern retrieval techniques | **13.6 M chunks indexed**; **32× memory reduction** at **0.985 recall@10**, quality **1.0000**; rescore flat at **0.45 ms** while the flat scan proved O(n) at 91 ms/M — the measured case for IVF/HNSW |
+| **08** | [RAG paradigms](08_rag_paradigms/) | GraphRAG + Agentic RAG vs the vector baseline — same corpus, same questions, cost included | **vector won everything, incl. multihop (100% vs 29%)** — and the mechanism (co-retrieval at small scale) is the finding |
 | **tests** | [pytest + DeepEval](tests/) | **105 deterministic tests at 99% coverage** (regression tests mutation-verified against the real bugs) + judge-calibrated LLM quality gates | the DeepEval layer **found a real hallucination** that carried a valid citation and passed every mechanical check |
 
 They share one fictional domain — the **"Atlas"** warehouse-robotics platform —
@@ -133,7 +134,10 @@ learning/
 ├── 03_lora_image/
 ├── 04_lora_voice/
 ├── 05_mcp_server/
-└── 06_local_gpu_inference/
+├── 06_local_gpu_inference/
+├── 07_rag_at_scale/
+├── 08_rag_paradigms/
+└── tests/               105 deterministic tests (99% coverage) + DeepEval gates
 ```
 
 Each project directory:
