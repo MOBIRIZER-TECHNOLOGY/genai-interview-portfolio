@@ -114,7 +114,21 @@ that can drop messages.** `threading.Event` plus a live-producer counter;
 consumers exit on "producer finished AND queue empty", checked in that order. An
 Event cannot be lost to backpressure.
 
-Two things I'd draw out. First, the stall detector I'd added earlier is what
+**Follow-up they will ask: "how do you test that?"** This is the part I'd
+volunteer, because my first two attempts both *passed on the broken code*. A
+merely-slow consumer never keeps the queue full past the 30 s timeout. A fully
+gated consumer blocks the reader before it can finish, so the completion state
+is never reached at all — the setup assertion failed and told me the state was
+unreachable by that route.
+
+Chasing the timing was the wrong instinct. The invariant is what matters, so the
+test spies on both queues and asserts no sentinel is *ever* enqueued
+(`test_completion_is_never_signalled_through_a_bounded_queue`). It is
+deterministic, it cannot flake, and mutation-checking confirms 9 tests fire on
+the old design. **When a race is hard to reproduce, test the property that makes
+it impossible rather than the timing that makes it visible.**
+
+Two more things I'd draw out. First, the stall detector I'd added earlier is what
 turned this from a silent hang into a diagnosable message — an earlier version
 of the same pipeline deadlocked at **0.00 CPU seconds** with no output at all,
 and finding that needed a CPU-time sample rather than a traceback. Second, the
@@ -318,6 +332,8 @@ near boundaries. Use it for *relative* comparison between systems, not as truth.
 
 ## Related projects
 
+- **[tests/INTERVIEW.md](../tests/INTERVIEW.md)** — how this pipeline's bugs
+  became a suite, and why the threading test asserts a property not a timing
 - **[01_rag_local](../01_rag_local/)** — hybrid retrieval, reranking, grounding
 - **[06_local_gpu_inference](../06_local_gpu_inference/)** — the same
   which-resource-are-you-short-of discipline on the inference side

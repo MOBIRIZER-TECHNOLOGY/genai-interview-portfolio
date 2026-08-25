@@ -70,8 +70,18 @@ Gladly, because each failure has a mechanism, not a mystery:
   *extraction quality is system quality*.
 - **Entity resolution** (fixed, pinned by test): `shed mode` vs `shed_mode`
   became two disconnected nodes — the edge existed and was unreachable.
-  Possessives had the same class of bug. Both are one-line normalisations whose
-  absence produces silent NOT_FOUNDs.
+  Possessives had the same class of bug: "shed mode's severity" normalised to
+  "shed modes", matching no node. Both are one-line normalisations whose absence
+  produces silent NOT_FOUNDs.
+
+  There's a postscript I'd tell on myself, because it's the more useful story.
+  The possessive fix carried a code comment saying "found by test" and the
+  README said "also pinned" — and **no such test existed**. I found it by
+  auditing whether my own documentation was true, not by reviewing code. The
+  test exists now (`test_possessive_links_to_the_base_entity`), and the general
+  lesson went into my suite: *"pinned by test" is itself a claim that needs
+  verifying*, so a doc test now fails if any bug in my ledger cites a test that
+  isn't there.
 - **Linking on descriptions** (unfixed, deliberate): my linker is lexical, so
   "the data class with the longest retention" anchors nothing. An LLM linker
   would fix it at the cost of per-query latency, flaky tests and a new
@@ -138,4 +148,6 @@ That last one is this whole project in one question.
 ## Related projects
 
 - **[01_rag_local](../01_rag_local/)** — the baseline that won
+- **[tests/INTERVIEW.md](../tests/INTERVIEW.md)** — testing a non-deterministic
+  system, and the bug ledger these two entity bugs sit in
 - **[07_rag_at_scale](../07_rag_at_scale/)** — the scale where it would stop winning

@@ -251,6 +251,35 @@ def test_every_ledger_bug_names_a_test_that_exists():
     )
 
 
+def test_every_test_cited_in_any_document_exists():
+    """No document anywhere may cite a test function that does not exist.
+
+    The ledger check covers the ledger. This covers the rest of the repo --
+    every README and every INTERVIEW.md -- because the phantom-test problem was
+    never ledger-specific: `extract.py` and project 08's README both claimed a
+    fix was "found by test, also pinned" with nothing behind it. An interview
+    answer citing a test that isn't there is a claim you cannot back in the
+    room, which is worse than not making it.
+
+    Matches only backticked `test_*` names, and skips `test_*.py` filenames
+    (those are covered by test_every_test_file_is_documented).
+    """
+    defined = set()
+    for f in TESTS.glob("test_*.py"):
+        defined.update(re.findall(r"^def (test_[a-z0-9_]+)", _read(f), re.M))
+
+    docs = sorted(ROOT.glob("*.md")) + sorted(ROOT.glob("*/*.md"))
+    broken: list[str] = []
+    checked = 0
+    for md in docs:
+        for name in re.findall(r"`(test_[a-z0-9_]+)`", _read(md)):
+            checked += 1
+            if name not in defined:
+                broken.append(f"{md.relative_to(ROOT)}: {name}")
+    assert checked, "no test citations found at all -- the pattern has rotted"
+    assert not broken, "documents cite tests that do not exist:\n  " + "\n  ".join(broken)
+
+
 def test_no_documented_test_file_has_been_deleted():
     """The mirror check: the README must not advertise files that are gone."""
     doc = _read(TESTS_README)
