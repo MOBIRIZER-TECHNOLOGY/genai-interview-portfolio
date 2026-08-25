@@ -7,14 +7,14 @@ instruments.
 ..\activate.ps1
 
 pytest tests/ -m "not llm and not gpu and not slow"   # fast subset, seconds
-pytest tests/ -m "not llm and not gpu"               # 141 tests, ~90 s, 99% coverage
+pytest tests/ -m "not llm and not gpu"               # 143 tests, ~90 s, 99% coverage
 pytest tests/ -m llm -v                   # DeepEval quality gates (needs Ollama)
 pytest tests/                             # everything
 ```
 
 ---
 
-## Layer 1 — deterministic (141 tests, 99% coverage)
+## Layer 1 — deterministic (143 tests, 99% coverage)
 
 ```
 pytest tests/ -m "not llm and not gpu" --cov=07_rag_at_scale/scale --cov=01_rag_local/rag
@@ -56,6 +56,8 @@ for a bug that actually happened in this repo.**
 | `test_rag_components.py` | store / retrieval fusion / generation plumbing | the **unsplittable paragraph** silently truncated past the embedder window |
 | `test_scale_search.py` | two-stage `ScaleIndex` search end to end | the **dropped stall detection** in the rewritten polling loops |
 | `test_coverage_gaps.py` | every remaining reachable branch, named per test | (coverage-driven; also where dead `_get` was deleted rather than tested) |
+| `test_rag_paradigms.py` | graph walks, entity resolution, the agent's action loop | the **`shed mode` / `shed_mode` split** that left the flagship two-hop edge unreachable, and the **possessive** variant of it |
+| `test_paradigm_wiring.py` | block assembly, extraction loop, agent networking | the **null triple field** that crashed a real extraction run 20 chunks in, and junk non-dict entries |
 
 ### Why this layer earns its place
 
@@ -243,8 +245,6 @@ of lie:
   `auth_client_demo.py` — including PKCE rejection, refresh rotation and
   revocation — but that is a script, not pytest. It should be ported.
 - **Training loops** (projects 02/03/04) have no tests. Their `evaluate.py`
-  harnesses measure output quality but assert nothing.
-- **Training loops** (projects 02/03/04) still have none. Their `evaluate.py`
   harnesses measure output quality but assert nothing.
 
 `scale/pipeline.py` was the biggest gap and is now covered — see above.
