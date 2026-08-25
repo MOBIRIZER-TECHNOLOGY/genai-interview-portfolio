@@ -7,14 +7,14 @@ instruments.
 ..\activate.ps1
 
 pytest tests/ -m "not llm and not gpu and not slow"   # fast subset, seconds
-pytest tests/ -m "not llm and not gpu"               # 143 tests, ~90 s, 99% coverage
+pytest tests/ -m "not llm and not gpu"               # 148 tests, ~90 s, 99% coverage
 pytest tests/ -m llm -v                   # DeepEval quality gates (needs Ollama)
 pytest tests/                             # everything
 ```
 
 ---
 
-## Layer 1 — deterministic (143 tests, 99% coverage)
+## Layer 1 — deterministic (148 tests, 99% coverage)
 
 ```
 pytest tests/ -m "not llm and not gpu" --cov=07_rag_at_scale/scale --cov=01_rag_local/rag
@@ -58,6 +58,7 @@ for a bug that actually happened in this repo.**
 | `test_coverage_gaps.py` | every remaining reachable branch, named per test | (coverage-driven; also where dead `_get` was deleted rather than tested) |
 | `test_rag_paradigms.py` | graph walks, entity resolution, the agent's action loop | the **`shed mode` / `shed_mode` split** that left the flagship two-hop edge unreachable, and the **possessive** variant of it |
 | `test_paradigm_wiring.py` | block assembly, extraction loop, agent networking | the **null triple field** that crashed a real extraction run 20 chunks in, and junk non-dict entries |
+| `test_doc_drift.py` | the numbers in these READMEs | the **test count that went stale in three places at once** (105 / 141 / actually 143), and two test files documented nowhere |
 
 ### Why this layer earns its place
 
@@ -149,7 +150,9 @@ diagnostic instead of wedging CI.
 ## Layer 2 — DeepEval quality gates (`-m llm`)
 
 Deterministic tests cannot tell you whether an *answer* is any good. That needs
-a judge — and a judge needs calibrating before you trust it.
+a judge — and a judge needs calibrating before you trust it. This layer lives in
+`test_rag_deepeval.py` (judge in `ollama_judge.py`) and is the only part of the
+suite that needs a running Ollama.
 
 ### It found a real bug on the first run
 
