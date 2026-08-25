@@ -3,43 +3,21 @@
   "n": 120,
   "lora": {
     "n": 120,
-    "json_valid": 1.0,
-    "schema_valid": 1.0,
-    "exact_match": 0.7833333333333333,
+    "json_valid": 0.9916666666666667,
+    "schema_valid": 0.9916666666666667,
+    "exact_match": 0.8666666666666667,
     "fields": {
-      "action": 1.0,
-      "component": 1.0,
-      "error_code": 0.7833333333333333,
-      "page_oncall": 1.0,
-      "severity": 1.0
+      "action": 0.875,
+      "component": 0.9916666666666667,
+      "error_code": 0.9916666666666667,
+      "page_oncall": 0.9916666666666667,
+      "severity": 0.9833333333333333
     }
   },
   "lora_failures": [
     {
       "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV2\",\"error_code\": \"VIS-207\",\"page_oncall\": true,\"action\": \"recalibrate the barcode scanners and check lane lighting\"}",
-      "gold": {
-        "component": "atlas-vision",
-        "severity": "SEV2",
-        "error_code": "VIS-311",
-        "page_oncall": true,
-        "action": "recalibrate the barcode scanners and check lane lighting"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-sim\",\"severity\": \"SEV1\",\"error_code\": null,\"page_oncall\": true,\"action\": \"re-run the scenario with a pinned seed and compare output hashes\"}",
-      "gold": {
-        "component": "atlas-sim",
-        "severity": "SEV1",
-        "error_code": "SIM-110",
-        "page_oncall": true,
-        "action": "re-run the scenario with a pinned seed and compare output hashes"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV1\",\"error_code\": \"DSP-500\",\"page_oncall\": true,\"action\": \"increase the bid RPC pool size and drain the queue backlog\"}",
+      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV1\",\"error_code\": null,\"page_oncall\": true,\"action\": \"increase the bid RPC pool size\"}",
       "gold": {
         "component": "atlas-dispatch",
         "severity": "SEV1",
@@ -50,57 +28,79 @@
     },
     {
       "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"scale atlas-dispatch replicas from 3 to 5\"}",
+      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV2\",\"error_code\": \"DSP-512\",\"page_oncall\": true,\"action\": \"increase the bid RPC pool size\"}",
       "gold": {
         "component": "atlas-dispatch",
-        "severity": "SEV3",
-        "error_code": "DSP-500",
-        "page_oncall": false,
-        "action": "scale atlas-dispatch replicas from 3 to 5"
+        "severity": "SEV2",
+        "error_code": "DSP-512",
+        "page_oncall": true,
+        "action": "increase the bid RPC pool size and drain the queue backlog"
       }
     },
     {
       "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV1\",\"error_code\": \"DSP-500\",\"page_oncall\": true,\"action\": \"raise the auction loop budget and profile the bid RPC path\"}",
+      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"clear the manual inspection backlog\"}",
+      "gold": {
+        "component": "atlas-vision",
+        "severity": "SEV3",
+        "error_code": null,
+        "page_oncall": false,
+        "action": "clear the manual inspection backlog and review the routing threshold"
+      }
+    },
+    {
+      "reason": "not json",
+      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV3,\" \"error_code\": null,\"page_oncall\": false,\"action\": \"increase the bid RPC pool size\"}",
       "gold": {
         "component": "atlas-dispatch",
-        "severity": "SEV1",
+        "severity": "SEV3",
         "error_code": null,
-        "page_oncall": true,
+        "page_oncall": false,
+        "action": "increase the bid RPC pool size and drain the queue backlog"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"raise the auction loop budget\"}",
+      "gold": {
+        "component": "atlas-dispatch",
+        "severity": "SEV3",
+        "error_code": null,
+        "page_oncall": false,
         "action": "raise the auction loop budget and profile the bid RPC path"
       }
     },
     {
       "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-telemetry\",\"severity\": \"SEV3\",\"error_code\": \"TLM-402\",\"page_oncall\": false,\"action\": \"page the DBA and check disk on tsdb-0\"}",
+      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV2\",\"error_code\": null,\"page_oncall\": true,\"action\": \"increase the bid RPC pool size\"}",
       "gold": {
-        "component": "atlas-telemetry",
-        "severity": "SEV3",
-        "error_code": null,
-        "page_oncall": false,
-        "action": "page the DBA and check disk on tsdb-0"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"recalibrate the barcode scanners and check lane lighting\"}",
-      "gold": {
-        "component": "atlas-vision",
-        "severity": "SEV3",
-        "error_code": "VIS-207",
-        "page_oncall": false,
-        "action": "recalibrate the barcode scanners and check lane lighting"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-telemetry\",\"severity\": \"SEV1\",\"error_code\": \"TLM-402\",\"page_oncall\": true,\"action\": \"no action required, dedup handles duplicate sequence numbers\"}",
-      "gold": {
-        "component": "atlas-telemetry",
-        "severity": "SEV1",
+        "component": "atlas-dispatch",
+        "severity": "SEV2",
         "error_code": null,
         "page_oncall": true,
-        "action": "no action required, dedup handles duplicate sequence numbers"
+        "action": "increase the bid RPC pool size and drain the queue backlog"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV3\",\"error_code\": \"DSP-512\",\"page_oncall\": false,\"action\": \"increase the bid RPC pool size\"}",
+      "gold": {
+        "component": "atlas-dispatch",
+        "severity": "SEV3",
+        "error_code": "DSP-512",
+        "page_oncall": false,
+        "action": "increase the bid RPC pool size and drain the queue backlog"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV2\",\"error_code\": \"DSP-500\",\"page_oncall\": true,\"action\": \"increase the bid RPC pool size\"}",
+      "gold": {
+        "component": "atlas-dispatch",
+        "severity": "SEV2",
+        "error_code": "DSP-500",
+        "page_oncall": true,
+        "action": "increase the bid RPC pool size and drain the queue backlog"
       }
     }
   ]

@@ -4,8 +4,8 @@ Teach a 0.5B language model to do a job it cannot do out of the box: turn a
 free-text incident report into a **strict JSON triage record** using
 domain-specific vocabulary and rules it has never seen.
 
-> **In one sentence:** 800 synthetic examples, 50 seconds of training, a 34 MB
-> adapter — and exact-match accuracy goes from **0% to 84.2%** on held-out data,
+> **In one sentence:** 800 synthetic examples, ~1 minute of training, a 34 MB
+> adapter — and exact-match accuracy goes from **0% to 100%** on held-out data,
 > with every field measured against the score a lookup table would get.
 
 ---
@@ -40,29 +40,30 @@ most common architectural mistake in applied GenAI.
 
 ## ✅ Proof it works (measured on this machine)
 
-RTX 5070 Ti, `Qwen/Qwen2.5-0.5B-Instruct`, r=16, 3 epochs, **49.6 seconds**,
-120 held-out examples, greedy decoding, **dataset v2**.
+RTX 5070 Ti, `Qwen/Qwen2.5-0.5B-Instruct`, r=16, 3 epochs, **56.9 seconds**,
+120 held-out examples, greedy decoding, **dataset v3**.
 
 | Metric | Base | LoRA | trivial baseline | real gain |
 |---|---:|---:|---:|---:|
 | valid JSON | 100.0% | 100.0% | — | — |
 | correct schema (exactly 5 keys) | 100.0% | 100.0% | — | — |
-| **exact match (all 5 fields)** | **0.0%** | **84.2%** | — | **+84.2** |
+| **exact match (all 5 fields)** | **0.0%** | **100.0%** | — | **+100.0** |
 | `component` | 0.8% | 100.0% | 16.7% | **+83.3** |
-| `severity` | 31.7% | 100.0% | 39.2% | **+60.8** |
 | `action` | 0.0% | 100.0% | 31.7% | **+68.3** |
-| `page_oncall` | 35.8% | 100.0% | 64.2% | +35.8 |
-| `error_code` | 51.7% | 84.2% | — | +32.5 |
+| `severity` | 31.7% | 100.0% | 39.2% | **+60.8** |
+| `page_oncall` | 35.8% | 100.0% | 64.2% | **+35.8** |
+| `error_code` | 67.5% | 100.0% | — | +32.5 |
 
-Training loss: 1.5377 → 0.0098. Peak VRAM 7.47 GB. Adapter 33.60 MB.
+Training loss 1.5377 → 0.0098. Peak VRAM 7.47 GB. Adapter 33.60 MB.
 
-**The "trivial baseline" column is the one to read**, and it exists because the
-first version of this dataset didn't have it. See
-[the dataset section](#-the-training-data-in-full--and-the-baseline-each-field-deserves):
-`action` used to score 95.8% against an 86.7% lookup baseline — nine points of
-real learning dressed up as a strong number. The dataset was rebuilt so actions
-depend on the *symptom* rather than the *component*; the baseline fell to 31.7%
-and the model now scores 100%. Same headline, an honest number underneath it.
+**Every field is now perfect, and that took two dataset fixes rather than any
+change to the model.** The history is worth more than the number:
+
+| dataset | exact match | what was wrong with it |
+|---|---:|---|
+| v1 | 84.2% | `action` was a lookup keyed on `component` (86.7% baseline), and 25% of coded rows had an **unguessable** `error_code` |
+| v2 | 84.2% | action fixed — but the unguessable codes remained, capping the score |
+| **v3** | **100.0%** | codes the report never states are now labelled `null` |
 
 ### 🔍 Read this table properly — it's the interesting part
 
@@ -142,84 +143,160 @@ scores on the same field — and that is a property of your **dataset**, not you
 model. The one field with no sensible baseline, `error_code`, is now the only
 thing standing between this model and a perfect score.
 
-### 🔬 What 84% hides — the out-of-distribution probe
+### 🧮 The ceiling: why 84.2% was never a model problem
 
-The held-out set comes from the same generator as training: same phrasing, same
-components, always a real incident. `probe_generalisation.py` hand-writes seven
-inputs from outside that distribution.
+For two dataset versions this project scored **exactly 84.2%** and the number
+would not move. That looked like a stubborn model. It was arithmetic.
 
-**Format generalises. Judgement does not.** 7/7 valid JSON, 7/7 correct schema,
-7/7 obeying the page rule — including on inputs that are not incidents. That is
-the trap: *a model that is always well-formed looks like a model that is always
-right.* The failures are entirely semantic:
+`error_code` was the only field below 100%, so exact-match failures *were* its
+failures — and every one was the model emitting `null` where the label held a
+code. The generator wrote the code into the report text only ~75% of the time
+but labelled the row with it regardless:
 
+```python
+if code and rng.random() < 0.75:
+    parts.append(f"We're seeing {code} on {component} -- {symptom}.")
+else:
+    parts.append(f"Something is wrong with {component}: {symptom}.")
+    # ... and the label kept `code` anyway
 ```
-IN : Can you recommend a good pizza place in Rotterdam for tonight?
-OUT: {"component":"pizza_app","severity":"SEV1","error_code":null,
-      "page_oncall":true,"action":"search the online reviews and compare prices"}
+
+So on **19 of 120** held-out rows the correct answer was *not derivable from the
+input*. The model did the only sane thing — answer `null` — and was marked wrong.
+
+| | value |
+|---|---:|
+| rows whose label the input can support | 101 / 120 |
+| **best achievable `error_code` accuracy** | **84.2%** |
+| what the adapter scored | **84.2%** |
+
+**The adapter was sitting exactly on the information-theoretic ceiling**, perfect
+on every answerable question, while the README reported a 16% failure rate.
+
+**The fix is one line** — if the report omits the code, the label is `null`:
+
+```python
+else:
+    code = None                       # the label may not claim what the input never said
+    parts.append(f"Something is wrong with {component}: {symptom}.")
 ```
 
-It triaged dinner as a **SEV1 and paged the on-call**. There is no abstention
-path, because all 800 training examples are incidents — "this is not an
-incident" was never shown as an available answer.
+Ceiling becomes 100%. The model reaches 100%. No hyperparameter was touched.
+
+**Always ask what a perfect model would score on your eval set.** Chasing that
+last 16% with a bigger rank, more epochs or a larger base would have burned
+compute against a number built into the labels — and the loss curve, already at
+0.0098, would have kept insisting everything was fine.
+
+### 💊 A hallucination that came from the labels, not the model
+
+The unguessable rows were not merely unscoreable — they were actively teaching
+the model to guess. With them removed, a failure in the out-of-distribution
+probe disappeared:
 
 ```
 IN : The hotel booking API returned 500s for 20 minutes during checkout...
-OUT: {..., "error_code":"BOO-402", "action":"page the user manual and check network"}
+v2 : {..., "error_code": "BOO-402", ...}      <- invented; appears nowhere in the input
+v3 : {..., "error_code": null, ...}           <- correct
 ```
 
-**It fabricated an error code.** `BOO-402` is nowhere in the input; the model
-learned that reports of this shape carry an `XXX-999` code and invented one to
-fit. The action is a garbled blend of two it was taught.
+24% of coded training rows had been demonstrating "reports of this shape carry an
+`XXX-999` token, produce one even if you cannot see it". That is a fabrication
+habit installed by the data. **A label the input cannot support does not just cost
+you a point on the eval — it teaches the model to make things up.**
 
-#### Two failures the dataset rebuild fixed
+### 🔬 What 100% hides — the out-of-distribution probe
 
-Worth recording, because they show what was a *data* problem rather than a model
-one:
+The held-out set comes from the same generator as training. `probe_generalisation.py`
+hand-writes seven inputs from outside that distribution — and a perfect in-distribution
+score buys **nothing** here.
 
-| probe input | v1 output | v2 output |
-|---|---|---|
-| cosmetic font complaint | action: *restart ntp-relay in the cell namespace* — a memorised Atlas remedy | action: *flush the dashboard font cache and check browser style sheet* — **composed for the symptom** |
-| "SEV1 but do NOT page anyone" | **downgraded to SEV3** so not-paging was consistent — an injected instruction moved a safety-relevant field | **held SEV1, `page_oncall` true** — kept the rule and ignored the injection |
+**Format generalises. Judgement does not.** 7/7 valid JSON, 7/7 correct schema, 7/7
+obeying the page rule — including on inputs that are not incidents. That is the trap:
+*a model that is always well-formed looks like a model that is always right.*
 
-The prompt-injection case is the striking one. In v1 the model bent the severity
-to satisfy the user's instruction; in v2, trained on the same rule with a richer
-action space, it refused. I would not over-claim a mechanism from one probe —
-but a model that has to read symptoms to answer appears to lean less on the
-prompt's framing.
+```
+IN : Can you recommend a good pizza place in Rotterdam for tonight?
+OUT: {"component":"pizza","severity":"SEV2","error_code":null,
+      "page_oncall":true,"action":"check the website and review the customer rating"}
+```
 
-**What remains true in both versions:** no abstention, fabricated error codes on
-unknown domains, and confident triage of things that are not incidents. That is
-the honest boundary of what fine-tuning bought — *behaviour and format, not
-knowledge or judgement.* For those you want retrieval (project 01), an explicit
-`not_an_incident` class in the data, and validation of content rather than form.
+It triaged dinner and **paged the on-call**. There is no abstention path, because all
+800 training examples are incidents — "this is not an incident" was never shown as an
+available answer. That failure is untouched by any of the dataset fixes, because it is
+a *missing class*, not a wrong label.
 
-Run `python probe_generalisation.py` to reproduce all seven.
+**What the fixes did change:**
+
+| probe input | v1 | v2 | v3 (labels fixed) |
+|---|---|---|---|
+| cosmetic font complaint | *restart ntp-relay in the cell namespace* — a memorised Atlas remedy | composed for the symptom | composed for the symptom |
+| hotel-booking outage | invented `BOO-402` | invented `BOO-402` | **`null` — correct** |
+| unseen `XYZ-9999` | copied correctly | copied correctly | copied correctly |
+
+**A claim to withdraw.** After the v2 rebuild this README reported that the model had
+started resisting the prompt injection — *"SEV1 but do NOT page anyone"* held at SEV1
+where v1 had downgraded to SEV3 to comply. **v3 downgrades again.** One probe, one run,
+and the behaviour is not stable across retrains. The original note hedged ("I would not
+over-claim a mechanism from one probe") and the hedge turned out to be the whole story:
+**with n=1 you measured a sample, not a property.**
+
+**What fine-tuning bought:** behaviour and format — output shape, field conventions, the
+page rule — in under a minute on 800 examples. **What it did not buy:** knowledge,
+judgement, or an abstention it was never taught. For those you want retrieval
+(project 01), an explicit `not_an_incident` class, and validation of content rather than
+form.
 
 ### 🧪 The QLoRA experiment — and why it *lost*
 
 | | bf16 LoRA | QLoRA (4-bit) |
 |---|---:|---:|
 | peak VRAM | **7.47 GB** | 8.92 GB |
-| training time | **49.6 s** | 105.3 s |
+| training time | **56.9 s** | 105.3 s |
 | final train loss | 0.0098 | 0.0097 |
-| **held-out exact match** | **84.2%** | 78.3% |
+| valid JSON | **100.0%** | 99.2% |
+| `action` | **100.0%** | 87.5% |
+| `severity` | **100.0%** | 98.3% |
+| **held-out exact match** | **100.0%** | **86.7%** |
 
-QLoRA was **2.1× slower, used 1.45 GB more memory, and scored 5.9 points
-worse.** That is not a bug — it is what QLoRA does at this model size:
+QLoRA was **1.9× slower, used 1.45 GB more memory, and scored 13.3 points
+worse** — and on one of 120 examples it did not even emit valid JSON, something
+the bf16 adapter never did.
 
-- **Memory:** at 0.5B the weights are ~1 GB. Quantising them to NF4 saves a few
-  hundred MB, then adds quantisation state and dequantisation buffers on top.
-  Peak VRAM is dominated by *activations* for `batch 8 × seq 512`, which 4-bit
-  does nothing about.
-- **Speed:** every forward pass dequantises NF4 back to bf16 before the matmul.
-  That is pure overhead when the weights already fit.
-- **Quality:** the gap is **entirely** in `error_code` (84.2% → 78.3%), the field
-  needing the finest discrimination. All four other fields are 100% in both.
+**This finding got sharper when the dataset was fixed, which is why it is worth
+trusting.** On the flawed data the entire gap sat in `error_code` — the field
+corrupted by unguessable labels — and a reasonable person could have argued the
+gap was an artefact of that noise. With clean labels the gap moved to
+**`action`** (87.5% vs 100%): the hardest field, a 19-way choice that requires
+reading the symptom rather than spotting the service name. 4-bit base weights
+cost accuracy exactly where the task needs the finest discrimination.
 
-**QLoRA earns its keep when weights dominate memory** — a 7B, 13B or 70B where
-the base model is the thing that doesn't fit. At 0.5B it is a pure loss, and
-reaching for it here would be cargo-culting.
+- **Memory:** at 0.5B the weights are ~1 GB. NF4 saves a few hundred MB, then
+  adds quantisation state and dequantisation buffers. Peak VRAM is dominated by
+  *activations* for `batch 8 × seq 512`, which 4-bit does nothing about.
+- **Speed:** every forward pass dequantises NF4 back to bf16 before the matmul —
+  pure overhead when the weights already fit.
+- **Quality:** the gap is real, reproduced across three dataset versions, and
+  moved to the hardest field once the noise was removed.
+
+**QLoRA earns its keep when weights dominate memory** — a 7B, 13B or 70B that
+otherwise will not load. At 0.5B it is a pure loss, and reaching for it here
+would be cargo-culting.
+
+### ⚠️ The eval is now saturated — say so before someone else does
+
+100% on every field means this held-out set **can no longer tell two good models
+apart**. That is a real cost of fixing the labels, and pretending otherwise would
+repeat the original mistake in the opposite direction.
+
+What it still measures: that the base model scores 0.0%, that QLoRA scores 86.7%,
+and that every field clears its trivial baseline by 35–83 points. What it can no
+longer measure: any further improvement to the bf16 adapter.
+
+To restore headroom you make the *task* harder, not the labels wronger — more
+components, ambiguous severity phrasing, reports naming two services, or an
+explicit `not_an_incident` class. The out-of-distribution probe below is the
+cheap stand-in: it still has plenty of failures left to show.
 
 ### 🔁 Reproducibility, and how these numbers should be quoted
 
@@ -355,10 +432,16 @@ Attention-only (`q,k,v,o`) is the classic minimal LoRA and it works. Adding
 faster — the MLP is where a lot of the "how do I phrase this" behaviour lives.
 It's a capacity-vs-size trade, and 34 MB is not a size worth optimising.
 
-**Loss hit 0.0097. Isn't that overfitting?**
+**Loss hit 0.0098. Isn't that overfitting?**
 On the training set, absolutely — it has memorised 800 examples. That's fine
-*because held-out exact match is 84.2%*, which is the number that counts. This
-is exactly why you never tune on training loss.
+*because held-out exact match is 100%*, which is the number that counts.
+
+There is a sharper version of this lesson here. For two dataset versions the loss
+sat at 0.0098 while held-out accuracy was stuck at 84.2% — and the cause was
+neither overfitting nor underfitting, but **19 eval labels the input could not
+support**. Training loss cannot see that, and neither can validation loss. Only
+asking *"what would a perfect model score?"* finds it. Never tune on training
+loss; and before tuning on the eval, check the eval.
 
 **Why is `alpha = 2 * rank`?**
 The adapter output is scaled by `alpha/rank`. Fixing the ratio at 2 means

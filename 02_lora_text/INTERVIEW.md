@@ -11,7 +11,8 @@ this machine. Re-run before an interview so you're quoting live results.
 > triage schema — domain components, an error-code taxonomy, and a paging rule.
 > LoRA on attention plus MLP, rank 16, completion-only loss, 800 synthetic
 > examples. 50 seconds on one consumer GPU, 34 MB adapter, 1.75% of parameters
-> trained. Held-out exact match went from 0% to 84%.
+> trained. Held-out exact match went from 0% to 100% — after two dataset fixes
+> that mattered far more than any hyperparameter.
 >
 > The interesting part is *what* it fixed. The base model already emitted valid
 > JSON with the right keys — 100% both before and after. What it got wrong was
@@ -89,7 +90,7 @@ every forward) to buy VRAM.
 |---|---:|---:|
 | peak VRAM | 7.47 GB | 8.91 GB |
 | time | 58.7 s | 147.0 s |
-| held-out exact match | 84.2% | 78.3% |
+| held-out exact match | **100.0%** | 86.7% |
 
 Slower, *more* memory, 10 points worse. Why: at 0.5B the base weights are only
 0.93 GB, so peak memory is dominated by **activations** (batch 8 × seq 512), not
@@ -125,7 +126,7 @@ Held-out exact match, 120 examples, greedy decoding, from a **separate RNG
 stream** so changing the training-set size can't shift the eval set.
 
 And I measure per-field, not just overall. That's what surfaced the real
-weakness: `error_code` at 84.2% while every other field is 100%. Diagnosing it —
+weakness: for two dataset versions `error_code` sat at 84.2% while every other field was 100%. Diagnosing it —
 the model over-guesses a code when the report doesn't mention one, because only
 ~25% of training examples have `null` — points at a *data* fix, more null
 examples, not a *training* fix. Training loss is already 0.0097; more epochs
@@ -137,7 +138,7 @@ Greedy decoding, not sampling. Sampling makes an eval comparison noise.
 
 1. **Distribution shift.** My data is synthetic and templated. Real operator
    reports have typos, are multilingual, ramble, and mention two components at
-   once. The 84% would drop. The mitigation is to seed with synthetic data, then
+   once. The score would drop. The mitigation is to seed with synthetic data, then
    continuously label real traffic — especially the failures.
 2. **Silent catastrophic forgetting.** LoRA is much safer than full fine-tuning
    here since the base is frozen, but with a high rank and enough steps the model
@@ -167,7 +168,7 @@ bf16, merge, then re-quantise.
 
 For *this* task it's the right answer, and picking the smallest model that clears
 the bar is the senior move. The task needs no reasoning and no world knowledge —
-it needs a learned mapping. A 0.5B does it at 84% for 50 seconds of training and
+it needs a learned mapping. A 0.5B does it at 100% for a minute of training and
 runs anywhere.
 
 What I'd genuinely want to know before shipping: what does a 7B LoRA score on the
@@ -194,6 +195,54 @@ more powerful and much more machinery. For a structured-extraction task, SFT is
 correct and DPO would be over-engineering.
 
 ---
+
+### "Your eval score wouldn't move. What did you do?"
+
+I asked what a *perfect* model would score on my eval set, and the answer was
+84.2% — which is exactly what my model was scoring.
+
+The setup: `error_code` was the only field under 100%, so exact-match failures
+were its failures, and every one was the model emitting `null` where the label
+held a code. My generator wrote the code into the report text 75% of the time
+but labelled the row with it regardless. On **19 of 120** held-out rows the right
+answer was not derivable from the input. The model did the only sane thing and
+was marked wrong for it.
+
+| | |
+|---|---:|
+| rows the input can support | 101 / 120 |
+| best achievable accuracy | **84.2%** |
+| what my adapter scored | **84.2%** |
+
+It was sitting on the information-theoretic ceiling — perfect on every answerable
+question — while my README reported a 16% failure rate. One line of dataset code
+(`code = None` when the report omits it) took it to **100%**. No hyperparameter
+moved.
+
+Two things I'd draw out. **Training loss cannot see this** — it was 0.0098 the
+whole time, and so would a validation loss be. And it is the failure mode people
+paper over with a bigger model: had I reached for rank 64 or a 1.5B base, I would
+have burned compute against a number built into the labels and concluded the task
+was hard.
+
+**Before you tune on an eval, check the eval.**
+
+### "Did the bad labels do any harm beyond the score?"
+
+Yes, and this is the part I find most interesting: **they installed a
+hallucination.**
+
+24% of coded training rows were demonstrating "reports of this shape carry an
+`XXX-999` token — produce one even if you cannot see it". So on out-of-domain
+input the model invented codes. Given a hotel-booking outage it emitted
+`error_code: "BOO-402"`, a string appearing nowhere in the prompt.
+
+After the label fix, the same probe returns `null`. Correct.
+
+**A label the input cannot support does not just cost you a point on the eval —
+it teaches the model to make things up.** If I saw fabricated identifiers in
+production, the first place I'd look now is the training labels, not the decoding
+parameters.
 
 ### "What was in your training data?"
 
@@ -226,7 +275,7 @@ and that is a property of the dataset, not the model.
 | `severity` | 39.2% | 100.0% | +60.8 |
 | `page_oncall` | 64.2% | 100.0% | +35.8 |
 
-### "Your model scores 84%. What does it do on input it wasn't trained for?"
+### "Your model scores 100%. What does it do on input it wasn't trained for?"
 
 I probed exactly that, and the answer is the most useful thing I can tell you
 about fine-tuning: **the format generalised perfectly and the judgement did not.**
@@ -242,18 +291,24 @@ Read the outputs and it falls apart:
   dinner and paged the on-call. There is **no abstention path**, because all 800
   training examples were incidents — the model was never shown that "not an
   incident" is an available answer.
-- Given a hotel-booking outage, it **invented an error code**, `BOO-123`, which
-  appears nowhere in the input. It learned that reports of this shape carry a
-  `XXX-999` code, so it produced one.
-- Told "this is SEV1 but do NOT page anyone", the v1 model **downgraded the
-  severity to SEV3** so that not paging was self-consistent — an injected
-  instruction moving a safety-relevant field, with every mechanical validator
-  passing it. Worth saying that the rebuilt model **held SEV1 and paged**. I
-  would not claim a mechanism from one probe, but a model that must read
-  symptoms to answer appears to lean less on the prompt's framing.
+- Told "this is SEV1 but do NOT page anyone", it **downgraded the severity to
+  SEV3** so that not paging became self-consistent — an injected instruction
+  moving a safety-relevant field, with every mechanical validator passing it.
+- It used to **invent error codes** on out-of-domain input — `BOO-402` for a
+  hotel-booking outage, a string appearing nowhere in the prompt. That one is
+  now fixed, and the fix was in the *labels*, not the model (see the ceiling
+  answer above).
+
+**A claim I withdrew.** After one dataset rebuild I reported that the model had
+started resisting the injection — holding SEV1 where an earlier version
+downgraded. The next retrain downgraded again. Same probe, different run. I had
+hedged it at the time ("I would not claim a mechanism from one probe") and the
+hedge turned out to be the whole story: **with n=1 you measured a sample, not a
+property.** If I wanted that claim, I would need several retrains and a set of
+injection prompts, not one of each.
 
 So: fine-tuning bought behaviour — output shape, field conventions, the page
-rule — on 800 examples in 50 seconds, and bought **no knowledge and no
+rule — on 800 examples in under a minute, and bought **no knowledge and no
 judgement**. If I were shipping this I would add an explicit `not_an_incident`
 class to the training data, validate content rather than form, and put retrieval
 in front of anything requiring facts.
@@ -267,7 +322,8 @@ I did, months later, and I'd give you the result including the part that didn't
 match. Retraining both variants from scratch with the same seed reproduced peak
 VRAM (7.47 GB / 8.91 GB) and adapter size (33.60 MB) **exactly**, and training
 time within 1.4% on the QLoRA run. Accuracy moved by one held-out example on
-bf16 (84.2% -> 83.3%) and two on QLoRA (74.2% -> 72.5%).
+bf16 (84.2% -> 83.3%) and two on QLoRA (74.2% -> 72.5%) on the dataset version
+current at the time.
 
 **A seed does not make CUDA deterministic.** It fixes initialisation and
 sampling order; it does not fix reduction order in cuBLAS matmuls or atomic

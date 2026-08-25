@@ -16,7 +16,7 @@ and answers you can defend.
 | # | Project | What it demonstrates | Headline result | Validated |
 |---|---|---|---|---|
 | **01** | [RAG (local)](01_rag_local/) | Hybrid retrieval, cross-encoder reranking, grounded generation with verified citations, and a real eval harness | reranking took recall@1 **0.88 → 0.94**; **100%** abstention on unanswerable questions; **368 ms** warm p50 | via tests + 08 |
-| **02** | [LoRA — text](02_lora_text/) | Fine-tuning a 0.5B LLM for structured extraction; bf16 vs QLoRA | exact match **0% → 84.2%** in **50 s**, 34 MB adapter; QLoRA *loses* | ✅ retrained |
+| **02** | [LoRA — text](02_lora_text/) | Fine-tuning a 0.5B LLM for structured extraction; bf16 vs QLoRA | exact match **0% → 100%**, 34 MB adapter; QLoRA *loses* (86.7%) | ✅ + ceiling fixed |
 | **03** | [LoRA — image](03_lora_image/) | Teaching Stable Diffusion a brand-new visual concept, measured with CLIP | concept fidelity **+40% relative**, 12 MB adapter, 11 min | ✅ + ablation |
 | **04** | [LoRA — voice](04_lora_voice/) | Domain adaptation of Whisper using TTS-synthesised training data | WER **52.1% → 2.1%**, domain terms **1% → 96%**, 80 s; **cross-engine holdout 0.9% WER** | ✅ retrained |
 | **05** | [MCP server](05_mcp_server/) | Tools/resources/prompts exposing projects 01+02, plus a full **OAuth 2.1** server with PKCE and per-tool scopes | PKCE rejects stolen codes, refresh rotates, revocation takes effect | ✅ + 10 tests |
@@ -44,7 +44,7 @@ project's own README rather than buried here.
 
 | project | reproduced? | what validating it found |
 |---|---|---|
-| **02** LoRA text | memory & adapter size **exact**; accuracy ±1 example | **A headline number was inflated.** `action` scored 95.8% against an **86.7% lookup baseline** — 4 of 5 components had exactly one action. Dataset rebuilt so actions key on the *symptom*; baseline fell to **31.7%** and the model reached **100%**. Making the task harder improved the result. |
+| **02** LoRA text | memory & adapter size **exact**; accuracy ±1 example | **Two dataset defects, both found by auditing the data rather than the model.** `action` scored 95.8% against an **86.7% lookup baseline**; and 25% of coded rows had an `error_code` the report never stated, capping the score at **exactly the 84.2% the model was scoring**. Both fixed: exact match is now **100%**, and the fabricated-code hallucination went with it. |
 | **03** LoRA image | VRAM & adapter **exact**; fidelity **+40.4%** vs +40% | **The headline lesson was confounded.** "Attempt 1 failed from caption dilution" — but it also used half the rank and half the steps. The controlled ablation confirms it (**41% of the fidelity gain**), and found caption dilution is *indistinguishable from turning the adapter down*. |
 | **04** LoRA voice | every base number **exact**; SAPI holdout **better** (0.9% vs 1.5%) | **Closed a gap the README admitted to.** General-English WER **1.9% → 3.8%** — small absolutely, a *doubling* relatively. The damage is **formatting drift**, not lost hearing: "half past eight" → "half-past-eight", hyphenation learned from `CON-401`. |
 | **05** MCP + OAuth | full flow verified live | **PKCE had no test at all.** Porting the demo to pytest exposed that `_verify_pkce` — documented as "the single most important function in this file" — is **never called**. The SDK enforces PKCE; the repo's function was decorative. |

@@ -9,7 +9,7 @@
     "fields": {
       "action": 0.0,
       "component": 0.008333333333333333,
-      "error_code": 0.5166666666666667,
+      "error_code": 0.675,
       "page_oncall": 0.35833333333333334,
       "severity": 0.31666666666666665
     }
@@ -65,7 +65,7 @@
       "gold": {
         "component": "atlas-vision",
         "severity": "SEV2",
-        "error_code": "VIS-311",
+        "error_code": null,
         "page_oncall": true,
         "action": "recalibrate the barcode scanners and check lane lighting"
       }
@@ -108,103 +108,14 @@
     "n": 120,
     "json_valid": 1.0,
     "schema_valid": 1.0,
-    "exact_match": 0.8416666666666667,
+    "exact_match": 1.0,
     "fields": {
       "action": 1.0,
       "component": 1.0,
-      "error_code": 0.8416666666666667,
+      "error_code": 1.0,
       "page_oncall": 1.0,
       "severity": 1.0
     }
   },
-  "lora_failures": [
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV2\",\"error_code\": null,\"page_oncall\": true,\"action\": \"recalibrate the barcode scanners and check lane lighting\"}",
-      "gold": {
-        "component": "atlas-vision",
-        "severity": "SEV2",
-        "error_code": "VIS-311",
-        "page_oncall": true,
-        "action": "recalibrate the barcode scanners and check lane lighting"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-sim\",\"severity\": \"SEV1\",\"error_code\": null,\"page_oncall\": true,\"action\": \"re-run the scenario with a pinned seed and compare output hashes\"}",
-      "gold": {
-        "component": "atlas-sim",
-        "severity": "SEV1",
-        "error_code": "SIM-110",
-        "page_oncall": true,
-        "action": "re-run the scenario with a pinned seed and compare output hashes"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"scale atlas-dispatch replicas from 3 to 5\"}",
-      "gold": {
-        "component": "atlas-dispatch",
-        "severity": "SEV3",
-        "error_code": "DSP-500",
-        "page_oncall": false,
-        "action": "scale atlas-dispatch replicas from 3 to 5"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"recalibrate the barcode scanners and check lane lighting\"}",
-      "gold": {
-        "component": "atlas-vision",
-        "severity": "SEV3",
-        "error_code": "VIS-207",
-        "page_oncall": false,
-        "action": "recalibrate the barcode scanners and check lane lighting"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-telemetry\",\"severity\": \"SEV1\",\"error_code\": \"TLM-402\",\"page_oncall\": true,\"action\": \"no action required, dedup handles duplicate sequence numbers\"}",
-      "gold": {
-        "component": "atlas-telemetry",
-        "severity": "SEV1",
-        "error_code": null,
-        "page_oncall": true,
-        "action": "no action required, dedup handles duplicate sequence numbers"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-telemetry\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"no action required, dedup handles duplicate sequence numbers\"}",
-      "gold": {
-        "component": "atlas-telemetry",
-        "severity": "SEV3",
-        "error_code": "TLM-402",
-        "page_oncall": false,
-        "action": "no action required, dedup handles duplicate sequence numbers"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-telemetry\",\"severity\": \"SEV1\",\"error_code\": null,\"page_oncall\": true,\"action\": \"page the DBA and check disk on tsdb-0\"}",
-      "gold": {
-        "component": "atlas-telemetry",
-        "severity": "SEV1",
-        "error_code": "TLM-402",
-        "page_oncall": true,
-        "action": "page the DBA and check disk on tsdb-0"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV1\",\"error_code\": null,\"page_oncall\": true,\"action\": \"roll back the damage classifier to the previous model version\"}",
-      "gold": {
-        "component": "atlas-vision",
-        "severity": "SEV1",
-        "error_code": "VIS-207",
-        "page_oncall": true,
-        "action": "roll back the damage classifier to the previous model version"
-      }
-    }
-  ]
+  "lora_failures": []
 }

@@ -162,6 +162,20 @@ def make_example(rng: random.Random) -> dict:
     if code and rng.random() < 0.75:
         parts.append(f"We're seeing {code} on {component} -- {symptom}.")
     else:
+        # The report does not state a code -- so the LABEL must not claim one.
+        #
+        # This line used to keep `code` while writing a report that never
+        # mentioned it, which made ~25% of coded rows unanswerable: the correct
+        # error_code was not derivable from the input at all. The model learned
+        # the only sane behaviour (emit null) and was scored wrong for it, which
+        # put a hard ceiling of 84.2% on both error_code and exact match -- and
+        # the model sat exactly on that ceiling, looking like a 16% failure rate
+        # that no amount of training could ever fix.
+        #
+        # Now "no code in the report" means "error_code is null", which is a rule
+        # the model can actually learn, and the eval measures the model instead of
+        # measuring a labelling mistake.
+        code = None
         parts.append(f"Something is wrong with {component}: {symptom}.")
 
     parts.append(_fill(rng.choice(sev_phrases), rng).capitalize() + ".")
