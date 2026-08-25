@@ -23,11 +23,11 @@ and answers you can defend.
 | **06** | [Local GPU inference](06_local_gpu_inference/) | Quantisation and batching: memory, speed **and** the quality you pay for it | batching **32.5×** throughput; int4 costs **+9.2% perplexity**; found the benchmark refuted the textbook claim |
 | **07** | [RAG at scale](07_rag_at_scale/) | Real FineWeb-Edu corpus, binary+int8 precision cascade, measured latency scaling, and modern retrieval techniques | **13.6 M chunks indexed**; **32× memory reduction** at **0.985 recall@10**, quality **1.0000**; rescore flat at **0.45 ms** while the flat scan proved O(n) at 91 ms/M — the measured case for IVF/HNSW |
 | **08** | [RAG paradigms](08_rag_paradigms/) | GraphRAG + Agentic RAG vs the vector baseline — same corpus, same questions, cost included | **vector won everything, incl. multihop (100% vs 29%)** — and the mechanism (co-retrieval at small scale) is the finding |
-| **tests** | [pytest + DeepEval](tests/) · [INTERVIEW](tests/INTERVIEW.md) | **157 deterministic tests at 99% coverage** (regression tests mutation-verified against the real bugs) + judge-calibrated LLM quality gates | the DeepEval layer **found a real hallucination** that carried a valid citation and passed every mechanical check |
+| **tests** | [pytest + DeepEval](tests/) · [INTERVIEW](tests/INTERVIEW.md) | **158 deterministic tests at 99% coverage** (regression tests mutation-verified against the real bugs) + judge-calibrated LLM quality gates | the DeepEval layer **found a real hallucination** that carried a valid citation and passed every mechanical check |
 
 They share one fictional domain — the **"Atlas"** warehouse-robotics platform —
 on purpose. Project 05 calls projects 01 and 02 as tools, so the set reads as one
-system rather than six disconnected demos. That's a much stronger portfolio story.
+system rather than eight disconnected demos. That's a much stronger portfolio story.
 
 ---
 
@@ -67,9 +67,16 @@ cd ..\02_lora_text   ; python evaluate.py
 cd ..\06_local_gpu_inference ; python benchmark.py
 ```
 
+And the cheapest check of all — 88 seconds, no GPU, no Ollama, and it fails if
+any number in these READMEs has drifted from what the code actually does:
+
+```powershell
+pytest tests/ -m "not llm and not gpu"
+```
+
 ### What actually separates senior from mid in these interviews
 
-Every project here is built around the same four habits, because these are what
+Every project here is built around the same five habits, because these are what
 get probed:
 
 1. **You measured it.** Not "reranking improves quality" but "reranking took
@@ -89,6 +96,15 @@ get probed:
 4. **You separate the failure modes.** Retrieval quality vs generation quality.
    Tool correctness vs tool selection. Concept fidelity vs prompt adherence.
    Every project measures both halves, because the fixes are different.
+
+5. **You verify your own claims.** This one was learned the hard way here. Two
+   documents in this repo said a bug was "pinned by test" when no such test
+   existed — and checking the claim turned up a **live bug**: chunks silently
+   truncated past the embedder's window because an overlap carry doubled them.
+   The audit found it, not a code review. So the numbers in these READMEs are
+   now compiled (`tests/test_doc_drift.py`): counts, coverage, and every test a
+   document cites are checked against the code, and CI goes red when prose
+   drifts. **"Pinned by test" is itself a claim, and claims need verifying.**
 
 ---
 
@@ -137,8 +153,9 @@ learning/
 ├── 06_local_gpu_inference/
 ├── 07_rag_at_scale/
 ├── 08_rag_paradigms/
-└── tests/               157 deterministic tests (99% coverage) + DeepEval gates
-                        README.md · INTERVIEW.md · the 14-bug ledger
+└── tests/               158 deterministic tests (99% coverage) + DeepEval gates
+    ├── README.md        the two layers, judge calibration, the 14-bug ledger
+    └── INTERVIEW.md     testing a non-deterministic system, and what isn't tested
 ```
 
 Each project directory:
@@ -173,7 +190,10 @@ the architecture provably does not reach 200 GB, and the benchmark exists
 precisely to prove that rather than hide it. That is the measured argument for
 IVF/HNSW partitioning.
 
-**Fourteen real bugs found and pinned by tests across the build** — the full
+**Fourteen real bugs found and pinned by tests across the whole repo** — not
+only this project: they run from project 01's chunker through project 07's
+threading to project 08's entity resolution, and one of them is a documentation
+claim that turned out to be false. The full
 ledger, each with the test that keeps it fixed, is in
 [tests/README.md](tests/README.md#-the-bug-ledger--14-real-bugs-each-pinned-by-a-named-test) — including a chunker
 producing 42× too many chunks, a resume path that silently duplicated data, a
@@ -181,8 +201,9 @@ lost-sentinel deadlock in the threading, and a RAG hallucination that carried a
 *valid* citation — caught only by the DeepEval judge layer, then fixed in the
 prompt and pinned deterministically. The coverage pass alone surfaced two more: an unsplittable-paragraph case that silently truncated content past the embedder's window, and a rewrite that had dropped stall detection from the pipeline's polling loops.
 
-The corpus (164 GB, 82 shards) and index live at `C:\genai-data`, outside the
-repo and outside OneDrive. Both the download and the index build are resumable;
+The corpus (**165 GB**, 82 parquet shards) and the index it produces (**5.9 GB**)
+live at `C:\genai-data` — **171 GB** in total, outside the repo and outside
+OneDrive. Both the download and the index build are resumable;
 `python build_index.py --status` shows where things stand.
 ---
 

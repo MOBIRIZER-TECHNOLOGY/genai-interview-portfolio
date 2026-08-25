@@ -280,6 +280,52 @@ def test_every_test_cited_in_any_document_exists():
     assert not broken, "documents cite tests that do not exist:\n  " + "\n  ".join(broken)
 
 
+def _slug(heading: str) -> str:
+    """GitHub's heading-anchor slug, per github-slugger.
+
+    Deliberately does NOT trim or collapse hyphens: an emoji-prefixed heading
+    such as "## 🐞 The bug ledger — 14 real bugs" slugs to
+    `-the-bug-ledger--14-real-bugs`, keeping the leading hyphen (from the space
+    the emoji left behind) and the double hyphen (from the stripped em dash).
+    A stricter slugger reports working links as broken -- which this function
+    did on its first run, against a link that was in fact correct.
+    """
+    h = heading.strip().lower()
+    h = re.sub(r"[^\w\s-]", "", h, flags=re.UNICODE)   # emoji and punctuation go
+    return h.replace(" ", "-")
+
+
+def test_internal_document_links_resolve():
+    """Relative links between documents must point at files that exist, and
+    anchors must point at headings that exist.
+
+    The root README links to the bug ledger by anchor, and that anchor contains
+    the bug count -- so growing the ledger silently breaks the link unless
+    something checks. Cross-project "Related projects" links have the same
+    exposure: 01 and 02 gained theirs only after an audit found the two hub
+    projects linked nowhere.
+    """
+    docs = sorted(ROOT.glob("*.md")) + sorted(ROOT.glob("*/*.md"))
+    broken: list[str] = []
+    for md in docs:
+        text = _read(md)
+        for target in re.findall(r"\]\(([^)]+)\)", text):
+            if target.startswith(("http://", "https://", "mailto:")):
+                continue
+            path_part, _, anchor = target.partition("#")
+            dest = (md.parent / path_part).resolve() if path_part else md
+            if not dest.exists():
+                broken.append(f"{md.relative_to(ROOT)} -> {target} (no such file)")
+                continue
+            if anchor and dest.suffix == ".md":
+                headings = {_slug(h) for h in
+                            re.findall(r"^#{1,6}\s+(.*)$", _read(dest), re.M)}
+                if anchor.lower() not in headings:
+                    broken.append(
+                        f"{md.relative_to(ROOT)} -> {target} (no such heading)")
+    assert not broken, "broken internal links:\n  " + "\n  ".join(broken)
+
+
 def test_no_documented_test_file_has_been_deleted():
     """The mirror check: the README must not advertise files that are gone."""
     doc = _read(TESTS_README)
