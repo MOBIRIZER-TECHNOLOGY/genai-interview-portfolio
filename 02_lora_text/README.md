@@ -78,6 +78,58 @@ The base model title-cases the component (`Atlas-Sim`), invents a generic action
 and gets the paging rule backwards. Every one of those is a *convention*, not a
 fact — which is exactly what fine-tuning is for.
 
+### 📋 The training data, in full — and the baseline each field deserves
+
+`python inspect_dataset.py` prints all of this; the summary is worth reading
+before the accuracy table above, because it changes how one number should be
+read.
+
+**800 training examples, 120 held-out, all synthetic from `make_dataset.py`.**
+Every operator report is textually unique (800/800), but the *label space* is
+small:
+
+| | inventory |
+|---|---|
+| components | 5 — `atlas-console`, `-dispatch`, `-sim`, `-telemetry`, `-vision` |
+| severities | 3 — SEV1 257 / SEV2 272 / SEV3 271 |
+| error codes | 10 real codes (`TLM-330`, `VIS-207`, …) + `null` on 291 rows |
+| **actions** | **9 distinct strings, for all 800 examples** |
+
+**Four of the five components have exactly one action in the entire dataset.**
+
+| component | distinct actions | majority covers |
+|---|---:|---:|
+| atlas-console | 1 | 100% |
+| atlas-dispatch | 1 | 100% |
+| atlas-sim | 1 | 100% |
+| atlas-vision | 1 | 100% |
+| atlas-telemetry | 5 | 26.6% |
+
+So `action` is very nearly a lookup keyed on `component` — and a per-field
+accuracy means nothing until you know what a stupid predictor scores:
+
+| field | trivial baseline on eval | fine-tuned model | real gain |
+|---|---:|---:|---:|
+| `severity` | 39.2% (always SEV2) | 100.0% | **+60.8** |
+| `component` | 16.7% (always atlas-vision) | 100.0% | **+83.3** |
+| `page_oncall` | 64.2% (always true) | 100.0% | **+35.8** |
+| **`action`** | **86.7%** (copy component's majority action) | 95.8% | **+9.1** |
+
+**`action` at 95.8% is the least impressive number in this project, not one of
+the best.** Nine points over a lookup table. `severity` and `component` are the
+genuine wins.
+
+This also explains a failure in the probe below: a cosmetic font complaint got
+"restart ntp-relay in the cell namespace". The model never learned remediation —
+it learned `component -> action`, so a wrong component drags a confidently wrong
+action along with it.
+
+**What I would change:** more distinct actions per component, so the field
+requires reading the report rather than classifying the service. As it stands
+the dataset makes one of its five fields nearly free, and the eval does not say
+so — which is exactly the kind of thing to find in your own work before someone
+finds it for you.
+
 ### 🔬 What 84% hides — the out-of-distribution probe
 
 The held-out set is drawn from the same generator as the training set: same
@@ -224,6 +276,7 @@ overfit.
 02_lora_text/
 ├── make_dataset.py       synthetic incident reports -> JSON labels
 ├── train_lora.py         explicit LoRA training loop (bf16 or 4-bit QLoRA)
+├── inspect_dataset.py    dataset inventory + trivial baselines per field
 ├── probe_generalisation.py  out-of-distribution probe (7 hand-written edges)
 ├── evaluate.py           base vs LoRA on held-out data
 ├── merge_and_export.py   fold the adapter into the weights, Ollama Modelfile
