@@ -7,19 +7,21 @@ instruments.
 ..\activate.ps1
 
 pytest tests/ -m "not llm and not gpu and not slow"   # fast subset, seconds
-pytest tests/ -m "not llm and not gpu"               # 105 tests, ~90 s, 99% coverage
+pytest tests/ -m "not llm and not gpu"               # 141 tests, ~90 s, 99% coverage
 pytest tests/ -m llm -v                   # DeepEval quality gates (needs Ollama)
 pytest tests/                             # everything
 ```
 
 ---
 
-## Layer 1 — deterministic (105 tests, 99% coverage)
+## Layer 1 — deterministic (141 tests, 99% coverage)
 
 ```
 pytest tests/ -m "not llm and not gpu" --cov=07_rag_at_scale/scale --cov=01_rag_local/rag
 
-TOTAL   717 statements   4 missed   99%     (9 of 12 files at 100%)
+TOTAL   1035 statements   6 missed   99%     (14 of 18 files at 100%;
+         project-08 graphrag + agentic included; demo-CLI __main__
+         blocks excluded via .coveragerc — they are run manually)
 ```
 
 Coverage was **not** an original goal and the honest history matters: the first

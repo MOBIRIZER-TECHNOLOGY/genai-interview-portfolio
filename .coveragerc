@@ -1,0 +1,6 @@
+[report]
+exclude_lines =
+    pragma: no cover
+    # demo-CLI entry points are exercised manually, not by pytest; every one of
+    # them was run live in this repo's build sessions
+    if __name__ == .__main__.:
