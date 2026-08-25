@@ -195,6 +195,29 @@ correct and DPO would be over-engineering.
 
 ---
 
+### "Can you reproduce your own numbers?"
+
+I did, months later, and I'd give you the result including the part that didn't
+match. Retraining both variants from scratch with the same seed reproduced peak
+VRAM (7.47 GB / 8.91 GB) and adapter size (33.60 MB) **exactly**, and training
+time within 1.4% on the QLoRA run. Accuracy moved by one held-out example on
+bf16 (84.2% -> 83.3%) and two on QLoRA (74.2% -> 72.5%).
+
+**A seed does not make CUDA deterministic.** It fixes initialisation and
+sampling order; it does not fix reduction order in cuBLAS matmuls or atomic
+accumulation. The loss curves diverge in the fourth decimal by step 40, and a
+couple of held-out examples sit close enough to a decision boundary to flip. So
+the defensible claim is "83-84%, plus or minus an example", and quoting 84.2%
+from one run implies a precision the hardware doesn't give you.
+
+The reassuring half: **the mechanism reproduced more exactly than the numbers**.
+In both runs the entire bf16-vs-QLoRA gap sat in `error_code` while the other
+four fields matched to the decimal. That's what makes the finding safe to
+defend — an explanation that survives a re-run is worth more than a percentage
+that doesn't.
+
+---
+
 ## Questions to ask *them*
 
 - "Do you fine-tune, and if so what's the retraining trigger — schedule, drift

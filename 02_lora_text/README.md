@@ -90,6 +90,49 @@ a good lesson in not cargo-culting a technique:
 | final train loss | 0.0097 | 0.0098 |
 | **held-out exact match** | **84.2%** | 74.2% |
 
+### 🔁 Reproduced from scratch — 2026-08-25
+
+Both variants retrained and re-evaluated end to end on the same machine, same
+seed (0), months after the original run. **Every headline claim held.**
+
+| | documented | reproduced | |
+|---|---:|---:|---|
+| bf16 peak VRAM | 7.47 GB | **7.47 GB** | exact |
+| bf16 adapter size | 33.6 MB | **33.60 MB** | exact |
+| bf16 training time | 58.7 s | 51.5 s | faster — machine state, not a claim |
+| bf16 exact match | 84.2% | 83.3% | **1 example of 120** |
+| base exact match | 0.0% | **0.0%** | exact |
+| base per-field (all 5) | — | **identical to the digit** | exact |
+| QLoRA peak VRAM | 8.91 GB | **8.91 GB** | exact |
+| QLoRA training time | 147.0 s | 149.0 s | +1.4% |
+| QLoRA final loss | 0.0098 | 0.0097 | — |
+| QLoRA exact match | 74.2% | 72.5% | **2 examples of 120** |
+
+**Why the accuracy numbers moved at all, with a fixed seed.** A seed fixes
+sampling and initialisation; it does not make cuBLAS deterministic. Reduction
+order in matmuls and atomics varies run to run, so the loss curve diverges in
+the fourth decimal by step 40 — and a few held-out examples sit close enough to
+a decision boundary to flip. **The honest way to read the headline is
+"83–84% ± an example or two", not "84.2%".** A number quoted to one decimal
+from a single run implies a precision that a GPU does not give you.
+
+**The mechanism claim reproduced more exactly than the numbers did**, which is
+the part worth trusting. In both runs the *entire* bf16-vs-QLoRA gap sits in one
+field:
+
+| field | bf16 | QLoRA |
+|---|---:|---:|
+| `component` | 100.0% | 100.0% |
+| `page_oncall` | 100.0% | 100.0% |
+| `severity` | 100.0% | 100.0% |
+| `action` | 95.8% | 95.8% |
+| **`error_code`** | **83.3%** | **72.5%** |
+
+Four of five fields are identical to the decimal. 4-bit base weights cost
+accuracy precisely where the task needs the finest discrimination, and nowhere
+else. That is a mechanism, not a measurement artifact — and it is why the
+QLoRA-loses finding is safe to defend even though the exact percentages drift.
+
 QLoRA was slower, used *more* memory, and scored 10 points worse. That is not a
 bug — it is what QLoRA does at this model size, and being able to explain it is
 the point:
