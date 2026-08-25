@@ -109,12 +109,42 @@ Any agentic pitch that omits the cost column is marketing.
 
 ### "So is the standard multi-hop narrative wrong?"
 
-No — it's **scale-conditional**, and that's the point people miss. The narrative
-assumes retrieval can't cover both hops in one shot. That assumption is false at
-30 chunks (top-4 = 13% of the corpus) and true at 13.6 M (top-4 = 0.00003%). My
-experiment sits deliberately on the small side and shows the machinery losing;
-project 07 shows the scale where it would start to win. The senior claim is the
-crossover, not either endpoint.
+No — it's **conditional**, and I can tell you exactly on what, because I tested
+it rather than argued it.
+
+I used to say "scale-conditional" and reason from the fraction retrieved: top-4
+of 30 chunks is 13% of the corpus, top-4 of 13.6 M is 0.00003%. **That reasoning
+was wrong**, and measuring it is what showed me.
+
+I diluted the corpus with real FineWeb-Edu passages and measured co-retrieval —
+are both hop chunks still in top-k? No LLM, pure retrieval:
+
+| corpus | both hops |
+|---:|---:|
+| 30 | 6/7 |
+| 10,000 | 6/7 |
+| 100,000 | 5/7 |
+| 300,000 | 5/7 |
+
+**A 10,000× increase in corpus size cost me one question.** The fraction is not
+the variable. Atlas chunks stay retrievable against 300,000 web passages because
+`shed mode` and `TLM-101` don't compete with generic web text — adding documents
+that can't win the ranking changes nothing, however many you add.
+
+What actually predicts failure is *which token the hop hangs on*. The two
+questions that broke bridge on "**41%**" and "**18 ms**" — generic numerics that
+hundreds of thousands of pages also contain. Every named-entity hop survived
+every size I tested, and raising k to 8 didn't recover the lost ones; they're
+gone, not at rank 5.
+
+So the corrected claim: **the crossover is driven by distractor competition, not
+corpus size.** Size matters only because more documents mean more chances one of
+them competes. That also sharpens when a graph earns its extraction cost — not
+"when you get big", but "when your joins hinge on non-distinctive tokens".
+
+And the limit I'd volunteer: FineWeb is the friendliest possible distractor.
+300,000 pages of *other ops runbooks* would compete much harder, so my numbers
+are a lower bound on degradation.
 
 ### "How did you keep the comparison fair?"
 

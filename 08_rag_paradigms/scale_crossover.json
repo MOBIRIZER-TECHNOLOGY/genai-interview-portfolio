@@ -1,0 +1,182 @@
+{
+ "k": 4,
+ "n_atlas": 30,
+ "rows": [
+  {
+   "corpus_size": 30,
+   "k": 4,
+   "both_hops": 6,
+   "one_hop": 1,
+   "neither": 0,
+   "detail": [
+    {
+     "q": "m1",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m2",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m3",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m4",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m5",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m6",
+     "hop1": false,
+     "hop2": true
+    },
+    {
+     "q": "m7",
+     "hop1": true,
+     "hop2": true
+    }
+   ]
+  },
+  {
+   "corpus_size": 10000,
+   "k": 4,
+   "both_hops": 6,
+   "one_hop": 0,
+   "neither": 1,
+   "detail": [
+    {
+     "q": "m1",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m2",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m3",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m4",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m5",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m6",
+     "hop1": false,
+     "hop2": false
+    },
+    {
+     "q": "m7",
+     "hop1": true,
+     "hop2": true
+    }
+   ]
+  },
+  {
+   "corpus_size": 100000,
+   "k": 4,
+   "both_hops": 5,
+   "one_hop": 0,
+   "neither": 2,
+   "detail": [
+    {
+     "q": "m1",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m2",
+     "hop1": false,
+     "hop2": false
+    },
+    {
+     "q": "m3",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m4",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m5",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m6",
+     "hop1": false,
+     "hop2": false
+    },
+    {
+     "q": "m7",
+     "hop1": true,
+     "hop2": true
+    }
+   ]
+  },
+  {
+   "corpus_size": 300000,
+   "k": 4,
+   "both_hops": 5,
+   "one_hop": 0,
+   "neither": 2,
+   "detail": [
+    {
+     "q": "m1",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m2",
+     "hop1": false,
+     "hop2": false
+    },
+    {
+     "q": "m3",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m4",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m5",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m6",
+     "hop1": false,
+     "hop2": false
+    },
+    {
+     "q": "m7",
+     "hop1": true,
+     "hop2": true
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,50 @@
+{
+ "k": 8,
+ "n_atlas": 30,
+ "rows": [
+  {
+   "corpus_size": 300000,
+   "k": 8,
+   "both_hops": 5,
+   "one_hop": 0,
+   "neither": 2,
+   "detail": [
+    {
+     "q": "m1",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m2",
+     "hop1": false,
+     "hop2": false
+    },
+    {
+     "q": "m3",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m4",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m5",
+     "hop1": true,
+     "hop2": true
+    },
+    {
+     "q": "m6",
+     "hop1": false,
+     "hop2": false
+    },
+    {
+     "q": "m7",
+     "hop1": true,
+     "hop2": true
+    }
+   ]
+  }
+ ]
+}

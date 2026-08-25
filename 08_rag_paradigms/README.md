@@ -58,12 +58,52 @@ m2: "Restart ntp-relay in the cell namespace to fix the incident type that
 ```
 
 Multi-hop retrieval is only structurally hard when the hops **cannot
-co-retrieve** — when the corpus is large enough that top-k over the question
-misses the second hop's chunk. At project-07 scale (13.6 M chunks, top-4 =
-0.00003%), the theory would bite. At 30 chunks it cannot.
+co-retrieve** — when top-k over the question misses the second hop's chunk.
 
-**The paradigm choice is a function of corpus scale, not question shape.** That
-sentence is worth more than any of the implementations.
+### 🧪 That mechanism was an argument. Now it's measured — and it was partly wrong
+
+`probe_scale_crossover.py` dilutes the Atlas corpus with real FineWeb-Edu
+passages and asks the only question the explanation depends on: **are both hop
+chunks still in the top-k?** No LLM, no generation — pure retrieval.
+
+| corpus | both hops retrieved | per question |
+|---:|---:|---|
+| 30 (the eval corpus) | **6/7** | `BBBBB.B` |
+| 10,000 | 6/7 | `BBBBBxB` |
+| 100,000 | **5/7** | `BxBBBxB` |
+| 300,000 | 5/7 | `BxBBBxB` |
+
+**Co-retrieval falls from 6/7 to 5/7 across a 10,000× increase in corpus size.**
+The direction the README predicted is real. The *reasoning* was not.
+
+This project used to argue from the fraction of the corpus you retrieve — "top-4
+of 30 is 13%, top-4 of 13.6 M is 0.00003%". That framing is wrong, and the
+measurement shows why: **the fraction is not the variable.** Atlas chunks stay
+retrievable against 300,000 web passages because their vocabulary
+(`shed mode`, `TLM-101`, `atlas-vision`) does not compete with generic web text.
+Adding documents that cannot win the ranking changes nothing, however many
+there are.
+
+Look at *which* two questions break:
+
+- **m2** — bridging fact is "**41%**" (the incident causing the most pages)
+- **m6** — bridging fact is "**18 ms**" (the model with that latency budget)
+
+Both hops hinge on a **generic numeric token** that hundreds of thousands of web
+pages also contain. The named-entity hops (`shed mode`, `Code-128`,
+`Rotterdam`) survive every corpus size tested. And raising k to 8 does **not**
+recover them — the displaced chunks are not sitting at rank 5–8, they are gone.
+
+**Corrected claim:** the crossover is driven by **distractor competition**, not
+corpus size. Size matters only because more documents mean more chances that one
+of them competes. A hop that hangs on a distinctive entity survives scale; a hop
+that hangs on "41%" or "18 ms" does not — and *that* is when the graph earns its
+extraction cost.
+
+**Honest limit of this probe:** FineWeb-Edu is generic web text, the friendliest
+possible distractor. 300,000 pages of *other ops runbooks* would compete far
+harder and degrade co-retrieval sooner. So these numbers are a **lower bound** on
+degradation, not an upper one.
 
 ### Why graph scored 29% — every failure is entity linking
 
