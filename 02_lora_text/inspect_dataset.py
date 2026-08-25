@@ -11,18 +11,18 @@ hard problem solved well. But a per-field number means nothing until you know
 what a *stupid* predictor scores on the same field, and that is a property of
 the dataset, not the model.
 
-Running this on my own data was uncomfortable and useful in equal measure:
+Running this on the **v1** dataset was uncomfortable and useful in equal
+measure: `action` scored 95.8% against an **86.7%** baseline — nine points of
+actual learning — because four of the five components had exactly **one** action
+in the entire training set. The field was nearly free and the per-field metric
+did not say so.
 
-- `severity`: majority-class baseline **39.2%**, model **100%**. A real win.
-- `action`:   "copy this component's most common action" scores **86.7%**,
-  model **95.8%**. Nine points of actual learning, on a field whose headline
-  number implies far more — because four of the five components have exactly
-  **one** action in the entire training set.
+That is why the dataset was rebuilt. Actions are now keyed on the **symptom**
+rather than the component, which drops the lookup baseline to ~32% and forces
+the model to read the body of the report rather than spot the service name.
 
-That coupling also explains an out-of-distribution failure in
-`probe_generalisation.py`: a cosmetic font complaint got "restart ntp-relay in
-the cell namespace". The model was never learning remediation. It was learning
-component -> action, and the component guess dragged the action with it.
+Re-run this after any change to `make_dataset.py`: baselines are a property of
+the data, and they move when the data does.
 
 **Report the baseline next to the metric, or the metric is decoration.**
 """
@@ -84,18 +84,32 @@ def main() -> None:
         share = 100 * n / sum(by_c[c].values())
         print(f"  {c:<17} {len(by_c[c])} action(s); majority covers {share:5.1f}%")
 
-    print("\n=== trivial baselines on EVAL (what a lookup table scores) ===")
+    print("\n=== trivial baselines on EVAL vs the fine-tuned model ===")
+    # model numbers are READ from the last eval run, never hardcoded -- a
+    # hardcoded accuracy inside an analysis script is just another stale claim
+    res = HERE / "eval_results.json"
+    fields: dict[str, float] = {}
+    if res.exists():
+        fields = json.loads(res.read_text(encoding="utf-8"))["lora"]["fields"]
+    else:
+        print("  (run evaluate.py first to fill the model column)")
+
+    def row(label: str, field: str, baseline: float) -> None:
+        got = fields.get(field)
+        model = f"{100 * got:5.1f}%" if got is not None else "    ?"
+        gain = f"{100 * got - baseline:+6.1f}" if got is not None else "     ?"
+        print(f"  {field:<12}{label:<40} {baseline:5.1f}%   model {model}   gain {gain}")
+
     maj_action = {c: cnt.most_common(1)[0][0] for c, cnt in by_c.items()}
-    hit = sum(1 for r in ev if maj_action.get(r["component"]) == r["action"])
-    print(f"  action    'copy the component's majority action' : {100*hit/len(ev):5.1f}%"
-          f"   (fine-tuned model: 95.8%)")
-    for f, model in (("severity", 100.0), ("component", 100.0), ("page_oncall", 100.0)):
+    hit = 100 * sum(1 for r in ev if maj_action.get(r["component"]) == r["action"]) / len(ev)
+    row("copy the component's majority action", "action", hit)
+    for f in ("severity", "component", "page_oncall"):
         maj = collections.Counter(str(r[f]) for r in train).most_common(1)[0][0]
         acc = 100 * sum(1 for r in ev if str(r[f]) == maj) / len(ev)
-        print(f"  {f:<9} always predict {maj!r:<18}: {acc:5.1f}%   (fine-tuned model: {model:.1f}%)")
+        row(f"always predict {maj!r}", f, acc)
 
-    print("\nRead the gaps, not the accuracies: severity is a real win, action is\n"
-          "mostly a lookup the model inherited from getting `component` right.")
+    print("\nRead the gain column, not the accuracy column. A field whose baseline\n"
+          "is already high is a field your dataset made free.")
 
 
 if __name__ == "__main__":

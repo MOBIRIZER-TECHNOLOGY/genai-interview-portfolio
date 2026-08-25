@@ -16,7 +16,7 @@ and answers you can defend.
 | # | Project | What it demonstrates | Headline result |
 |---|---|---|---|
 | **01** | [RAG (local)](01_rag_local/) | Hybrid retrieval, cross-encoder reranking, grounded generation with verified citations, and a real eval harness | reranking took recall@1 **0.88 → 0.94**; **100%** abstention on unanswerable questions; **368 ms** warm p50 |
-| **02** | [LoRA — text](02_lora_text/) | Fine-tuning a 0.5B LLM for structured extraction; bf16 vs QLoRA | exact match **0% → 84.2%** in **59 s**, 34 MB adapter |
+| **02** | [LoRA — text](02_lora_text/) | Fine-tuning a 0.5B LLM for structured extraction; bf16 vs QLoRA | exact match **0% → 84.2%** in **50 s**, 34 MB adapter — and the dataset was rebuilt after a baseline check showed one field was nearly a lookup |
 | **03** | [LoRA — image](03_lora_image/) | Teaching Stable Diffusion a brand-new visual concept, measured with CLIP | concept fidelity **+40% relative**, 12 MB adapter, 11 min — plus a documented failed first attempt |
 | **04** | [LoRA — voice](04_lora_voice/) | Domain adaptation of Whisper using TTS-synthesised training data | WER **52.1% → 2.5%**, domain terms **1% → 96%**, 78 s; **cross-engine holdout passed** (1.5% WER on SAPI); mic-recording pipeline included |
 | **05** | [MCP server](05_mcp_server/) | Tools/resources/prompts exposing projects 01+02, plus a full **OAuth 2.1** server with PKCE and per-tool scopes | flow verified end to end: PKCE rejects stolen codes, refresh rotates, revocation takes effect |

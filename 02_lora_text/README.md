@@ -4,8 +4,9 @@ Teach a 0.5B language model to do a job it cannot do out of the box: turn a
 free-text incident report into a **strict JSON triage record** using
 domain-specific vocabulary and rules it has never seen.
 
-> **In one sentence:** 800 synthetic examples, 59 seconds of training, a 34 MB
-> adapter — and exact-match accuracy goes from **0% to 84.2%** on held-out data.
+> **In one sentence:** 800 synthetic examples, 50 seconds of training, a 34 MB
+> adapter — and exact-match accuracy goes from **0% to 84.2%** on held-out data,
+> with every field measured against the score a lookup table would get.
 
 ---
 
@@ -39,21 +40,29 @@ most common architectural mistake in applied GenAI.
 
 ## ✅ Proof it works (measured on this machine)
 
-RTX 5070 Ti, `Qwen/Qwen2.5-0.5B-Instruct`, r=16, 3 epochs, **59 seconds**,
-120 held-out examples, greedy decoding.
+RTX 5070 Ti, `Qwen/Qwen2.5-0.5B-Instruct`, r=16, 3 epochs, **49.6 seconds**,
+120 held-out examples, greedy decoding, **dataset v2**.
 
-| Metric | Base | LoRA | Δ |
-|---|---:|---:|---:|
-| valid JSON | 100.0% | 100.0% | — |
-| correct schema (exactly 5 keys) | 100.0% | 100.0% | — |
-| **exact match (all 5 fields)** | **0.0%** | **84.2%** | **+84.2** |
-| `component` | 0.8% | 100.0% | +99.2 |
-| `severity` | 31.7% | 100.0% | +68.3 |
-| `page_oncall` | 35.8% | 100.0% | +64.2 |
-| `error_code` | 51.7% | 84.2% | +32.5 |
-| `action` | 0.0% | 96.7% | +96.7 |
+| Metric | Base | LoRA | trivial baseline | real gain |
+|---|---:|---:|---:|---:|
+| valid JSON | 100.0% | 100.0% | — | — |
+| correct schema (exactly 5 keys) | 100.0% | 100.0% | — | — |
+| **exact match (all 5 fields)** | **0.0%** | **84.2%** | — | **+84.2** |
+| `component` | 0.8% | 100.0% | 16.7% | **+83.3** |
+| `severity` | 31.7% | 100.0% | 39.2% | **+60.8** |
+| `action` | 0.0% | 100.0% | 31.7% | **+68.3** |
+| `page_oncall` | 35.8% | 100.0% | 64.2% | +35.8 |
+| `error_code` | 51.7% | 84.2% | — | +32.5 |
 
-Training loss: 1.5377 → 0.0097. Peak VRAM 7.47 GB. Adapter 33.6 MB.
+Training loss: 1.5377 → 0.0098. Peak VRAM 7.47 GB. Adapter 33.60 MB.
+
+**The "trivial baseline" column is the one to read**, and it exists because the
+first version of this dataset didn't have it. See
+[the dataset section](#-the-training-data-in-full--and-the-baseline-each-field-deserves):
+`action` used to score 95.8% against an 86.7% lookup baseline — nine points of
+real learning dressed up as a strong number. The dataset was rebuilt so actions
+depend on the *symptom* rather than the *component*; the baseline fell to 31.7%
+and the model now scores 100%. Same headline, an honest number underneath it.
 
 ### 🔍 Read this table properly — it's the interesting part
 
@@ -71,7 +80,7 @@ PROMPT: ... Something is wrong with atlas-sim: scenario battery-cliff.yaml times
 BASE:   {"component": "Atlas-Sim",  "severity": "SEV1", "page_oncall": false,
          "action": "Contact the owner of the Atlas-Sim instance to resolve the issue"}
 LORA:   {"component": "atlas-sim",  "severity": "SEV1", "page_oncall": true,
-         "action": "re-run the scenario with a pinned seed and compare output hashes"}
+         "action": "raise the scenario timeout and profile the battery model"}
 ```
 
 The base model title-cases the component (`Atlas-Sim`), invents a generic action,
@@ -80,195 +89,155 @@ fact — which is exactly what fine-tuning is for.
 
 ### 📋 The training data, in full — and the baseline each field deserves
 
-`python inspect_dataset.py` prints all of this; the summary is worth reading
-before the accuracy table above, because it changes how one number should be
-read.
+`python inspect_dataset.py` prints all of this. Read it before the accuracy
+table, because it is what makes those numbers mean anything.
 
 **800 training examples, 120 held-out, all synthetic from `make_dataset.py`.**
-Every operator report is textually unique (800/800), but the *label space* is
-small:
+Every operator report is textually unique (800/800). The label space:
 
 | | inventory |
 |---|---|
 | components | 5 — `atlas-console`, `-dispatch`, `-sim`, `-telemetry`, `-vision` |
-| severities | 3 — SEV1 257 / SEV2 272 / SEV3 271 |
-| error codes | 10 real codes (`TLM-330`, `VIS-207`, …) + `null` on 291 rows |
-| **actions** | **9 distinct strings, for all 800 examples** |
+| severities | 3 — SEV1 / SEV2 / SEV3, roughly balanced |
+| error codes | 10 real codes (`TLM-330`, `VIS-207`, …) + `null` on ~36% of rows |
+| **actions** | **19 distinct, keyed on the symptom** |
 
-**Four of the five components have exactly one action in the entire dataset.**
+#### The v1 mistake, kept on the record
 
-| component | distinct actions | majority covers |
+The first version keyed `action` on the **component**, and four of five
+components had exactly one action in the whole dataset. So `action` was a lookup:
+
+| | v1 | v2 |
 |---|---:|---:|
-| atlas-console | 1 | 100% |
-| atlas-dispatch | 1 | 100% |
-| atlas-sim | 1 | 100% |
-| atlas-vision | 1 | 100% |
-| atlas-telemetry | 5 | 26.6% |
+| distinct actions | 9 | **19** |
+| actions for `atlas-console` | 1 | 3 |
+| actions for `atlas-dispatch` | 1 | 4 |
+| actions for `atlas-sim` | 1 | 3 |
+| actions for `atlas-vision` | 1 | 4 |
+| **"copy the component's majority action" scores** | **86.7%** | **31.7%** |
+| model scores | 95.8% | **100.0%** |
+| **real gain over the baseline** | **+9.1** | **+68.3** |
 
-So `action` is very nearly a lookup keyed on `component` — and a per-field
-accuracy means nothing until you know what a stupid predictor scores:
+`data/` is generated and gitignored, so the v1 dataset is not shipped — but the
+**v1 generator is in git history**, one commit before the rebuild. Anyone who
+wants to check the v1 numbers above can regenerate that dataset from it. In v1
+the model beat a lookup table by nine points on a field advertised at 95.8%. In v2 the same field requires reading the symptom — "barcode read rate
+has dropped to 42%" gets *recalibrate the scanners*, "gantry 7 GPU has fallen
+off the bus" gets *power cycle the gantry*, and both are `atlas-vision` — and
+the model gets it perfect.
 
-| field | trivial baseline on eval | fine-tuned model | real gain |
+**Making the task harder made the result better**, which is the opposite of
+what tuning a number usually does, and the reason to measure baselines at all.
+Every field now clears its trivial predictor by a wide margin:
+
+| field | baseline | model | gain |
 |---|---:|---:|---:|
-| `severity` | 39.2% (always SEV2) | 100.0% | **+60.8** |
-| `component` | 16.7% (always atlas-vision) | 100.0% | **+83.3** |
-| `page_oncall` | 64.2% (always true) | 100.0% | **+35.8** |
-| **`action`** | **86.7%** (copy component's majority action) | 95.8% | **+9.1** |
+| `component` | 16.7% | 100.0% | **+83.3** |
+| `action` | 31.7% | 100.0% | **+68.3** |
+| `severity` | 39.2% | 100.0% | **+60.8** |
+| `page_oncall` | 64.2% | 100.0% | +35.8 |
 
-**`action` at 95.8% is the least impressive number in this project, not one of
-the best.** Nine points over a lookup table. `severity` and `component` are the
-genuine wins.
-
-This also explains a failure in the probe below: a cosmetic font complaint got
-"restart ntp-relay in the cell namespace". The model never learned remediation —
-it learned `component -> action`, so a wrong component drags a confidently wrong
-action along with it.
-
-**What I would change:** more distinct actions per component, so the field
-requires reading the report rather than classifying the service. As it stands
-the dataset makes one of its five fields nearly free, and the eval does not say
-so — which is exactly the kind of thing to find in your own work before someone
-finds it for you.
+A per-field accuracy is meaningless until you know what a stupid predictor
+scores on the same field — and that is a property of your **dataset**, not your
+model. The one field with no sensible baseline, `error_code`, is now the only
+thing standing between this model and a perfect score.
 
 ### 🔬 What 84% hides — the out-of-distribution probe
 
-The held-out set is drawn from the same generator as the training set: same
-phrasing, same components, same code format, always a real incident. So 84%
-says the mapping was learned. It says nothing about the edges, which is where a
-deployed model lives. `probe_generalisation.py` hand-writes those edges.
+The held-out set comes from the same generator as training: same phrasing, same
+components, always a real incident. `probe_generalisation.py` hand-writes seven
+inputs from outside that distribution.
 
-**Format generalised perfectly. Judgement did not.**
-
-| | result |
-|---|---|
-| valid JSON | **7/7** |
-| exactly the 5 schema keys | **7/7** |
-| `page_oncall` consistent with `severity` | **7/7** |
-
-Not one malformed output, and the taught rule held every time — including on
-inputs that are not incidents. That is the *good* news and it is also the trap:
-**a model that is always well-formed looks like a model that is always right.**
-The failures are entirely semantic, and you only see them by reading outputs:
+**Format generalises. Judgement does not.** 7/7 valid JSON, 7/7 correct schema,
+7/7 obeying the page rule — including on inputs that are not incidents. That is
+the trap: *a model that is always well-formed looks like a model that is always
+right.* The failures are entirely semantic:
 
 ```
 IN : Can you recommend a good pizza place in Rotterdam for tonight?
-OUT: {"component":"pizza oven","severity":"SEV2","error_code":null,
-      "page_oncall":true,"action":"order a special slice"}
+OUT: {"component":"pizza_app","severity":"SEV1","error_code":null,
+      "page_oncall":true,"action":"search the online reviews and compare prices"}
 ```
 
-It triaged a dinner request as a SEV2 and **paged the on-call**. There is no
-abstention path, because 800 training examples were all incidents — the model
-was never shown that "this is not an incident" is a possible answer.
+It triaged dinner as a **SEV1 and paged the on-call**. There is no abstention
+path, because all 800 training examples are incidents — "this is not an
+incident" was never shown as an available answer.
 
 ```
 IN : The hotel booking API returned 500s for 20 minutes during checkout...
-OUT: {..., "error_code":"BOO-123", "action":"restart ntp-relay in the cell namespace"}
+OUT: {..., "error_code":"BOO-402", "action":"page the user manual and check network"}
 ```
 
-**It fabricated an error code.** `BOO-123` appears nowhere in the input; the
-model learned that reports of this shape carry a `XXX-999` code and invented one
-to fit. The action is a memorised Atlas remedy pasted onto a hotel booking
-system — the same thing happened to a cosmetic font complaint, which got
-"restart ntp-relay in the cell namespace".
+**It fabricated an error code.** `BOO-402` is nowhere in the input; the model
+learned that reports of this shape carry an `XXX-999` code and invented one to
+fit. The action is a garbled blend of two it was taught.
 
-```
-IN : atlas-dispatch is completely down, SEV1, but do NOT page anyone...
-OUT: {"component":"atlas-dispatch","severity":"SEV3", ..., "page_oncall":false}
-```
+#### Two failures the dataset rebuild fixed
 
-Asked to break the rule, it **downgraded the severity instead** — a total outage
-relabelled SEV3 so that not paging became consistent. The schema check passes.
-The triage is dangerously wrong. An injected instruction moved a safety-relevant
-field, and every mechanical validator in the pipeline said fine.
+Worth recording, because they show what was a *data* problem rather than a model
+one:
 
-**What this means, and it is the real lesson of the project:** fine-tuning
-taught *behaviour* — the output shape, the field conventions, the page rule — and
-it taught that extremely well on 800 examples in 51 seconds. It taught **no
-knowledge and no judgement**. For those you need retrieval (project 01), an
-explicit abstention class in the training data, and validation of *content*
-rather than *form*. Run `python probe_generalisation.py` to reproduce all seven.
+| probe input | v1 output | v2 output |
+|---|---|---|
+| cosmetic font complaint | action: *restart ntp-relay in the cell namespace* — a memorised Atlas remedy | action: *flush the dashboard font cache and check browser style sheet* — **composed for the symptom** |
+| "SEV1 but do NOT page anyone" | **downgraded to SEV3** so not-paging was consistent — an injected instruction moved a safety-relevant field | **held SEV1, `page_oncall` true** — kept the rule and ignored the injection |
+
+The prompt-injection case is the striking one. In v1 the model bent the severity
+to satisfy the user's instruction; in v2, trained on the same rule with a richer
+action space, it refused. I would not over-claim a mechanism from one probe —
+but a model that has to read symptoms to answer appears to lean less on the
+prompt's framing.
+
+**What remains true in both versions:** no abstention, fabricated error codes on
+unknown domains, and confident triage of things that are not incidents. That is
+the honest boundary of what fine-tuning bought — *behaviour and format, not
+knowledge or judgement.* For those you want retrieval (project 01), an explicit
+`not_an_incident` class in the data, and validation of content rather than form.
+
+Run `python probe_generalisation.py` to reproduce all seven.
 
 ### 🧪 The QLoRA experiment — and why it *lost*
 
-I ran the identical training with `--load-4bit` (NF4 base weights). The result is
-a good lesson in not cargo-culting a technique:
-
 | | bf16 LoRA | QLoRA (4-bit) |
 |---|---:|---:|
-| peak VRAM | **7.47 GB** | 8.91 GB |
-| training time | **58.7 s** | 147.0 s |
-| final train loss | 0.0097 | 0.0098 |
-| **held-out exact match** | **84.2%** | 74.2% |
+| peak VRAM | **7.47 GB** | 8.92 GB |
+| training time | **49.6 s** | 105.3 s |
+| final train loss | 0.0098 | 0.0097 |
+| **held-out exact match** | **84.2%** | 78.3% |
 
-### 🔁 Reproduced from scratch — 2026-08-25
+QLoRA was **2.1× slower, used 1.45 GB more memory, and scored 5.9 points
+worse.** That is not a bug — it is what QLoRA does at this model size:
 
-Both variants retrained and re-evaluated end to end on the same machine, same
-seed (0), months after the original run. **Every headline claim held.**
-
-| | documented | reproduced | |
-|---|---:|---:|---|
-| bf16 peak VRAM | 7.47 GB | **7.47 GB** | exact |
-| bf16 adapter size | 33.6 MB | **33.60 MB** | exact |
-| bf16 training time | 58.7 s | 51.5 s | faster — machine state, not a claim |
-| bf16 exact match | 84.2% | 83.3% | **1 example of 120** |
-| base exact match | 0.0% | **0.0%** | exact |
-| base per-field (all 5) | — | **identical to the digit** | exact |
-| QLoRA peak VRAM | 8.91 GB | **8.91 GB** | exact |
-| QLoRA training time | 147.0 s | 149.0 s | +1.4% |
-| QLoRA final loss | 0.0098 | 0.0097 | — |
-| QLoRA exact match | 74.2% | 72.5% | **2 examples of 120** |
-
-**Why the accuracy numbers moved at all, with a fixed seed.** A seed fixes
-sampling and initialisation; it does not make cuBLAS deterministic. Reduction
-order in matmuls and atomics varies run to run, so the loss curve diverges in
-the fourth decimal by step 40 — and a few held-out examples sit close enough to
-a decision boundary to flip. **The honest way to read the headline is
-"83–84% ± an example or two", not "84.2%".** A number quoted to one decimal
-from a single run implies a precision that a GPU does not give you.
-
-**The mechanism claim reproduced more exactly than the numbers did**, which is
-the part worth trusting. In both runs the *entire* bf16-vs-QLoRA gap sits in one
-field:
-
-| field | bf16 | QLoRA |
-|---|---:|---:|
-| `component` | 100.0% | 100.0% |
-| `page_oncall` | 100.0% | 100.0% |
-| `severity` | 100.0% | 100.0% |
-| `action` | 95.8% | 95.8% |
-| **`error_code`** | **83.3%** | **72.5%** |
-
-Four of five fields are identical to the decimal. 4-bit base weights cost
-accuracy precisely where the task needs the finest discrimination, and nowhere
-else. That is a mechanism, not a measurement artifact — and it is why the
-QLoRA-loses finding is safe to defend even though the exact percentages drift.
-
-QLoRA was slower, used *more* memory, and scored 10 points worse. That is not a
-bug — it is what QLoRA does at this model size, and being able to explain it is
-the point:
-
-- **Memory here is activations, not weights.** The 0.5B base is only 0.93 GB in
-  bf16. Peak VRAM is dominated by activations for `batch 8 × seq 512`. 4-bit
-  shrinks the 0.93 GB but adds dequantisation buffers and the fp32 upcasting that
-  `prepare_model_for_kbit_training` inserts — net negative.
-- **Speed:** every forward pass now dequantises NF4 → bf16 on the fly. Pure
-  overhead when you weren't memory-bound to begin with.
-- **Quality:** the 10-point gap is entirely in `error_code` (84.2% → 74.2%),
-  the field that needs the finest discrimination. 4-bit base weights are a
-  lossy starting point.
+- **Memory:** at 0.5B the weights are ~1 GB. Quantising them to NF4 saves a few
+  hundred MB, then adds quantisation state and dequantisation buffers on top.
+  Peak VRAM is dominated by *activations* for `batch 8 × seq 512`, which 4-bit
+  does nothing about.
+- **Speed:** every forward pass dequantises NF4 back to bf16 before the matmul.
+  That is pure overhead when the weights already fit.
+- **Quality:** the gap is **entirely** in `error_code` (84.2% → 78.3%), the field
+  needing the finest discrimination. All four other fields are 100% in both.
 
 **QLoRA earns its keep when weights dominate memory** — a 7B, 13B or 70B where
-the base doesn't fit otherwise. At 0.5B it's strictly worse. Reaching for it
-here because it's the fashionable technique would be the wrong call.
+the base model is the thing that doesn't fit. At 0.5B it is a pure loss, and
+reaching for it here would be cargo-culting.
 
-**`error_code` at 84.2% is the weakest field and I know why:** ~25% of the
-training reports mention the component but no code, so the model has to learn
-"absent ⇒ null" rather than "guess a plausible code". That's the residual error.
-The fix is more null-code examples, not more epochs — the loss is already 0.0097,
-so the model has memorised the training set and further training would only
-overfit.
+### 🔁 Reproducibility, and how these numbers should be quoted
 
----
+Before the dataset was rebuilt, the v1 model was retrained and re-evaluated from
+scratch months after its original run. Peak VRAM (7.47 GB / 8.91 GB) and adapter
+size (33.60 MB) reproduced **exactly**; accuracy moved by one held-out example on
+bf16 (84.2% → 83.3%) and two on QLoRA (74.2% → 72.5%).
+
+**A seed does not make CUDA deterministic.** It fixes initialisation and sampling
+order, not reduction order in cuBLAS or atomic accumulation. Loss curves diverge
+in the fourth decimal by step 40, and examples near a decision boundary flip. So
+every accuracy here should be read as **± an example or two**, and a figure
+quoted to one decimal from a single run implies a precision the hardware does not
+give you.
+
+The reassuring half: **mechanisms reproduce better than numbers.** In both v1
+runs the entire bf16-vs-QLoRA gap sat in `error_code` while the other fields
+matched to the decimal — and after a complete dataset rebuild, it still does.
 
 ## 📁 What's in this project
 

@@ -5,11 +5,11 @@
     "n": 120,
     "json_valid": 1.0,
     "schema_valid": 1.0,
-    "exact_match": 0.7416666666666667,
+    "exact_match": 0.7833333333333333,
     "fields": {
-      "action": 0.9583333333333334,
+      "action": 1.0,
       "component": 1.0,
-      "error_code": 0.7416666666666667,
+      "error_code": 0.7833333333333333,
       "page_oncall": 1.0,
       "severity": 1.0
     }
@@ -17,13 +17,13 @@
   "lora_failures": [
     {
       "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV2\",\"error_code\": \"VIS-207\",\"page_oncall\": true,\"action\": \"power cycle the affected gantry\"}",
+      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV2\",\"error_code\": \"VIS-207\",\"page_oncall\": true,\"action\": \"recalibrate the barcode scanners and check lane lighting\"}",
       "gold": {
         "component": "atlas-vision",
         "severity": "SEV2",
         "error_code": "VIS-311",
         "page_oncall": true,
-        "action": "power cycle the affected gantry"
+        "action": "recalibrate the barcode scanners and check lane lighting"
       }
     },
     {
@@ -39,6 +39,17 @@
     },
     {
       "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV1\",\"error_code\": \"DSP-500\",\"page_oncall\": true,\"action\": \"increase the bid RPC pool size and drain the queue backlog\"}",
+      "gold": {
+        "component": "atlas-dispatch",
+        "severity": "SEV1",
+        "error_code": null,
+        "page_oncall": true,
+        "action": "increase the bid RPC pool size and drain the queue backlog"
+      }
+    },
+    {
+      "reason": "field mismatch",
       "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"scale atlas-dispatch replicas from 3 to 5\"}",
       "gold": {
         "component": "atlas-dispatch",
@@ -50,57 +61,46 @@
     },
     {
       "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV1\",\"error_code\": \"DSP-500\",\"page_oncall\": true,\"action\": \"scale atlas-dispatch replicas from 3 to 5\"}",
+      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV1\",\"error_code\": \"DSP-500\",\"page_oncall\": true,\"action\": \"raise the auction loop budget and profile the bid RPC path\"}",
       "gold": {
         "component": "atlas-dispatch",
         "severity": "SEV1",
         "error_code": null,
         "page_oncall": true,
-        "action": "scale atlas-dispatch replicas from 3 to 5"
+        "action": "raise the auction loop budget and profile the bid RPC path"
       }
     },
     {
       "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV1\",\"error_code\": \"VIS-207\",\"page_oncall\": true,\"action\": \"power cycle the affected gantry\"}",
-      "gold": {
-        "component": "atlas-vision",
-        "severity": "SEV1",
-        "error_code": null,
-        "page_oncall": true,
-        "action": "power cycle the affected gantry"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-dispatch\",\"severity\": \"SEV2\",\"error_code\": \"DSP-500\",\"page_oncall\": true,\"action\": \"scale atlas-dispatch replicas from 3 to 5\"}",
-      "gold": {
-        "component": "atlas-dispatch",
-        "severity": "SEV2",
-        "error_code": null,
-        "page_oncall": true,
-        "action": "scale atlas-dispatch replicas from 3 to 5"
-      }
-    },
-    {
-      "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-telemetry\",\"severity\": \"SEV3\",\"error_code\": \"TLM-402\",\"page_oncall\": false,\"action\": \"upgrade the robot firmware to match the schema version\"}",
+      "output": "{\"component\": \"atlas-telemetry\",\"severity\": \"SEV3\",\"error_code\": \"TLM-402\",\"page_oncall\": false,\"action\": \"page the DBA and check disk on tsdb-0\"}",
       "gold": {
         "component": "atlas-telemetry",
         "severity": "SEV3",
         "error_code": null,
         "page_oncall": false,
-        "action": "check the telemetry write buffer and NTP sync"
+        "action": "page the DBA and check disk on tsdb-0"
       }
     },
     {
       "reason": "field mismatch",
-      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"power cycle the affected gantry\"}",
+      "output": "{\"component\": \"atlas-vision\",\"severity\": \"SEV3\",\"error_code\": null,\"page_oncall\": false,\"action\": \"recalibrate the barcode scanners and check lane lighting\"}",
       "gold": {
         "component": "atlas-vision",
         "severity": "SEV3",
         "error_code": "VIS-207",
         "page_oncall": false,
-        "action": "power cycle the affected gantry"
+        "action": "recalibrate the barcode scanners and check lane lighting"
+      }
+    },
+    {
+      "reason": "field mismatch",
+      "output": "{\"component\": \"atlas-telemetry\",\"severity\": \"SEV1\",\"error_code\": \"TLM-402\",\"page_oncall\": true,\"action\": \"no action required, dedup handles duplicate sequence numbers\"}",
+      "gold": {
+        "component": "atlas-telemetry",
+        "severity": "SEV1",
+        "error_code": null,
+        "page_oncall": true,
+        "action": "no action required, dedup handles duplicate sequence numbers"
       }
     }
   ]

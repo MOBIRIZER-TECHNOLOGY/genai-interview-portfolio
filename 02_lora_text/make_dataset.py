@@ -31,48 +31,74 @@ from pathlib import Path
 # --------------------------------------------------------------- domain
 
 COMPONENTS = {
+    # Each symptom carries its OWN remediation. This is the whole point of the
+    # v2 dataset: in v1 the action was keyed on the *component*, so four of five
+    # components had exactly one action and `action` collapsed into a lookup --
+    # a predictor that copied each component's majority action scored 86.7%,
+    # against the fine-tuned model's 95.8%. The field was nearly free and the
+    # per-field metric did not say so. Keying the action on the symptom forces
+    # the model to read the body of the report, not just spot the service name.
     "atlas-dispatch": {
         "codes": ["DSP-500", "DSP-512", None],
         "symptoms": [
-            "the auction loop period climbed to {ms} ms",
-            "bid RPC pool is exhausted and tasks are queueing",
-            "task assignment p99 is sitting at {sec} seconds",
-            "{n} pallets have gone unassigned for {min} minutes",
+            ("the auction loop period climbed to {ms} ms",
+             "raise the auction loop budget and profile the bid RPC path"),
+            ("bid RPC pool is exhausted and tasks are queueing",
+             "increase the bid RPC pool size and drain the queue backlog"),
+            ("task assignment p99 is sitting at {sec} seconds",
+             "scale atlas-dispatch replicas from 3 to 5"),
+            ("{n} pallets have gone unassigned for {min} minutes",
+             "reassign the orphaned pallets and restart the assignment worker"),
         ],
     },
     "atlas-telemetry": {
         "codes": ["TLM-101", "TLM-204", "TLM-330", "TLM-402", None],
         "symptoms": [
-            "clock skew alarms firing across {n} robots",
-            "shed mode has been active for {min} minutes",
-            "hypertable chunk writes failing on tsdb-0",
-            "duplicate sequence numbers flooding the ingest log",
-            "sample rate dropped to 5 Hz fleet-wide",
+            ("clock skew alarms firing across {n} robots",
+             "restart ntp-relay in the cell namespace"),
+            ("shed mode has been active for {min} minutes",
+             "clear shed mode once the ingest backlog has drained"),
+            ("hypertable chunk writes failing on tsdb-0",
+             "page the DBA and check disk on tsdb-0"),
+            ("duplicate sequence numbers flooding the ingest log",
+             "no action required, dedup handles duplicate sequence numbers"),
+            ("sample rate dropped to 5 Hz fleet-wide",
+             "check the telemetry write buffer and NTP sync"),
         ],
     },
     "atlas-vision": {
         "codes": ["VIS-207", "VIS-311", None],
         "symptoms": [
-            "gantry {n} GPU has fallen off the bus",
-            "barcode read rate has dropped to {pct}%",
-            "{n} pallets routed to manual inspection in the last hour",
-            "the damage classifier is returning constant scores",
+            ("gantry {n} GPU has fallen off the bus",
+             "power cycle the affected gantry"),
+            ("barcode read rate has dropped to {pct}%",
+             "recalibrate the barcode scanners and check lane lighting"),
+            ("{n} pallets routed to manual inspection in the last hour",
+             "clear the manual inspection backlog and review the routing threshold"),
+            ("the damage classifier is returning constant scores",
+             "roll back the damage classifier to the previous model version"),
         ],
     },
     "atlas-console": {
         "codes": ["CON-401", None],
         "symptoms": [
-            "operators cannot log in, session service returning 401s",
-            "the fleet map is {min} minutes stale",
-            "the console is showing a blank task queue",
+            ("operators cannot log in, session service returning 401s",
+             "restart the console session service"),
+            ("the fleet map is {min} minutes stale",
+             "flush the fleet map cache and verify the websocket feed"),
+            ("the console is showing a blank task queue",
+             "reload the task queue view and check console API health"),
         ],
     },
     "atlas-sim": {
         "codes": ["SIM-110", None],
         "symptoms": [
-            "the regression gate is failing on peak-friday.yaml",
-            "replay output is no longer byte-identical across runs",
-            "scenario battery-cliff.yaml times out after {min} minutes",
+            ("the regression gate is failing on peak-friday.yaml",
+             "triage the regression gate failure against the last passing commit"),
+            ("replay output is no longer byte-identical across runs",
+             "re-run the scenario with a pinned seed and compare output hashes"),
+            ("scenario battery-cliff.yaml times out after {min} minutes",
+             "raise the scenario timeout and profile the battery model"),
         ],
     },
 }
@@ -99,27 +125,6 @@ CLOSERS = [
     "Can someone take a look?", "What do we do?", "Escalating now.",
     "Filing this for the record.", "Not sure who owns this.", "",
 ]
-
-ACTIONS = {
-    "TLM-101": "restart ntp-relay in the cell namespace",
-    "TLM-330": "page the DBA and check disk on tsdb-0",
-    "TLM-402": "upgrade the robot firmware to match the schema version",
-    "TLM-204": "no action required, dedup handles duplicate sequence numbers",
-    "DSP-500": "scale atlas-dispatch replicas from 3 to 5",
-    "DSP-512": "scale atlas-dispatch replicas from 3 to 5",
-    "VIS-207": "power cycle the affected gantry",
-    "VIS-311": "power cycle the affected gantry",
-    "CON-401": "restart the console session service",
-    "SIM-110": "re-run the scenario with a pinned seed and compare output hashes",
-}
-
-DEFAULT_ACTION = {
-    "atlas-dispatch": "scale atlas-dispatch replicas from 3 to 5",
-    "atlas-telemetry": "check the telemetry write buffer and NTP sync",
-    "atlas-vision": "power cycle the affected gantry",
-    "atlas-console": "restart the console session service",
-    "atlas-sim": "re-run the scenario with a pinned seed and compare output hashes",
-}
 
 SYSTEM = (
     "You are the Atlas incident triage service. Convert the operator report into "
@@ -152,7 +157,8 @@ def make_example(rng: random.Random) -> dict:
     if opener:
         parts.append(opener)
 
-    symptom = _fill(rng.choice(spec["symptoms"]), rng)
+    symptom_tpl, action = rng.choice(spec["symptoms"])
+    symptom = _fill(symptom_tpl, rng)
     if code and rng.random() < 0.75:
         parts.append(f"We're seeing {code} on {component} -- {symptom}.")
     else:
@@ -170,7 +176,7 @@ def make_example(rng: random.Random) -> dict:
         "severity": severity,
         "error_code": code,
         "page_oncall": severity in ("SEV1", "SEV2"),
-        "action": ACTIONS.get(code) or DEFAULT_ACTION[component],
+        "action": action,
     }
 
     return {
