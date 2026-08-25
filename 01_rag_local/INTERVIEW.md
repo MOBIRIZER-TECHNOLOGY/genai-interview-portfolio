@@ -233,7 +233,7 @@ any input, including no input. It had been sitting there advertising that
 overlap was tested while testing nothing at all.
 
 **A suite that passes on known-broken code is worse than no suite, because it
-manufactures confidence.** The full argument, plus a 14-row ledger of the real
+manufactures confidence.** The full argument, plus a 15-row ledger of the real
 bugs and the test that pins each one, is in
 [tests/INTERVIEW.md](../tests/INTERVIEW.md).
 

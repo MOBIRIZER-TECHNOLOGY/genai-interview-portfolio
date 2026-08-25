@@ -23,8 +23,17 @@ an `access_token`. The resource server then validates the token on every call.
   redirect (a malicious app registered for the same URI scheme, a shared browser)
   can replay the code. With PKCE the client commits up front to a
   `code_challenge = SHA256(verifier)` and must present the raw `verifier` at
-  exchange. Intercepting the code alone is useless. `_verify_pkce` below is that
-  check, and it is the single most important function in this file.
+  exchange. Intercepting the code alone is useless.
+
+  **Where that check actually runs:** in the MCP SDK's token handler
+  (`mcp/server/auth/handlers/token.py`), which compares `SHA256(verifier)` to
+  the stored `code_challenge` before issuing tokens. `_verify_pkce` below is a
+  readable reference implementation of the same comparison, kept because the
+  reasoning is worth reading -- but it is NOT on the request path, and calling
+  it "the most important function in this file" (as this docstring used to)
+  was wrong. Disabling it changes nothing; disabling the SDK's check issues
+  tokens for a stolen code, which is what
+  `tests/test_oauth_flow.py::test_wrong_verifier_is_rejected` pins.
 - **Implicit flow is gone.** No more tokens in URL fragments, where they land in
   browser history and referrer headers.
 - **Exact redirect-URI matching.** No wildcard or prefix matching, which was a
@@ -94,7 +103,12 @@ def _b64url(raw: bytes) -> str:
 
 
 def _verify_pkce(verifier: str, challenge: str, method: str = "S256") -> bool:
-    """The heart of OAuth 2.1.
+    """Reference implementation of the PKCE check -- NOT on the request path.
+
+    The MCP SDK performs this comparison itself inside its token handler, so
+    nothing here calls this function. It is kept for the explanation below,
+    which is the part worth knowing; a mutation test proved the point by
+    disabling it and watching every security test still pass.
 
     The client generated a random `verifier`, sent only `SHA256(verifier)` at
     authorize time, and must now present the raw verifier. An attacker who stole

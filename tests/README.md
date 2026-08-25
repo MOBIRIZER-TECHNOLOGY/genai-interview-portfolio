@@ -10,14 +10,14 @@ instruments.
 ..\activate.ps1
 
 pytest tests/ -m "not llm and not gpu and not slow"   # fast subset, seconds
-pytest tests/ -m "not llm and not gpu"               # 160 tests, ~90 s, 99% coverage
+pytest tests/ -m "not llm and not gpu"               # 170 tests, ~90 s, 99% coverage
 pytest tests/ -m llm -v                   # DeepEval quality gates (needs Ollama)
 pytest tests/                             # everything
 ```
 
 ---
 
-## Layer 1 — deterministic (160 tests, 99% coverage)
+## Layer 1 — deterministic (170 tests, 99% coverage)
 
 ```
 pytest tests/ -m "not llm and not gpu" --cov=07_rag_at_scale/scale --cov=01_rag_local/rag
@@ -65,11 +65,12 @@ for a bug that actually happened in this repo.**
 | `test_coverage_gaps.py` | every remaining reachable branch, named per test | (coverage-driven; also where dead `_get` was deleted rather than tested) |
 | `test_rag_paradigms.py` | graph walks, entity resolution, the agent's action loop | the **`shed mode` / `shed_mode` split** that left the flagship two-hop edge unreachable, and the **possessive** variant of it |
 | `test_paradigm_wiring.py` | block assembly, extraction loop, agent networking | the **null triple field** that crashed a real extraction run 20 chunks in, and junk non-dict entries |
+| `test_oauth_flow.py` | the OAuth 2.1 security properties | a PKCE check, refresh rotation or revocation silently ceasing to be enforced — mutation-verified by disabling the SDK's real check |
 | `test_doc_drift.py` | the numbers in these READMEs | the **test count that went stale in three places at once** (105 / 141 / actually 143), and two test files documented nowhere |
 
 ---
 
-## 🐞 The bug ledger — 14 real bugs, each pinned by a named test
+## 🐞 The bug ledger — 15 real bugs, each pinned by a named test
 
 Every row is a bug that actually happened in this repo, with the test that
 makes it stay fixed. The count in the root README is this table's row count, and
@@ -92,12 +93,16 @@ existing — the number cannot drift, and neither can the claim.
 | 12 | **null fields inside valid triples** — crashed a real extraction run 20 chunks in | 08 graphrag | `test_extract_graph_full_run_with_mocked_llm` |
 | 13 | **hallucinated cold retention** — invented "indefinitely" from a table cell reading `none`, carrying a *valid* citation | 01 generation | `test_no_invented_cold_retention` |
 | 14 | **doc drift** — the test count went stale in three documents at once (105 / 141 / actually 143) | docs | `test_documented_test_counts_match_the_suite` |
+| 15 | **PKCE was enforced only by the SDK** while `auth_provider._verify_pkce` — documented as "the single most important function in this file" — was never called, so nothing in the repo tested the property at all | 05 auth | `test_wrong_verifier_is_rejected` |
 
-Bugs 3 and 11 were found by a **documentation audit**, not by a code review:
+Bugs 3, 11 and 15 were found by a **documentation audit**, not by a code review:
 checking whether the claim "pinned by test" was true turned up a fix with no
 test behind it (11) and a fix that was **incomplete** (3). Both claims had been
-sitting in the READMEs asserting otherwise. The lesson is uncomfortable and
-worth keeping: *"pinned by test" is itself a claim that needs verifying.*
+sitting in the READMEs asserting otherwise. Bug 15 is the sharpest version:
+a mutation test disabled the project's own PKCE function and **every security
+test still passed**, because the SDK was doing the work and the repo's function
+was decorative. The lesson is uncomfortable and worth keeping: *"pinned by test"
+is itself a claim that needs verifying — and so is "this code does the thing".*
 
 ### Why this layer earns its place
 
@@ -283,9 +288,12 @@ CI should run `-m "not llm and not gpu"` — no infrastructure needed. Add
 Stated plainly, because a test README that implies full coverage is its own kind
 of lie:
 
-- **The OAuth 2.1 server** (`05_mcp_server`) is verified end-to-end by
-  `auth_client_demo.py` — including PKCE rejection, refresh rotation and
-  revocation — but that is a script, not pytest. It should be ported.
+- ~~**The OAuth 2.1 server** is only verified by a demo script.~~ **Ported**
+  — `test_oauth_flow.py` turns every "must not be 200" the demo printed into an
+  assertion: PKCE rejecting a stolen code, single-use authorization codes,
+  refresh rotation invalidating the old token, revocation taking effect, and
+  per-tool scope denial. It spawns the server on a free port and needs no GPU,
+  because the tools it calls are the two that never load a model.
 - **Training loops** (projects 02/03/04) have no tests. Their `evaluate.py`
   harnesses measure output quality but assert nothing.
 
