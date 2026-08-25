@@ -1,0 +1,121 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "gpu": "NVIDIA GeForce RTX 5070 Ti",
+  "vram_gb": 15.9,
+  "torch": "2.11.0+cu128",
+  "cuda": "12.8",
+  "max_new_tokens": 128,
+  "variants": [
+    {
+      "variant": "fp32",
+      "load_seconds": 2.76,
+      "weights_gb": 5.752,
+      "peak_gb": 5.776,
+      "ttft_ms": 25.4,
+      "decode_tok_s": 44.0,
+      "total_tok_s": 43.9,
+      "generated_tokens": 128,
+      "perplexity": 43.149,
+      "error": null
+    },
+    {
+      "variant": "fp16",
+      "load_seconds": 1.66,
+      "weights_gb": 2.885,
+      "peak_gb": 2.897,
+      "ttft_ms": 23.9,
+      "decode_tok_s": 50.3,
+      "total_tok_s": 50.3,
+      "generated_tokens": 128,
+      "perplexity": 43.168,
+      "error": null
+    },
+    {
+      "variant": "bf16",
+      "load_seconds": 1.78,
+      "weights_gb": 2.885,
+      "peak_gb": 2.897,
+      "ttft_ms": 24.5,
+      "decode_tok_s": 47.8,
+      "total_tok_s": 47.7,
+      "generated_tokens": 128,
+      "perplexity": 42.885,
+      "error": null
+    },
+    {
+      "variant": "int8",
+      "load_seconds": 2.71,
+      "weights_gb": 1.671,
+      "peak_gb": 1.717,
+      "ttft_ms": 119.7,
+      "decode_tok_s": 9.2,
+      "total_tok_s": 9.2,
+      "generated_tokens": 128,
+      "perplexity": 44.03,
+      "error": null
+    },
+    {
+      "variant": "int4",
+      "load_seconds": 1.86,
+      "weights_gb": 1.083,
+      "peak_gb": 1.114,
+      "ttft_ms": 38.7,
+      "decode_tok_s": 39.7,
+      "total_tok_s": 39.5,
+      "generated_tokens": 128,
+      "perplexity": 49.484,
+      "error": null
+    }
+  ],
+  "batching": [
+    {
+      "batch_size": 1,
+      "seconds": 2.764,
+      "tokens_per_seq": 128,
+      "total_tok_s": 46.3,
+      "per_seq_tok_s": 46.3,
+      "peak_gb": 2.9
+    },
+    {
+      "batch_size": 2,
+      "seconds": 2.754,
+      "tokens_per_seq": 128,
+      "total_tok_s": 93.0,
+      "per_seq_tok_s": 46.5,
+      "peak_gb": 2.91
+    },
+    {
+      "batch_size": 4,
+      "seconds": 3.379,
+      "tokens_per_seq": 128,
+      "total_tok_s": 151.5,
+      "per_seq_tok_s": 37.9,
+      "peak_gb": 2.93
+    },
+    {
+      "batch_size": 8,
+      "seconds": 3.014,
+      "tokens_per_seq": 128,
+      "total_tok_s": 339.8,
+      "per_seq_tok_s": 42.5,
+      "peak_gb": 2.96
+    },
+    {
+      "batch_size": 16,
+      "seconds": 2.611,
+      "tokens_per_seq": 128,
+      "total_tok_s": 784.3,
+      "per_seq_tok_s": 49.0,
+      "peak_gb": 3.06
+    },
+    {
+      "batch_size": 32,
+      "seconds": 3.055,
+      "tokens_per_seq": 128,
+      "total_tok_s": 1340.6,
+      "per_seq_tok_s": 41.9,
+      "peak_gb": 3.2
+    }
+  ],
+  "batching_variant": "bf16"
+}

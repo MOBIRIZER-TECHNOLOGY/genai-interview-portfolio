@@ -60,6 +60,7 @@ from __future__ import annotations
 import argparse
 import gc
 import json
+import statistics
 import time
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -100,6 +101,7 @@ class Result:
     peak_gb: float
     ttft_ms: float
     decode_tok_s: float
+    decode_spread_pct: float
     total_tok_s: float
     generated_tokens: int
     perplexity: float | None = None
@@ -154,13 +156,25 @@ def load(model_name: str, variant: str):
 
 
 @torch.no_grad()
-def measure_generation(model, tok, max_new_tokens: int, warmup: int = 1) -> tuple[float, float, float, int]:
-    """Return (ttft_ms, decode_tok_s, total_tok_s, generated).
+def measure_generation(model, tok, max_new_tokens: int, warmup: int = 1,
+                       repeats: int = 1) -> tuple[float, float, float, int, float]:
+    """Return (ttft_ms, decode_tok_s, total_tok_s, generated, spread_pct).
 
     TTFT is measured as a separate 1-token generation, which isolates prefill.
     Then a full run gives total time; decode speed is (total - ttft) over the
     remaining tokens. Reporting a single "tokens/sec" that silently folds prefill
     into decode is the most common benchmarking mistake in this space.
+
+    `repeats` exists because of a reproduction failure, and reporting the MEDIAN
+    of several runs is the fix. A single sample of bf16 decode on this machine
+    ranged from 40.7 to 61.0 tok/s across runs -- a 50% spread, larger than every
+    difference between fp32, fp16, bf16 and int4 put together. The first version
+    of this benchmark took one sample and published "int4 buys zero speed"; a
+    re-run made int4 look 19% slower, and three isolated runs made it 8-15%
+    faster. None of those were real.
+
+    `spread_pct` is returned so the caller can print it: a speed number without
+    a spread invites exactly the over-reading this benchmark got wrong once.
     """
     msgs = [{"role": "user", "content": PROMPT}]
     text = tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
@@ -175,15 +189,21 @@ def measure_generation(model, tok, max_new_tokens: int, warmup: int = 1) -> tupl
     torch.cuda.synchronize()
     ttft = time.perf_counter() - t0
 
-    t0 = time.perf_counter()
-    out = model.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False,
-                         pad_token_id=tok.pad_token_id)
-    torch.cuda.synchronize()
-    total = time.perf_counter() - t0
+    rates, totals, generated = [], [], 0
+    for _ in range(max(1, repeats)):
+        t0 = time.perf_counter()
+        out = model.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False,
+                             pad_token_id=tok.pad_token_id)
+        torch.cuda.synchronize()
+        total = time.perf_counter() - t0
+        generated = out.shape[1] - enc["input_ids"].shape[1]
+        decode_s = max(total - ttft, 1e-6)
+        rates.append((generated - 1) / decode_s)
+        totals.append(generated / total)
 
-    generated = out.shape[1] - enc["input_ids"].shape[1]
-    decode_s = max(total - ttft, 1e-6)
-    return ttft * 1000, (generated - 1) / decode_s, generated / total, generated
+    spread = 100 * (max(rates) - min(rates)) / statistics.median(rates) if len(rates) > 1 else 0.0
+    return (ttft * 1000, statistics.median(rates), statistics.median(totals),
+            generated, spread)
 
 
 @torch.no_grad()
@@ -239,6 +259,9 @@ def main():
     ap.add_argument("--max-new-tokens", type=int, default=128)
     ap.add_argument("--batch-sizes", nargs="+", type=int, default=[1, 2, 4, 8, 16, 32])
     ap.add_argument("--batch-variant", default="bf16", help="variant used for the batching sweep")
+    ap.add_argument("--repeats", type=int, default=3,
+                    help="decode timings per variant; the MEDIAN is reported. "
+                         "1 sample is not enough -- see measure_generation()")
     ap.add_argument("--skip-quality", action="store_true")
     ap.add_argument("--skip-batching", action="store_true")
     ap.add_argument("--out", default=str(HERE / "results.json"))
@@ -263,15 +286,17 @@ def main():
             model, tok, load_s, weights_gb = load(args.model, variant)
             print(f"    loaded in {load_s:.1f}s, weights {weights_gb:.3f} GB")
 
-            ttft, dec, tot, n = measure_generation(model, tok, args.max_new_tokens)
+            ttft, dec, tot, n, spread = measure_generation(
+                model, tok, args.max_new_tokens, repeats=args.repeats)
             peak = torch.cuda.max_memory_allocated() / 1024**3
             ppl = None if args.skip_quality else perplexity(model, tok, QUALITY_TEXT)
 
             r = Result(variant, round(load_s, 2), round(weights_gb, 3), round(peak, 3),
-                       round(ttft, 1), round(dec, 1), round(tot, 1), n,
+                       round(ttft, 1), round(dec, 1), round(spread, 1), round(tot, 1), n,
                        None if ppl is None else round(ppl, 3))
             results.append(r)
-            print(f"    TTFT {r.ttft_ms:.0f} ms | decode {r.decode_tok_s:.1f} tok/s | "
+            spread_note = f" (spread {spread:.0f}% over {args.repeats} runs)" if args.repeats > 1 else ""
+            print(f"    TTFT {r.ttft_ms:.0f} ms | decode {r.decode_tok_s:.1f} tok/s{spread_note} | "
                   f"peak {r.peak_gb:.2f} GB" + (f" | ppl {r.perplexity:.3f}" if ppl else ""))
 
             if not args.skip_batching and variant == args.batch_variant:
@@ -283,7 +308,8 @@ def main():
 
         except Exception as exc:
             print(f"    FAILED: {type(exc).__name__}: {exc}")
-            results.append(Result(variant, 0, 0, 0, 0, 0, 0, 0, error=f"{type(exc).__name__}: {exc}"))
+            results.append(Result(variant, 0, 0, 0, 0, 0, 0, 0, 0,
+                                  error=f"{type(exc).__name__}: {exc}"))
             free_gpu()
 
     # ------------------------------------------------------------- report

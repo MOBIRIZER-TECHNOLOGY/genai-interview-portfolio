@@ -1,0 +1,38 @@
+{
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "gpu": "NVIDIA GeForce RTX 5070 Ti",
+  "vram_gb": 15.9,
+  "torch": "2.11.0+cu128",
+  "cuda": "12.8",
+  "max_new_tokens": 128,
+  "variants": [
+    {
+      "variant": "bf16",
+      "load_seconds": 1.46,
+      "weights_gb": 0.928,
+      "peak_gb": 0.942,
+      "ttft_ms": 19.2,
+      "decode_tok_s": 49.1,
+      "decode_spread_pct": 36.6,
+      "total_tok_s": 49.1,
+      "generated_tokens": 128,
+      "perplexity": null,
+      "error": null
+    },
+    {
+      "variant": "int4",
+      "load_seconds": 1.58,
+      "weights_gb": 0.435,
+      "peak_gb": 0.445,
+      "ttft_ms": 28.1,
+      "decode_tok_s": 47.9,
+      "decode_spread_pct": 28.6,
+      "total_tok_s": 47.8,
+      "generated_tokens": 128,
+      "perplexity": null,
+      "error": null
+    }
+  ],
+  "batching": [],
+  "batching_variant": "bf16"
+}

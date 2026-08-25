@@ -84,14 +84,55 @@ RTX 5070 Ti 16 GB, torch 2.11.0+cu128, 128 generated tokens, greedy.
 
 ### 🔍 Reading the table
 
-**fp32 is not slower than bf16 here.** On the 0.5B it's actually the fastest
-(49.4 vs 44.8). That only makes sense in the overhead-bound regime — fp32 reads
-twice the bytes and it doesn't matter, while bf16 pays some conversion cost. On a
-7B model this would flip hard.
+**fp32 is not slower than bf16 here.** On the 0.5B it measured *faster*
+(49.4 vs 44.8). In the overhead-bound regime that is possible — fp32 reads twice
+the bytes and it doesn't matter. But see the variance section below before
+believing the ordering: **that gap is inside the noise floor** and I would not
+defend it. What survives is the weaker, robust claim: fp32 is not meaningfully
+slower, which is already surprising and already refutes the textbook line.
 
-**int4 buys 2.2× less memory and zero speed.** Same decode rate as bf16, because
-we weren't bandwidth-limited so there was nothing to win by reading fewer bytes.
-Use it when you need the model to *fit*, not to make it fast.
+**int4 buys 2.2× less memory and no speed.** Median over 5 runs: bf16 49.1 vs
+int4 47.9 tok/s — a 0.98× ratio, indistinguishable. Use int4 when you need the
+model to *fit*, not to make it fast.
+
+### ⚠️ How much do these speed numbers move? Measured — and it changes the reading
+
+Re-running this benchmark months later reproduced **memory and perplexity to the
+digit** and **did not reproduce the decode speeds**:
+
+| | documented | re-run | 3 isolated runs |
+|---|---:|---:|---|
+| bf16 decode (0.5B) | 44.8 | **61.0** | 45.1 / 40.7 / 43.5 |
+| int4 decode (0.5B) | 45.3 | 49.3 | 49.8 / 46.7 / 47.0 |
+| int4 ÷ bf16 | 1.01× | **0.81×** | **1.10× / 1.15× / 1.08×** |
+
+The *sign* of the int4-vs-bf16 difference flips depending on the run. So the
+benchmark now takes `--repeats` (default 3) and reports the **median plus the
+spread**:
+
+```
+bf16 median 49.1 tok/s  spread 36.6% over 5 runs
+int4 median 47.9 tok/s  spread 28.6% over 5 runs
+```
+
+**A ~30–37% spread is larger than every difference between fp32, fp16, bf16 and
+int4 combined.** Which splits this project's findings cleanly:
+
+| claim | status |
+|---|---|
+| memory per variant | **exact** across runs — deterministic |
+| perplexity per variant (incl. int4 +9.2% / +15.4%) | **exact** across runs — deterministic |
+| int8 is ~4–5× slower | **robust** — far outside the noise |
+| 3× the weights ≠ 3× slower (0.5B vs 1.5B) | **robust** — bandwidth predicts ~15 tok/s; the 1.5B never dropped below 38.7 |
+| batching gives ~29–32× | **robust** — an order of magnitude outside noise |
+| "fp32 is the fastest variant" | **not supported** by a single run |
+| fine-grained fp16/bf16/int4 ordering | **not supported** by a single run |
+
+The lesson is the one the project already argues, turned on itself: *a number
+without an error bar invites over-reading, and I over-read my own.* The headline
+conclusion — decoding at this scale is **overhead-bound, not bandwidth-bound** —
+is untouched, because it rests on a 3× prediction failing by a factor of two to
+three, not on a 10% difference.
 
 **int8 is a trap at this scale — 5× slower.** `LLM.int8()` isn't plain 8-bit
 arithmetic: it decomposes each matmul, routes outlier features through a separate

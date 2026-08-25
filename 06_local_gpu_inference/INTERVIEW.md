@@ -128,11 +128,28 @@ The mistakes are more instructive than the recipe:
 - **Reporting memory without quality.** That's marketing.
 - **Sampling on.** Makes runs incomparable. `do_sample=False`.
 
-And the one I'd own up to: **single timed runs**. My per-sequence batching column
-wobbles (42.7 at batch 16, 63.8 at batch 8) because there's one run per point on
-a desktop GPU with other things happening. The total-throughput trend is robust;
-I wouldn't quote the per-sequence numbers to two significant figures. Real
-benchmarking needs repeats and a distribution.
+And the one I'd own up to, because I got caught by it: **single timed runs**.
+
+I re-ran this benchmark months later. Memory and perplexity reproduced *to the
+digit* — they're deterministic. Decode speed did not. bf16 on the 0.5B had been
+44.8 tok/s; the re-run gave **61.0**, and three isolated runs gave 45.1, 40.7,
+43.5. So I measured the spread properly: **36.6% across five runs in one
+process.**
+
+That is larger than every difference between fp32, fp16, bf16 and int4 put
+together — and it flipped the *sign* of one of my published comparisons. I had
+written "int4 buys zero speed, same decode rate as bf16"; a re-run made int4 look
+19% slower, and isolated runs made it 8–15% faster. The honest statement is that
+the difference is below the noise floor: median 49.1 vs 47.9, 0.98×.
+
+So the benchmark now takes `--repeats` (default 3) and reports the median with
+the spread, and the README marks each claim robust or unsupported. What survives
+is what should: int8 being 4–5× slower, batching at ~30×, and the headline
+overhead-bound finding — all of them order-of-magnitude effects that a 30% noise
+floor cannot touch. What doesn't survive is "fp32 is the fastest variant", which
+I should never have stated from one sample.
+
+**A number without an error bar invites over-reading, and I over-read my own.**
 
 ### "How would you serve a 7B model to 100 concurrent users?"
 
