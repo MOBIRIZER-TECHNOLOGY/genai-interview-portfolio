@@ -412,3 +412,37 @@ def test_rag_pipeline_load_and_retrieve():
         assert r_ms >= 0 and rr_ms >= 0
     with pytest.raises(ValueError, match="unknown retrieval mode"):
         pipe.retrieve("q", mode="quantum")
+
+
+# --------------------------------------------------------------- project 04 data
+
+
+def test_voice_eval_leakage_is_measured_not_assumed():
+    """The voice corpus has train/eval text overlap -- it must stay *quantified*.
+
+    24 of 60 held-out sentences appear verbatim in training, and every eval speaker
+    is also a training speaker. That was measured (the unleaked subset actually
+    scores *better*: 2.4% WER vs 2.6%, 98.5% domain-term recall vs 91.4%), so the
+    headline is not inflated by it.
+
+    This test does not forbid the overlap -- it pins the fact that it exists and is
+    known, so a future regeneration cannot quietly change the amount and leave the
+    README's audit describing a corpus that no longer exists. If it fires, re-run
+    the leaked/unleaked split before touching the number.
+    """
+    data = ROOT / "04_lora_voice" / "data"
+    if not (data / "train.jsonl").exists():
+        pytest.skip("voice corpus not generated (make_dataset.py)")
+
+    def texts(name):
+        return [json.loads(l)["text"]
+                for l in (data / name).read_text(encoding="utf-8").splitlines() if l.strip()]
+
+    tr, ev = texts("train.jsonl"), texts("eval.jsonl")
+    overlap = sum(1 for t in ev if t in set(tr))
+    share = overlap / len(ev)
+    assert 0.30 <= share <= 0.50, (
+        f"{overlap}/{len(ev)} eval sentences ({share:.0%}) also appear in training. "
+        "The README documents ~40% and reports the leaked/unleaked split measured at "
+        "that level. A different figure means the audit needs re-running, not editing."
+    )

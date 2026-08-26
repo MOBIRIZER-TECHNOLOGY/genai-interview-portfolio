@@ -104,7 +104,7 @@ an optional library only matters for the project that uses it.
 
 ### And run the test suite
 
-It is the most complete check in the repo — 171 deterministic tests in ~88
+It is the most complete check in the repo — 172 deterministic tests in ~88
 seconds, no GPU and no Ollama required — and it verifies the documentation as
 well as the code, so a stale number in any README fails it:
 

@@ -125,6 +125,37 @@ distribution except English. Same sentence generator, three speaking rates, same
 augmentation. If the LoRA had merely memorised SpeechT5's acoustics, it would
 collapse here.
 
+### 🔍 Leakage audit — 40% of the eval appears in training, and it changes nothing
+
+Auditing the corpus turned up a real methodological defect: **24 of the 60 held-out
+sentences appear word-for-word in the training data** (different audio rendering,
+identical text), and **every eval speaker is also a training speaker**. Textual
+leakage plus a speaker-dependent split.
+
+A leak that inflates nothing is a different problem from one that invents your
+headline, so it was measured before being described:
+
+| subset | n | base WER | adapter WER | domain terms | exact match |
+|---|---:|---:|---:|---:|---:|
+| leaked — text seen in training | 24 | 50.0% | 2.6% | 91.4% | 87.5% |
+| **unleaked — text never seen** | 36 | 53.5% | **2.4%** | **98.5%** | **94.4%** |
+| whole eval set | 60 | 52.1% | 2.5% | 96.0% | 91.7% |
+
+**The unleaked subset scores better on every measure.** The adapter is not reciting
+memorised sentences — it learned the spoken→written convention, and the convention
+transfers to sentences it has never seen. Reporting 2.5% is, if anything,
+conservative.
+
+The defect is still a defect: a split sharing text and speakers **cannot prove**
+generalisation even when generalisation is what is happening. You have to go and
+measure it, as here. The fix is a held-out speaker and a disjoint sentence pool —
+and "I checked my eval for leakage" is a much stronger claim than "my WER is 2.5%".
+
+*(One trap while measuring this: `PeftModel.from_pretrained(base, ...)` wraps `base`
+**in place**, so evaluating a "base" arm after building the adapter silently runs the
+adapter. The first version of this table showed base and LoRA scoring identically —
+which is what that bug looks like.)*
+
 **It didn't collapse — it transferred.** 60 SAPI clips, greedy decoding:
 
 | Metric | Base Whisper | LoRA (trained only on SpeechT5) | Δ |
