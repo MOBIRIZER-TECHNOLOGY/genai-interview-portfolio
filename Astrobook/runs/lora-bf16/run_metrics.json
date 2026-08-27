@@ -1,0 +1,32 @@
+{
+  "mode": "lora",
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "peak_vram_gb": 12.22,
+  "base_vram_gb": 8.04,
+  "train_runtime_s": 1442.2,
+  "sec_per_step": 2.882,
+  "global_steps": 500,
+  "train_loss": 1.4892,
+  "eval_loss": 1.4622,
+  "trainable_params": 66060288,
+  "total_params": 4088528384,
+  "trainable_pct": 1.616,
+  "adapter_bytes": 264308896,
+  "config": {
+    "model": "Qwen/Qwen3-4B-Instruct-2507",
+    "out": "runs/lora-bf16",
+    "qlora": false,
+    "rank": 32,
+    "alpha": 64,
+    "dropout": 0.05,
+    "seq_len": 1024,
+    "epochs": 2.0,
+    "lr": 0.0001,
+    "batch": 2,
+    "accum": 8,
+    "max_steps": 500,
+    "eval_n": 400,
+    "warmup": 20,
+    "grad_ckpt": true
+  }
+}

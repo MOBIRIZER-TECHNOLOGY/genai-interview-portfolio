@@ -1,0 +1,107 @@
+W0827 09:52:02.513000 3352 site-packages\torch\utils\flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<02:03,  3.23it/s]Loading weights:   1%|1         | 4/398 [00:00<00:35, 11.19it/s]Loading weights:   4%|4         | 16/398 [00:00<00:09, 41.66it/s]Loading weights:   7%|6         | 27/398 [00:00<00:06, 60.16it/s]Loading weights:  12%|#1        | 47/398 [00:00<00:03, 98.02it/s]Loading weights:  17%|#6        | 66/398 [00:00<00:02, 123.41it/s]Loading weights:  21%|##        | 82/398 [00:00<00:02, 133.16it/s]Loading weights:  26%|##5       | 103/398 [00:01<00:01, 150.69it/s]Loading weights:  31%|###1      | 124/398 [00:01<00:01, 165.71it/s]Loading weights:  36%|###5      | 142/398 [00:01<00:01, 146.00it/s]Loading weights:  40%|###9      | 158/398 [00:01<00:01, 130.79it/s]Loading weights:  43%|####3     | 172/398 [00:01<00:01, 123.73it/s]Loading weights:  46%|####6     | 185/398 [00:01<00:01, 121.21it/s]Loading weights:  50%|####9     | 198/398 [00:01<00:01, 118.44it/s]Loading weights:  53%|#####3    | 211/398 [00:01<00:01, 119.36it/s]Loading weights:  56%|#####6    | 224/398 [00:02<00:01, 112.21it/s]Loading weights:  62%|######1   | 245/398 [00:02<00:01, 135.59it/s]Loading weights:  66%|######6   | 264/398 [00:02<00:00, 148.65it/s]Loading weights:  70%|#######   | 280/398 [00:02<00:00, 150.78it/s]Loading weights:  76%|#######5  | 301/398 [00:02<00:00, 164.16it/s]Loading weights:  81%|########  | 322/398 [00:02<00:00, 171.59it/s]Loading weights:  86%|########5 | 341/398 [00:02<00:00, 174.54it/s]Loading weights:  90%|######### | 359/398 [00:02<00:00, 173.12it/s]Loading weights:  95%|#########4| 378/398 [00:02<00:00, 169.92it/s]Loading weights:  99%|#########9| 396/398 [00:03<00:00, 161.13it/s]Loading weights: 100%|##########| 398/398 [00:03<00:00, 129.18it/s]
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 20301.27it/s]
+============================================================================================
+Q1  [mantreswara-phaladeepika.pdf]
+    What does Mantreswara Phaladeepika say about the birth of a son being likely during the dasha or antar dasha of certain planets?
+    retrieval found the source book: YES  (mantreswara-phaladeepi, mantreswara-phaladeepi, mantreswara-phaladeepi)
+============================================================================================
+
+  --- BASE alone ---
+    The *Mantreswara Phaladeepika* is a classical text in Vedic astrology (Jyotisha),
+    traditionally attributed to the sage **Mantreswara**, and it is part of the broader
+    tradition of *Dasha-based predictions* in Hindu astrology. However, it is important
+    to clarify that the *Mantreswara Phaladeepika* is **not one of the most widely cited
+    or authoritative texts** in modern Jyotisha literature, and it is sometimes confused
+    with other works like the *Phaladeepika* by **Kalyana** or the *Phaladeepika* of
+    **Bhaskararaya**.
+    That said, the *Mantreswara Phaladeepika* (or similar texts in the *Phaladeepika*
+    tradition) does discuss planetary dashas (especially *Dasha* and *Antardasha*) and
+    their influence
+
+  --- BASE + RAG ---
+    The provided excerpts from the *Mantreswara Phaladeepika* do not mention anything
+    about the birth of a son being likely during the dasha or antar dasha of any planet.
+    Specifically:
+    - There is no reference to the birth of a son.
+    - While excerpt 12 mentions "birth of daughters," it does not mention a son.
+    - No other excerpt refers to childbirth or the birth of a son.
+    Therefore, based solely on the given text, **the Mantreswara Phaladeepika says
+    nothing about the birth of a son being likely during the dasha or antar dasha of any
+    planet**.
+
+  --- ADAPTER alone ---
+    Mantreswara Phaladeepika states that the birth of a son is likely during the dasha
+    or antar dasha of the lord of the 2nd, 5th, 7th, 8th, 10th, or 11th house. These
+    planets are considered to be the primary indicators of progeny in the native's
+    horoscope.
+
+  --- ADAPTER + RAG ---
+    Mantreswara Phaladeepika states that the birth of a son is likely during the dasha
+    or antar dasha of the Sun, Mars, or Jupiter. This is mentioned in the context of the
+    effects of these planets in the dasa of the Sun, where the native may experience the
+    birth of a son, along with other effects such as destruction of enemies, influx of
+    wealth, and regular worship of gods.
+
+  --- REFERENCE (ground truth) ---
+    Mantreswara Phaladeepika holds that the birth of a son is likely to take place
+    during the dasha or antar dasha of the lord of the ascendant, the lord of the 7th
+    house, the lord of the 5th house, Jupiter, the planet aspecting the 5th house, or
+    the planet occupying the 5th house.
+
+============================================================================================
+Q2  [saturn-friend-and-guide.pdf]
+    How does the text describe Saturn's reputation in Jyotisha tradition?
+    retrieval found the source book: YES  (yavanajataka-of-sphuji, vedic-astrology-integr, saturn-friend-and-guid)
+============================================================================================
+
+  --- BASE alone ---
+    In the Vedic astrology (Jyotisha) tradition, Saturn (Shani) is described with a
+    complex and profound reputation, rooted in classical texts such as the *Siddhanta
+    Shiromani* by Bhaskara II, the *Brihat Parashara Hora Shastra*, and the *Jataka
+    Purana*. These texts portray Saturn not merely as a planet but as a powerful,
+    influential, and often challenging cosmic force.
+    ### Saturn's Reputation in Classical Jyotisha Texts:
+    1. **Lord of Discipline and Karma**
+    Saturn is traditionally regarded as the lord of discipline, karma, and
+    responsibility. In the *Brihat Parashara Hora Shastra*, it is stated:
+    > "Shani, the lord of karma, is the master of the soul, and he is the one who
+    removes the karmi
+
+  --- BASE + RAG ---
+    The provided excerpts from the *Yavanajataka* of Sphujidhivaja describe Saturn
+    (Shani) not as a general "reputation" in the modern sense, but as a planetary
+    influence that, when placed in specific zodiac signs, produces distinct and often
+    negative character traits and fates in an individual.
+    Saturn is portrayed in this text as a source of **misfortune, moral corruption, and
+    social or personal dysfunction**. Its effects are consistently described in terms
+    of:
+    - **Negative character traits**: jealousy, cruelty, dishonesty, irascibility, lack
+    of shame, hypocrisy, and evil speech.
+    - **Social and moral failings**: deception, false speech, involvement in immoral
+    acts (e.g., sexual misconduct, se
+
+  --- ADAPTER alone ---
+    The text describes Saturn as a planet of discipline, patience, and longevity. It is
+    associated with challenges, obstacles, and the need for perseverance. Saturn is also
+    linked to karma, responsibility, and the fulfillment of long-term goals. The text
+    notes that Saturn's influence is often seen as a test of character and resilience,
+    and that it plays a significant role in shaping the native's life path and destiny.
+
+  --- ADAPTER + RAG ---
+    The text describes Saturn as a planet associated with hardship, misfortune, and
+    moral corruption. It is linked to poverty, illness, and a lack of self-control, as
+    seen in the descriptions of individuals born under Saturn's influence. The text also
+    notes that Saturn is associated with a lack of self-possessed behavior and a
+    tendency toward deceit and dishonesty, as seen in the descriptions of Saturn in
+    Taurus, Gemini, and other signs.
+
+  --- REFERENCE (ground truth) ---
+    The text describes Saturn as a natural malefic and the most dreaded planet among
+    all. It is associated with misfortune, misery, and disappointment and is often
+    referred to as a 'moorkha' or a fool due to its slow nature and tendency to allow
+    opportunities to slip away. The text acknowledges that this reputation may be partly
+    based on the perception of Saturn's influence, particularly during periods such as
+    Sade Sati, which are feared by many in Jyotisha tradition.
+

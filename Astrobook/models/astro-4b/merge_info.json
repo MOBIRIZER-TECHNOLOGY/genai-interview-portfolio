@@ -1,0 +1,9 @@
+{
+  "merged_from": "runs/qlora-2ep",
+  "base": "Qwen/Qwen3-4B-Instruct-2507",
+  "lora_r": 32,
+  "lora_alpha": 64,
+  "steps": 1588,
+  "eval_loss": 1.45,
+  "bytes": 8056410035
+}

@@ -1,0 +1,41 @@
+W0827 12:19:52.779000 16168 site-packages\torch\utils\flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:21,  4.88it/s]Loading weights:   4%|3         | 14/398 [00:00<00:06, 55.87it/s]Loading weights:   8%|8         | 33/398 [00:00<00:03, 104.28it/s]Loading weights:  12%|#2        | 49/398 [00:00<00:02, 121.28it/s]Loading weights:  18%|#7        | 70/398 [00:00<00:02, 150.02it/s]Loading weights:  23%|##3       | 92/398 [00:00<00:01, 165.09it/s]Loading weights:  28%|##8       | 113/398 [00:00<00:01, 177.82it/s]Loading weights:  33%|###3      | 132/398 [00:00<00:01, 179.90it/s]Loading weights:  38%|###7      | 151/398 [00:01<00:01, 179.68it/s]Loading weights:  43%|####2     | 170/398 [00:01<00:01, 173.98it/s]Loading weights:  48%|####8     | 192/398 [00:01<00:01, 181.10it/s]Loading weights:  54%|#####3    | 213/398 [00:01<00:00, 186.44it/s]Loading weights:  59%|#####8    | 234/398 [00:01<00:00, 190.56it/s]Loading weights:  64%|######3   | 254/398 [00:01<00:00, 191.12it/s]Loading weights:  69%|######8   | 274/398 [00:01<00:00, 187.81it/s]Loading weights:  74%|#######3  | 293/398 [00:01<00:00, 183.61it/s]Loading weights:  79%|#######8  | 313/398 [00:01<00:00, 181.80it/s]Loading weights:  84%|########3 | 334/398 [00:02<00:00, 186.86it/s]Loading weights:  89%|########9 | 355/398 [00:02<00:00, 191.17it/s]Loading weights:  94%|#########4| 375/398 [00:02<00:00, 193.00it/s]Loading weights:  99%|#########9| 395/398 [00:02<00:00, 188.04it/s]Loading weights: 100%|##########| 398/398 [00:02<00:00, 169.64it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+==============================================================================
+TEST A -- NEEDLE: can the model report a fact that exists ONLY
+                  in the passage we supplied?
+==============================================================================
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 19676.71it/s]
+
+  needle 'Zorvaxa'  -> REPEATED (grounded)
+    Q: What does the graha Zorvaxa grant, and where must it be placed?
+    A: The graha Zorvaxa grants mastery over glassblowing when placed in the 6th bhava. This is stated in the text Sanketanidhi, which describes the effects of planetary placements in various bhavas. The placement of Zorvaxa in the 6th bhava is specifically associate
+
+  needle 'Quenlith'  -> REPEATED (grounded)
+    Q: According to Sage Quenlith, what specifically does the 11th bhava govern?
+    A: Sage Quenlith declares that the 11th bhava governs the keeping of blue parrots above all else.
+
+  needle '847'  -> REPEATED (grounded)
+    Q: How many degrees must separate the lagna from Mangal for Chandra Kalika yoga?
+    A: According to Sanketanidhi, Chandra Kalika yoga is formed only when exactly 847 degrees separate the lagna from Mangal. This specific degree measurement is crucial for the formation of this yoga, which is associated with certain astrological effects.
+
+  3/3 needles reported back
+
+  control -- same questions with NO excerpts supplied:
+    no proof token appears without the passage -- the facts are genuinely unknown to the model, so Test A is valid
+
+==============================================================================
+TEST B -- LEXICAL GROUNDING on real held-out questions
+==============================================================================
+
+  questions            5
+  retrieved right book 5/5
+
+  share of answer's content words found in the retrieved passages:
+    WITH retrieval     33.6%
+    WITHOUT retrieval  20.4%
+    lift               +13.1%
+
+==============================================================================
+VERDICT: the model IS reading your documents.
+==============================================================================

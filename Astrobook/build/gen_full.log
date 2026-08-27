@@ -1,0 +1,207 @@
+model qwen3:14b | 1,904 chunks | 55 already done | 1,849 to do | 3 workers
+     10/1849      78 pairs    3.9 chunk/min  ETA 465.6 min
+     20/1849     158 pairs    4.3 chunk/min  ETA 428.9 min
+     30/1849     238 pairs    4.3 chunk/min  ETA 423.5 min
+  ! brihat-parashara-hora-sastra.pdf::0006: JSONDecodeError
+     40/1849     310 pairs    3.9 chunk/min  ETA 458.8 min
+     50/1849     390 pairs    4.0 chunk/min  ETA 452.0 min
+     60/1849     470 pairs    4.0 chunk/min  ETA 446.7 min
+     70/1849     548 pairs    4.0 chunk/min  ETA 448.7 min
+     80/1849     628 pairs    3.8 chunk/min  ETA 461.1 min
+     90/1849     708 pairs    3.8 chunk/min  ETA 462.2 min
+    100/1849     788 pairs    3.8 chunk/min  ETA 463.2 min
+    110/1849     859 pairs    3.8 chunk/min  ETA 459.1 min
+    120/1849     939 pairs    3.8 chunk/min  ETA 458.3 min
+    130/1849    1019 pairs    3.8 chunk/min  ETA 455.9 min
+  ! crux-of-astrology.pdf::0000: JSONDecodeError
+    140/1849    1086 pairs    3.7 chunk/min  ETA 457.1 min
+    150/1849    1166 pairs    3.8 chunk/min  ETA 452.3 min
+    160/1849    1243 pairs    3.8 chunk/min  ETA 450.1 min
+    170/1849    1319 pairs    3.7 chunk/min  ETA 449.4 min
+    180/1849    1399 pairs    3.7 chunk/min  ETA 452.4 min
+    190/1849    1474 pairs    3.7 chunk/min  ETA 452.4 min
+    200/1849    1550 pairs    3.7 chunk/min  ETA 450.3 min
+    210/1849    1630 pairs    3.6 chunk/min  ETA 458.9 min
+    220/1849    1710 pairs    3.5 chunk/min  ETA 461.3 min
+    230/1849    1789 pairs    3.5 chunk/min  ETA 457.0 min
+    240/1849    1867 pairs    3.6 chunk/min  ETA 452.9 min
+    250/1849    1943 pairs    3.5 chunk/min  ETA 450.8 min
+    260/1849    2023 pairs    3.6 chunk/min  ETA 447.0 min
+    270/1849    2103 pairs    3.6 chunk/min  ETA 441.1 min
+    280/1849    2183 pairs    3.6 chunk/min  ETA 434.7 min
+    290/1849    2258 pairs    3.6 chunk/min  ETA 429.8 min
+    300/1849    2338 pairs    3.7 chunk/min  ETA 424.4 min
+    310/1849    2412 pairs    3.7 chunk/min  ETA 417.6 min
+    320/1849    2484 pairs    3.7 chunk/min  ETA 410.8 min
+    330/1849    2548 pairs    3.8 chunk/min  ETA 403.2 min
+    340/1849    2611 pairs    3.8 chunk/min  ETA 396.8 min
+    350/1849    2691 pairs    3.8 chunk/min  ETA 393.3 min
+  ! goravani-jyotish-manual.pdf::0041: JSONDecodeError
+    360/1849    2763 pairs    3.8 chunk/min  ETA 390.4 min
+  ! goravani-jyotish-manual.pdf::0051: JSONDecodeError
+    370/1849    2835 pairs    3.8 chunk/min  ETA 388.0 min
+    380/1849    2914 pairs    3.8 chunk/min  ETA 383.7 min
+  ! goravani-jyotish-manual.pdf::0075: JSONDecodeError
+    390/1849    2985 pairs    3.8 chunk/min  ETA 381.3 min
+    400/1849    3065 pairs    3.8 chunk/min  ETA 377.1 min
+  ! goravani-jyotish-manual.pdf::0091: JSONDecodeError
+    410/1849    3120 pairs    3.9 chunk/min  ETA 373.4 min
+    420/1849    3198 pairs    3.8 chunk/min  ETA 371.5 min
+    430/1849    3277 pairs    3.9 chunk/min  ETA 368.4 min
+    440/1849    3357 pairs    3.9 chunk/min  ETA 364.7 min
+    450/1849    3437 pairs    3.9 chunk/min  ETA 360.9 min
+    460/1849    3517 pairs    3.9 chunk/min  ETA 356.7 min
+    470/1849    3597 pairs    3.9 chunk/min  ETA 353.4 min
+    480/1849    3676 pairs    3.9 chunk/min  ETA 351.1 min
+    490/1849    3756 pairs    3.9 chunk/min  ETA 347.8 min
+    500/1849    3835 pairs    3.9 chunk/min  ETA 344.8 min
+    510/1849    3915 pairs    3.9 chunk/min  ETA 342.0 min
+    520/1849    3994 pairs    3.9 chunk/min  ETA 338.8 min
+    530/1849    4071 pairs    3.9 chunk/min  ETA 335.7 min
+    540/1849    4151 pairs    3.9 chunk/min  ETA 332.7 min
+    550/1849    4231 pairs    3.9 chunk/min  ETA 329.4 min
+    560/1849    4311 pairs    4.0 chunk/min  ETA 326.1 min
+    570/1849    4390 pairs    4.0 chunk/min  ETA 322.5 min
+    580/1849    4470 pairs    4.0 chunk/min  ETA 319.4 min
+    590/1849    4548 pairs    4.0 chunk/min  ETA 315.7 min
+    600/1849    4620 pairs    4.0 chunk/min  ETA 312.9 min
+    610/1849    4700 pairs    4.0 chunk/min  ETA 310.4 min
+  ! lessons-on-vedic-astrology-01.pdf::0021: JSONDecodeError
+  ! lessons-on-vedic-astrology-01.pdf::0022: JSONDecodeError
+    630/1849    4843 pairs    4.0 chunk/min  ETA 307.0 min
+    640/1849    4918 pairs    4.0 chunk/min  ETA 304.7 min
+    650/1849    4998 pairs    4.0 chunk/min  ETA 302.5 min
+  ! lessons-on-vedic-astrology-01.pdf::0060: JSONDecodeError
+    660/1849    5069 pairs    4.0 chunk/min  ETA 300.6 min
+    670/1849    5148 pairs    3.9 chunk/min  ETA 298.9 min
+    680/1849    5225 pairs    3.9 chunk/min  ETA 296.1 min
+    690/1849    5304 pairs    3.9 chunk/min  ETA 293.7 min
+  ! lessons-on-vedic-astrology-02.pdf::0032: JSONDecodeError
+  ! lessons-on-vedic-astrology-02.pdf::0038: JSONDecodeError
+    710/1849    5444 pairs    3.9 chunk/min  ETA 290.6 min
+    720/1849    5524 pairs    3.9 chunk/min  ETA 287.8 min
+    730/1849    5603 pairs    3.9 chunk/min  ETA 285.1 min
+    740/1849    5683 pairs    3.9 chunk/min  ETA 282.5 min
+    750/1849    5763 pairs    3.9 chunk/min  ETA 279.5 min
+    760/1849    5843 pairs    3.9 chunk/min  ETA 277.2 min
+  ! mantreswara-phaladeepika.pdf::0050: JSONDecodeError
+    770/1849    5915 pairs    3.9 chunk/min  ETA 275.2 min
+    780/1849    5995 pairs    3.9 chunk/min  ETA 272.5 min
+    790/1849    6062 pairs    3.9 chunk/min  ETA 269.9 min
+    800/1849    6142 pairs    3.9 chunk/min  ETA 267.2 min
+    810/1849    6221 pairs    3.9 chunk/min  ETA 264.6 min
+  ! muhurtha-jyotish.pdf::0022: JSONDecodeError
+    820/1849    6293 pairs    3.9 chunk/min  ETA 262.2 min
+    830/1849    6372 pairs    3.9 chunk/min  ETA 259.4 min
+  ! naksatras-compatibility-lagna-signs.pdf::0006: JSONDecodeError
+    840/1849    6438 pairs    3.9 chunk/min  ETA 256.8 min
+    850/1849    6518 pairs    3.9 chunk/min  ETA 253.8 min
+    860/1849    6597 pairs    3.9 chunk/min  ETA 250.6 min
+    870/1849    6677 pairs    4.0 chunk/min  ETA 247.5 min
+    880/1849    6755 pairs    4.0 chunk/min  ETA 244.6 min
+  ! parashara-light-manual-6.pdf::0026: JSONDecodeError
+    890/1849    6818 pairs    4.0 chunk/min  ETA 241.7 min
+    900/1849    6890 pairs    4.0 chunk/min  ETA 238.3 min
+  ! prashna-tantra.pdf::0008: JSONDecodeError
+    910/1849    6962 pairs    4.0 chunk/min  ETA 235.9 min
+    920/1849    7042 pairs    4.0 chunk/min  ETA 233.3 min
+    930/1849    7116 pairs    4.0 chunk/min  ETA 230.9 min
+    940/1849    7188 pairs    4.0 chunk/min  ETA 228.1 min
+    950/1849    7263 pairs    4.0 chunk/min  ETA 225.5 min
+    960/1849    7343 pairs    4.0 chunk/min  ETA 222.8 min
+    970/1849    7422 pairs    4.0 chunk/min  ETA 220.1 min
+    980/1849    7502 pairs    4.0 chunk/min  ETA 217.7 min
+    990/1849    7582 pairs    4.0 chunk/min  ETA 215.2 min
+   1000/1849    7662 pairs    4.0 chunk/min  ETA 212.5 min
+   1010/1849    7737 pairs    4.0 chunk/min  ETA 209.9 min
+   1020/1849    7814 pairs    4.0 chunk/min  ETA 207.5 min
+   1030/1849    7892 pairs    4.0 chunk/min  ETA 205.2 min
+   1040/1849    7972 pairs    4.0 chunk/min  ETA 203.0 min
+   1050/1849    8052 pairs    4.0 chunk/min  ETA 200.5 min
+   1060/1849    8131 pairs    4.0 chunk/min  ETA 198.0 min
+   1070/1849    8211 pairs    4.0 chunk/min  ETA 195.6 min
+   1080/1849    8291 pairs    4.0 chunk/min  ETA 193.2 min
+   1090/1849    8371 pairs    4.0 chunk/min  ETA 190.9 min
+   1100/1849    8450 pairs    4.0 chunk/min  ETA 188.4 min
+  ! samhita-skanda.pdf::0004: JSONDecodeError
+   1110/1849    8520 pairs    4.0 chunk/min  ETA 186.2 min
+   1120/1849    8599 pairs    4.0 chunk/min  ETA 183.5 min
+   1130/1849    8679 pairs    4.0 chunk/min  ETA 180.7 min
+   1140/1849    8744 pairs    4.0 chunk/min  ETA 178.1 min
+   1150/1849    8808 pairs    4.0 chunk/min  ETA 175.4 min
+   1160/1849    8879 pairs    4.0 chunk/min  ETA 172.6 min
+   1170/1849    8959 pairs    4.0 chunk/min  ETA 169.9 min
+   1180/1849    9038 pairs    4.0 chunk/min  ETA 167.2 min
+   1190/1849    9111 pairs    4.0 chunk/min  ETA 164.6 min
+   1200/1849    9181 pairs    4.0 chunk/min  ETA 162.0 min
+   1210/1849    9260 pairs    4.0 chunk/min  ETA 159.6 min
+   1220/1849    9334 pairs    4.0 chunk/min  ETA 157.0 min
+   1230/1849    9410 pairs    4.0 chunk/min  ETA 154.4 min
+   1240/1849    9490 pairs    4.0 chunk/min  ETA 151.8 min
+   1250/1849    9565 pairs    4.0 chunk/min  ETA 149.1 min
+   1260/1849    9645 pairs    4.0 chunk/min  ETA 146.5 min
+   1270/1849    9725 pairs    4.0 chunk/min  ETA 143.9 min
+   1280/1849    9805 pairs    4.0 chunk/min  ETA 141.5 min
+   1290/1849    9883 pairs    4.0 chunk/min  ETA 139.0 min
+   1300/1849    9963 pairs    4.0 chunk/min  ETA 136.5 min
+   1310/1849   10035 pairs    4.0 chunk/min  ETA 134.0 min
+   1320/1849   10114 pairs    4.0 chunk/min  ETA 131.4 min
+   1330/1849   10194 pairs    4.0 chunk/min  ETA 128.8 min
+   1340/1849   10274 pairs    4.0 chunk/min  ETA 126.3 min
+   1350/1849   10348 pairs    4.0 chunk/min  ETA 123.8 min
+   1360/1849   10423 pairs    4.0 chunk/min  ETA 121.2 min
+   1370/1849   10496 pairs    4.0 chunk/min  ETA 118.8 min
+   1380/1849   10576 pairs    4.0 chunk/min  ETA 116.3 min
+   1390/1849   10655 pairs    4.0 chunk/min  ETA 113.7 min
+   1400/1849   10735 pairs    4.0 chunk/min  ETA 111.1 min
+   1410/1849   10802 pairs    4.0 chunk/min  ETA 108.7 min
+   1420/1849   10882 pairs    4.0 chunk/min  ETA 106.2 min
+   1430/1849   10960 pairs    4.0 chunk/min  ETA 103.8 min
+   1440/1849   11040 pairs    4.0 chunk/min  ETA 101.2 min
+   1450/1849   11120 pairs    4.0 chunk/min  ETA  98.6 min
+   1460/1849   11199 pairs    4.0 chunk/min  ETA  96.1 min
+   1470/1849   11276 pairs    4.1 chunk/min  ETA  93.5 min
+  ! stri-jataka.pdf::0006: JSONDecodeError
+   1480/1849   11345 pairs    4.1 chunk/min  ETA  91.0 min
+   1490/1849   11421 pairs    4.1 chunk/min  ETA  88.5 min
+   1500/1849   11500 pairs    4.1 chunk/min  ETA  86.0 min
+   1510/1849   11579 pairs    4.1 chunk/min  ETA  83.7 min
+   1520/1849   11658 pairs    4.1 chunk/min  ETA  81.2 min
+   1530/1849   11729 pairs    4.1 chunk/min  ETA  78.7 min
+   1540/1849   11806 pairs    4.1 chunk/min  ETA  76.2 min
+   1550/1849   11886 pairs    4.1 chunk/min  ETA  73.7 min
+   1560/1849   11966 pairs    4.1 chunk/min  ETA  71.3 min
+   1570/1849   12042 pairs    4.1 chunk/min  ETA  68.8 min
+   1580/1849   12115 pairs    4.1 chunk/min  ETA  66.4 min
+   1590/1849   12195 pairs    4.1 chunk/min  ETA  63.9 min
+   1600/1849   12275 pairs    4.1 chunk/min  ETA  61.5 min
+   1610/1849   12355 pairs    4.0 chunk/min  ETA  59.0 min
+   1620/1849   12435 pairs    4.0 chunk/min  ETA  56.6 min
+   1630/1849   12515 pairs    4.0 chunk/min  ETA  54.2 min
+  ! vedic-astrology-integrated-approach.pdf::0115: JSONDecodeError
+   1640/1849   12586 pairs    4.0 chunk/min  ETA  51.8 min
+   1650/1849   12665 pairs    4.0 chunk/min  ETA  49.3 min
+   1660/1849   12744 pairs    4.0 chunk/min  ETA  46.8 min
+   1670/1849   12807 pairs    4.0 chunk/min  ETA  44.3 min
+  ! vedic-astrology-rasi-characteristics.pdf::0013: JSONDecodeError
+   1680/1849   12875 pairs    4.0 chunk/min  ETA  41.9 min
+   1690/1849   12944 pairs    4.0 chunk/min  ETA  39.4 min
+   1700/1849   13019 pairs    4.0 chunk/min  ETA  36.9 min
+   1710/1849   13082 pairs    4.0 chunk/min  ETA  34.4 min
+   1720/1849   13157 pairs    4.0 chunk/min  ETA  32.0 min
+   1730/1849   13231 pairs    4.0 chunk/min  ETA  29.5 min
+   1740/1849   13309 pairs    4.0 chunk/min  ETA  27.0 min
+   1750/1849   13388 pairs    4.0 chunk/min  ETA  24.5 min
+   1760/1849   13455 pairs    4.0 chunk/min  ETA  22.1 min
+   1770/1849   13535 pairs    4.0 chunk/min  ETA  19.6 min
+   1780/1849   13615 pairs    4.0 chunk/min  ETA  17.1 min
+   1790/1849   13695 pairs    4.0 chunk/min  ETA  14.6 min
+   1800/1849   13775 pairs    4.0 chunk/min  ETA  12.1 min
+   1810/1849   13855 pairs    4.0 chunk/min  ETA   9.7 min
+   1820/1849   13934 pairs    4.0 chunk/min  ETA   7.2 min
+   1830/1849   14013 pairs    4.0 chunk/min  ETA   4.7 min
+   1840/1849   14092 pairs    4.0 chunk/min  ETA   2.2 min
+   1849/1849   14153 pairs    4.0 chunk/min  ETA   0.0 min
+
+done in 456.9 min | ok 1829 | failed 20 | pairs 14,153 | rejected 407
+next: python pipeline/02_generate_local.py --finalize

@@ -1,0 +1,103 @@
+W0826 22:01:53.613000 11580 site-packages\torch\utils\flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+base    Qwen/Qwen3-4B-Instruct-2507
+adapter runs/qlora-nf4  (qlora, 500 steps, eval loss 1.4729)
+
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:28,  4.50it/s]Loading weights:   4%|3         | 15/398 [00:00<00:07, 54.69it/s]Loading weights:   9%|9         | 36/398 [00:00<00:03, 108.36it/s]Loading weights:  14%|#3        | 55/398 [00:00<00:02, 135.24it/s]Loading weights:  18%|#7        | 71/398 [00:00<00:02, 143.13it/s]Loading weights:  23%|##3       | 92/398 [00:00<00:01, 164.07it/s]Loading weights:  28%|##8       | 113/398 [00:00<00:01, 177.83it/s]Loading weights:  33%|###3      | 133/398 [00:00<00:01, 184.04it/s]Loading weights:  38%|###8      | 152/398 [00:01<00:01, 182.66it/s]Loading weights:  43%|####2     | 171/398 [00:01<00:01, 180.90it/s]Loading weights:  48%|####7     | 191/398 [00:01<00:01, 185.16it/s]Loading weights:  53%|#####3    | 212/398 [00:01<00:00, 190.00it/s]Loading weights:  58%|#####8    | 232/398 [00:01<00:00, 190.90it/s]Loading weights:  63%|######3   | 252/398 [00:01<00:00, 187.73it/s]Loading weights:  68%|######8   | 271/398 [00:01<00:00, 184.35it/s]Loading weights:  73%|#######2  | 290/398 [00:01<00:00, 185.62it/s]Loading weights:  78%|#######8  | 311/398 [00:01<00:00, 192.55it/s]Loading weights:  83%|########3 | 331/398 [00:01<00:00, 194.43it/s]Loading weights:  88%|########8 | 351/398 [00:02<00:00, 191.61it/s]Loading weights:  93%|#########3| 371/398 [00:02<00:00, 189.58it/s]Loading weights:  98%|#########7| 390/398 [00:02<00:00, 181.56it/s]Loading weights: 100%|##########| 398/398 [00:02<00:00, 170.83it/s]
+============================================================================================
+Q1  [mantreswara-phaladeepika.pdf]  What does Mantreswara Phaladeepika say about the birth of a son being likely during the dasha or antar dasha of certain planets?
+============================================================================================
+
+  --- BASE (adapter disabled) ---
+    The *Mantreswara Phaladeepika* is a classical text in Vedic astrology (Jyotisha),
+    traditionally attributed to the sage **Mantreswara**, and it is part of the broader
+    tradition of *Dasha-based predictions* in Hindu astrology. However, it is important
+    to clarify that the *Mantreswara Phaladeepika* is **not one of the most widely cited
+    or authoritative texts** in modern Jyotisha literature, and it is sometimes confused
+    with other works like the *Phaladeepika* by **Kalyana** or the *Phaladeepika* of
+    **Bhaskararaya**.
+    That said, the *Mantreswara Phaladeepika* (or similar texts in the *Phaladeepika*
+    tradition) does discuss planetary dashas (especially *Dasha* and *Antardasha*) and
+    their influence on the birth of a son, particularly in the context of **childbirth,
+    male offspring, and auspicious events**.
+    ### What
+
+  --- TUNED (adapter enabled) ---
+    Mantreswara Phaladeepika states that the birth of a son is likely during the dasha
+    or antar dasha of the lord of the 2nd, 5th, 7th, 8th, 10th, or 11th house. These
+    planets are considered to be the primary indicators of progeny in the native's
+    horoscope.
+
+  --- REFERENCE (what the corpus actually says) ---
+    Mantreswara Phaladeepika holds that the birth of a son is likely to take place
+    during the dasha or antar dasha of the lord of the ascendant, the lord of the 7th
+    house, the lord of the 5th house, Jupiter, the planet aspecting the 5th house, or
+    the planet occupying the 5th house.
+
+============================================================================================
+Q2  [saturn-friend-and-guide.pdf]  How does the text describe Saturn's reputation in Jyotisha tradition?
+============================================================================================
+
+  --- BASE (adapter disabled) ---
+    In the Vedic astrology (Jyotisha) tradition, Saturn (Shani) is described with a
+    complex and profound reputation, rooted in classical texts such as the *Siddhanta
+    Shiromani* by Bhaskara II, the *Brihat Parashara Hora Shastra*, and the *Jataka
+    Purana*. These texts portray Saturn not merely as a planet but as a powerful,
+    influential, and often challenging cosmic force.
+    ### Saturn's Reputation in Classical Jyotisha Texts:
+    1. **Lord of Discipline and Karma**
+    Saturn is traditionally regarded as the lord of discipline, karma, and
+    responsibility. In the *Brihat Parashara Hora Shastra*, it is stated:
+    > "Shani, the lord of karma, is the master of the soul, and he is the one who
+    removes the karmic debts of the individual."
+    This reflects the belief that Saturn governs the consequences of past actions
+    (karma), and its influence is often associated with lessons learned through
+    suffering or hardship.
+    2. **The "
+
+  --- TUNED (adapter enabled) ---
+    The text describes Saturn as a planet of discipline, patience, and longevity. It is
+    associated with challenges, obstacles, and the need for perseverance. Saturn is also
+    linked to karma, responsibility, and the fulfillment of long-term goals. The text
+    notes that Saturn's influence is often seen as a test of character and resilience,
+    and that it plays a significant role in shaping the native's life path and destiny.
+
+  --- REFERENCE (what the corpus actually says) ---
+    The text describes Saturn as a natural malefic and the most dreaded planet among
+    all. It is associated with misfortune, misery, and disappointment and is often
+    referred to as a 'moorkha' or a fool due to its slow nature and tendency to allow
+    opportunities to slip away. The text acknowledges that this reputation may be partly
+    based on the perception of Saturn's influence, particularly during periods such as
+    Sade Sati, which are feared by many in Jyotisha tradition.
+
+============================================================================================
+Q3  [scientific-hindu-astrology-2.pdf]  What rule applies when a Trinal group has one sign with no figures in Scientific Hindu Astrology 2?
+============================================================================================
+
+  --- BASE (adapter disabled) ---
+    In **Scientific Hindu Astrology (Jyotisha)**, particularly as expounded in classical
+    texts like the *Siddhanta Shiromani* by Bhaskara II and later codified in modern
+    Vedic astrology systems, the concept of a **"Trinal group"** (also known as *trina*
+    or *trina rashi*) refers to a group of three signs (rashis) that are considered
+    together in certain astrological calculations—especially in the context of **house
+    division, planetary positions, and the application of rules for planetary strength
+    or influence**.
+    However, your question appears to be referencing a **specific rule** about what
+    happens when a **trinal group** (a group of three signs) has **one sign with no
+    figures (i.e., no planets or no planetary influence)**.
+    Let’s clarify and interpret this in the context of **classical Vedic astrology**,
+    especially as it is taught in modern scientific Hindu astrology (which is based on
+    the *Jyotish* tradition).
+    ---
+    ### 1. What is a "Tr
+
+  --- TUNED (adapter enabled) ---
+    Scientific Hindu Astrology 2 states that if a Trinal group has one sign with no
+    figures, the figures in the other two signs are divided by two. This rule is applied
+    to ensure a fair distribution of the figures among the signs in the group.
+
+  --- REFERENCE (what the corpus actually says) ---
+    In Scientific Hindu Astrology 2, when a Trinal group has one sign with no figures,
+    the figures in the other two signs remain unchanged. This follows from the principle
+    that if one sign has no figures, the other two are not altered.
+

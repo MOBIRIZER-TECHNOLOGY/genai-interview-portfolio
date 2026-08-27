@@ -1,0 +1,29 @@
+W0827 11:57:34.544000 13072 site-packages\torch\utils\flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+base      Qwen/Qwen3-4B-Instruct-2507
+adapter   runs/qlora-2ep  (r=32 alpha=64 -> scaling 2)
+out       models/astro-4b
+device    cuda   (bf16 -- 4-bit cannot be merged into)
+
+loading base in bf16 ...
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:34,  4.18it/s]Loading weights:   5%|5         | 21/398 [00:00<00:04, 76.36it/s]Loading weights:  10%|#         | 41/398 [00:00<00:03, 118.84it/s]Loading weights:  16%|#6        | 64/398 [00:00<00:02, 153.10it/s]Loading weights:  21%|##1       | 85/398 [00:00<00:01, 171.11it/s]Loading weights:  26%|##6       | 105/398 [00:00<00:01, 177.64it/s]Loading weights:  32%|###1      | 126/398 [00:00<00:01, 184.73it/s]Loading weights:  37%|###7      | 148/398 [00:00<00:01, 193.45it/s]Loading weights:  43%|####2     | 170/398 [00:01<00:01, 197.78it/s]Loading weights:  48%|####8     | 192/398 [00:01<00:01, 202.51it/s]Loading weights:  54%|#####3    | 214/398 [00:01<00:00, 206.82it/s]Loading weights:  59%|#####9    | 236/398 [00:01<00:00, 208.49it/s]Loading weights:  65%|######4   | 258/398 [00:01<00:00, 210.35it/s]Loading weights:  70%|#######   | 280/398 [00:01<00:00, 210.09it/s]Loading weights:  76%|#######5  | 302/398 [00:01<00:00, 210.11it/s]Loading weights:  81%|########1 | 324/398 [00:01<00:00, 210.19it/s]Loading weights:  87%|########6 | 346/398 [00:01<00:00, 211.22it/s]Loading weights:  92%|#########2| 368/398 [00:02<00:00, 209.39it/s]Loading weights:  98%|#########7| 390/398 [00:02<00:00, 209.84it/s]Loading weights: 100%|##########| 398/398 [00:02<00:00, 187.79it/s]
+attaching adapter ...
+merging ...
+
+verifying  W_merged == W_base + (B@A)*(alpha/r):
+  OK  0.self_attn.q_proj                 max|err|=9.05e-04  weights moved by 0.0035  (|W|max 0.59)
+  OK  0.self_attn.k_proj                 max|err|=4.87e-04  weights moved by 0.0026  (|W|max 0.29)
+  OK  0.self_attn.v_proj                 max|err|=4.86e-04  weights moved by 0.0037  (|W|max 0.17)
+  (err is bf16 rounding; 'moved' > 0 proves the adapter was applied)
+
+saving to models/astro-4b ...
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|##########| 1/1 [00:04<00:00,  4.33s/it]Writing model shards: 100%|##########| 1/1 [00:04<00:00,  4.33s/it]
+  8.06 GB written
+
+smoke test -- loading the merged model as a plain HF model:
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<02:07,  3.11it/s]Loading weights:   4%|4         | 16/398 [00:00<00:07, 48.24it/s]Loading weights:   9%|9         | 37/398 [00:00<00:03, 97.21it/s]Loading weights:  15%|#4        | 59/398 [00:00<00:02, 129.29it/s]Loading weights:  20%|##        | 81/398 [00:00<00:02, 150.64it/s]Loading weights:  26%|##5       | 102/398 [00:00<00:01, 167.42it/s]Loading weights:  30%|###       | 121/398 [00:00<00:01, 173.91it/s]Loading weights:  35%|###5      | 140/398 [00:01<00:01, 178.18it/s]Loading weights:  40%|###9      | 159/398 [00:01<00:01, 169.49it/s]Loading weights:  45%|####5     | 180/398 [00:01<00:01, 174.98it/s]Loading weights:  51%|#####     | 201/398 [00:01<00:01, 177.49it/s]Loading weights:  55%|#####5    | 220/398 [00:01<00:01, 176.49it/s]Loading weights:  60%|#####9    | 238/398 [00:01<00:00, 173.85it/s]Loading weights:  65%|######4   | 257/398 [00:01<00:00, 175.31it/s]Loading weights:  70%|######9   | 278/398 [00:01<00:00, 174.88it/s]Loading weights:  75%|#######5  | 299/398 [00:01<00:00, 177.67it/s]Loading weights:  81%|########  | 322/398 [00:02<00:00, 187.30it/s]Loading weights:  86%|########6 | 344/398 [00:02<00:00, 195.11it/s]Loading weights:  92%|#########1| 366/398 [00:02<00:00, 200.79it/s]Loading weights:  97%|#########7| 388/398 [00:02<00:00, 202.96it/s]Loading weights: 100%|##########| 398/398 [00:02<00:00, 164.09it/s]
+
+  Q: What does Brihat Parashara Hora Sastra associate with the 3rd house?
+  A: Brihat Parashara Hora Sastra associates the 3rd house with brothers, courage, and communication. It is also linked to the left eye, the right ear, and the mind. The 3rd house is considered a house of initiative and action, and its strength or weakness can influence one's ability to express oneself and take on challenges.
+
+DONE -> models/astro-4b

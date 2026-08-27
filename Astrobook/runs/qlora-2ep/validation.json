@@ -1,0 +1,24 @@
+{
+  "base_loss": 2.827744882106781,
+  "tuned_loss": 1.4629535208940505,
+  "n_loss": 250,
+  "base_style": {
+    "attributes": 0.65,
+    "doctrinal": 0.45,
+    "personal": 0.0,
+    "hedges": 0.45,
+    "markdown": 0.7,
+    "sanskrit": 0.7,
+    "words": 119.7
+  },
+  "tuned_style": {
+    "attributes": 0.65,
+    "doctrinal": 0.6,
+    "personal": 0.0,
+    "hedges": 0.0,
+    "markdown": 0.0,
+    "sanskrit": 0.35,
+    "words": 58.0
+  },
+  "n_gen": 20
+}

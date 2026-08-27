@@ -1,0 +1,354 @@
+[
+  {
+    "file": "arudha-pada.pdf",
+    "pages": 16,
+    "front_matter_dropped": 0,
+    "furniture_lines": 3,
+    "chars": 86928,
+    "chunks": 15
+  },
+  {
+    "file": "bhavartha-ratnakara.pdf",
+    "pages": 17,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 35417,
+    "chunks": 5
+  },
+  {
+    "file": "bhrigu-sutras.pdf",
+    "pages": 115,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 283854,
+    "chunks": 49
+  },
+  {
+    "file": "brihat-jataka.pdf",
+    "pages": 38,
+    "front_matter_dropped": 0,
+    "furniture_lines": 3,
+    "chars": 87236,
+    "chunks": 15
+  },
+  {
+    "file": "brihat-parashara-hora-sastra.pdf",
+    "pages": 262,
+    "front_matter_dropped": 0,
+    "furniture_lines": 0,
+    "chars": 656436,
+    "chunks": 97
+  },
+  {
+    "file": "chamatkar-chintamani.pdf",
+    "pages": 17,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 52487,
+    "chunks": 9
+  },
+  {
+    "file": "crux-of-astrology.pdf",
+    "pages": 171,
+    "front_matter_dropped": 6,
+    "furniture_lines": 2,
+    "chars": 705928,
+    "chunks": 116
+  },
+  {
+    "file": "daivajna-vallabha.pdf",
+    "pages": 31,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 66319,
+    "chunks": 10
+  },
+  {
+    "file": "five-year-yuga-of-vedanga-jyotisa.pdf",
+    "pages": 8,
+    "front_matter_dropped": 0,
+    "furniture_lines": 3,
+    "chars": 23072,
+    "chunks": 4
+  },
+  {
+    "file": "garga-hora.pdf",
+    "pages": 66,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 231286,
+    "chunks": 37
+  },
+  {
+    "file": "gem-healing-properties.pdf",
+    "pages": 31,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 70235,
+    "chunks": 11
+  },
+  {
+    "file": "goravani-jyotish-manual.pdf",
+    "pages": 278,
+    "front_matter_dropped": 4,
+    "furniture_lines": 2,
+    "chars": 554130,
+    "chunks": 93
+  },
+  {
+    "file": "horasara-of-prithuyasas.pdf",
+    "pages": 119,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 376284,
+    "chunks": 67
+  },
+  {
+    "file": "jaimini-sutras.pdf",
+    "pages": 99,
+    "front_matter_dropped": 0,
+    "furniture_lines": 0,
+    "chars": 227922,
+    "chunks": 38
+  },
+  {
+    "file": "jataka-alankara.pdf",
+    "pages": 20,
+    "front_matter_dropped": 0,
+    "furniture_lines": 0,
+    "chars": 58963,
+    "chunks": 9
+  },
+  {
+    "file": "kalyana-varma-saravali.pdf",
+    "pages": 203,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 529312,
+    "chunks": 77
+  },
+  {
+    "file": "laghu-parashari-siddhanta.pdf",
+    "pages": 3,
+    "front_matter_dropped": 0,
+    "furniture_lines": 0,
+    "chars": 9740,
+    "chunks": 1
+  },
+  {
+    "file": "lessons-on-vedic-astrology-01.pdf",
+    "pages": 122,
+    "front_matter_dropped": 1,
+    "furniture_lines": 2,
+    "chars": 436954,
+    "chunks": 63
+  },
+  {
+    "file": "lessons-on-vedic-astrology-02.pdf",
+    "pages": 149,
+    "front_matter_dropped": 1,
+    "furniture_lines": 2,
+    "chars": 322987,
+    "chunks": 48
+  },
+  {
+    "file": "madhya-parashari.pdf",
+    "pages": 14,
+    "front_matter_dropped": 0,
+    "furniture_lines": 0,
+    "chars": 37004,
+    "chunks": 6
+  },
+  {
+    "file": "mantreswara-phaladeepika.pdf",
+    "pages": 265,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 464601,
+    "chunks": 69
+  },
+  {
+    "file": "mathematics-of-astrology.pdf",
+    "pages": 37,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 50847,
+    "chunks": 8
+  },
+  {
+    "file": "muhurtha-jyotish.pdf",
+    "pages": 110,
+    "front_matter_dropped": 0,
+    "furniture_lines": 0,
+    "chars": 235152,
+    "chunks": 39
+  },
+  {
+    "file": "naksatras-compatibility-lagna-signs.pdf",
+    "pages": 134,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 138206,
+    "chunks": 23
+  },
+  {
+    "file": "parashara-light-manual-6.pdf",
+    "pages": 213,
+    "front_matter_dropped": 5,
+    "furniture_lines": 1,
+    "chars": 265664,
+    "chunks": 46
+  },
+  {
+    "file": "prashna-tantra.pdf",
+    "pages": 38,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 86551,
+    "chunks": 13
+  },
+  {
+    "file": "prashnagnana-bhattotpala.pdf",
+    "pages": 99,
+    "front_matter_dropped": 0,
+    "furniture_lines": 2,
+    "chars": 120716,
+    "chunks": 20
+  },
+  {
+    "file": "raman-how-to-judge-horoscope-1.pdf",
+    "pages": 311,
+    "front_matter_dropped": 0,
+    "furniture_lines": 2,
+    "chars": 429655,
+    "chunks": 70
+  },
+  {
+    "file": "raman-how-to-judge-horoscope-2.pdf",
+    "pages": 483,
+    "front_matter_dropped": 0,
+    "furniture_lines": 2,
+    "chars": 599742,
+    "chunks": 93
+  },
+  {
+    "file": "samhita-skanda.pdf",
+    "pages": 20,
+    "front_matter_dropped": 0,
+    "furniture_lines": 0,
+    "chars": 50193,
+    "chunks": 8
+  },
+  {
+    "file": "sanketanidhi.pdf",
+    "pages": 50,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 183635,
+    "chunks": 27
+  },
+  {
+    "file": "saturn-friend-and-guide.pdf",
+    "pages": 179,
+    "front_matter_dropped": 0,
+    "furniture_lines": 2,
+    "chars": 181960,
+    "chunks": 33
+  },
+  {
+    "file": "satya-jataka.pdf",
+    "pages": 12,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 24755,
+    "chunks": 4
+  },
+  {
+    "file": "scientific-hindu-astrology-1.pdf",
+    "pages": 521,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 883423,
+    "chunks": 141
+  },
+  {
+    "file": "scientific-hindu-astrology-2.pdf",
+    "pages": 418,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 744766,
+    "chunks": 119
+  },
+  {
+    "file": "secrets-kerala-astrology.pdf",
+    "pages": 56,
+    "front_matter_dropped": 0,
+    "furniture_lines": 2,
+    "chars": 98401,
+    "chunks": 16
+  },
+  {
+    "file": "secrets-of-nadi-astrology.pdf",
+    "pages": 103,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 144251,
+    "chunks": 22
+  },
+  {
+    "file": "stri-jataka.pdf",
+    "pages": 63,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 145312,
+    "chunks": 27
+  },
+  {
+    "file": "uttarakalamritam.pdf",
+    "pages": 67,
+    "front_matter_dropped": 0,
+    "furniture_lines": 0,
+    "chars": 185904,
+    "chunks": 28
+  },
+  {
+    "file": "vedic-astrology-integrated-approach.pdf",
+    "pages": 275,
+    "front_matter_dropped": 14,
+    "furniture_lines": 2,
+    "chars": 815244,
+    "chunks": 144
+  },
+  {
+    "file": "vedic-astrology-rasi-characteristics.pdf",
+    "pages": 60,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 98196,
+    "chunks": 16
+  },
+  {
+    "file": "vedic-cosmography-and-astronomy.pdf",
+    "pages": 147,
+    "front_matter_dropped": 0,
+    "furniture_lines": 1,
+    "chars": 499756,
+    "chunks": 79
+  },
+  {
+    "file": "yavanajataka-of-sphujidhivaja.pdf",
+    "pages": 178,
+    "front_matter_dropped": 0,
+    "furniture_lines": 2,
+    "chars": 549591,
+    "chunks": 83
+  },
+  {
+    "file": "yogakarakas.pdf",
+    "pages": 9,
+    "front_matter_dropped": 0,
+    "furniture_lines": 2,
+    "chars": 36501,
+    "chunks": 6
+  }
+]

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Astro — Jyotisha study assistant</title>
+<style>
+:root{
+  --ground:#FAFAFB; --surface:#FFFFFF; --sunk:#F1F3F6;
+  --ink:#171A21; --ink-2:#39414F; --muted:#5C6472; --faint:#8B93A2;
+  --rule:#E2E5EA; --rule-2:#CFD5DE;
+  --accent:#8A6414; --accent-soft:#F3EBD9;
+  --good:#26644F; --bad:#A83226;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ground:#12151B; --surface:#1A1E26; --sunk:#151920;
+    --ink:#E8EBF1; --ink-2:#C3CAD6; --muted:#98A0AE; --faint:#6D7686;
+    --rule:#2A303A; --rule-2:#3A424F;
+    --accent:#D9A63C; --accent-soft:#2B2417;
+    --good:#63BB98; --bad:#E4796B;
+  }
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.6;
+}
+.wrap{max-width:860px;margin:0 auto;padding:34px 22px 80px}
+header{border-bottom:1px solid var(--rule);padding-bottom:20px;margin-bottom:26px}
+.eyebrow{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 9px;
+}
+h1{font-size:1.6rem;margin:0 0 8px;letter-spacing:-.015em;font-weight:600}
+.sub{color:var(--muted);font-size:.94rem;margin:0}
+.status{
+  font-family:ui-monospace,monospace;font-size:11.5px;color:var(--faint);
+  margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;
+}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--faint);margin-right:6px}
+.dot.ok{background:var(--good)}
+.dot.err{background:var(--bad)}
+
+.keyrow{display:flex;gap:8px;margin-bottom:16px;align-items:center}
+.keyrow label{font-size:12px;color:var(--muted);white-space:nowrap}
+input,textarea,select,button{font-family:inherit;font-size:15px}
+input[type=password],input[type=text],textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--rule-2);border-radius:3px;
+  background:var(--surface);color:var(--ink);
+}
+textarea{resize:vertical;min-height:76px;line-height:1.5}
+input:focus,textarea:focus,button:focus-visible,select:focus{
+  outline:2px solid var(--accent);outline-offset:1px;border-color:transparent;
+}
+.controls{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:12px 0 0}
+.controls label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+select{padding:6px 8px;border:1px solid var(--rule-2);border-radius:3px;background:var(--surface);color:var(--ink)}
+button.go{
+  background:var(--accent);color:#fff;border:none;border-radius:3px;
+  padding:10px 22px;font-weight:600;cursor:pointer;font-size:15px;
+}
+button.go:disabled{opacity:.5;cursor:not-allowed}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0 18px}
+.chip{
+  font-size:12.5px;padding:5px 11px;border:1px solid var(--rule-2);border-radius:14px;
+  background:var(--surface);color:var(--ink-2);cursor:pointer;
+}
+.chip:hover{border-color:var(--accent);color:var(--ink)}
+
+.answer{
+  background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--accent);
+  border-radius:3px;padding:18px 20px;margin-top:22px;white-space:pre-wrap;
+  min-height:40px;line-height:1.66;
+}
+.answer.empty{color:var(--faint);border-left-color:var(--rule-2);white-space:normal}
+.meta{
+  font-family:ui-monospace,monospace;font-size:11.5px;color:var(--faint);
+  margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;
+}
+.cites{margin-top:14px}
+.cites h3{
+  font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 8px;font-weight:600;
+}
+.cite{
+  font-family:ui-monospace,monospace;font-size:12px;color:var(--ink-2);
+  padding:7px 11px;background:var(--sunk);border:1px solid var(--rule);
+  border-radius:3px;margin-bottom:5px;display:flex;justify-content:space-between;gap:12px;
+}
+.cite .rrf{color:var(--faint)}
+.err{color:var(--bad);font-size:.93rem;margin-top:12px}
+.cursor{display:inline-block;width:7px;height:1em;background:var(--accent);
+  vertical-align:text-bottom;animation:b 1s steps(2) infinite}
+@keyframes b{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.cursor{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Self-hosted · fine-tuned + retrieval</p>
+    <h1>Astro — Jyotisha study assistant</h1>
+    <p class="sub">A Qwen3-4B LoRA adapter trained on 44 classical texts, answering from passages retrieved out of the same corpus. It describes what the texts assert; it does not make predictions about individuals.</p>
+    <div class="status">
+      <span><span class="dot" id="dot"></span><span id="stat">checking…</span></span>
+      <span id="modelinfo"></span>
+    </div>
+  </header>
+
+  <div class="keyrow">
+    <label for="key">API key</label>
+    <input type="password" id="key" placeholder="paste your key — kept in this browser only" autocomplete="off">
+  </div>
+
+  <textarea id="q" placeholder="Ask about a text, a yoga, a placement, a dasha…"></textarea>
+
+  <div class="controls">
+    <label>passages
+      <select id="k"><option>2</option><option selected>4</option><option>6</option><option>8</option></select>
+    </label>
+    <label>max tokens
+      <select id="mx"><option>150</option><option selected>300</option><option>400</option></select>
+    </label>
+    <label><input type="checkbox" id="rag" checked> use retrieval</label>
+    <label><input type="checkbox" id="stream" checked> stream</label>
+    <button class="go" id="go">Ask</button>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="answer empty" id="ans">Answers appear here, with the source passages they were drawn from.</div>
+  <div class="meta" id="meta"></div>
+  <div class="cites" id="cites"></div>
+  <div class="err" id="err"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const EXAMPLES = [
+  "What does Phaladeepika say about the birth of a son?",
+  "How is Arudha Pada calculated in Jyotisha?",
+  "What does Saravali say about Mars in the 4th house?",
+  "What is Vimshottari dasha and how is it computed?",
+  "What does Bhrigu Sutras associate with Rahu in the 5th house?",
+  "What is the significance of the 8th bhava?"
+];
+
+EXAMPLES.forEach(t => {
+  const b = document.createElement("button");
+  b.className = "chip"; b.textContent = t;
+  b.onclick = () => { $("q").value = t; ask(); };
+  $("chips").appendChild(b);
+});
+
+try {
+  const k = localStorage.getItem("astro_key");
+  if (k) $("key").value = k;
+} catch (e) { /* private mode: key just isn't remembered */ }
+$("key").addEventListener("change", () => {
+  try { localStorage.setItem("astro_key", $("key").value.trim()); } catch (e) {}
+});
+
+fetch("healthz").then(r => r.json()).then(d => {
+  $("dot").className = "dot " + (d.status === "ok" ? "ok" : "err");
+  $("stat").textContent = d.status === "ok" ? "service ready" : d.status;
+  $("modelinfo").textContent =
+    `${d.model} · ${d.backend || "local"} · ${d.precision} · ${d.device}` +
+    (d.vram_gb ? ` · ${d.vram_gb} GB` : "");
+}).catch(() => {
+  $("dot").className = "dot err";
+  $("stat").textContent = "service unreachable";
+});
+
+function renderCites(list) {
+  if (!list || !list.length) { $("cites").innerHTML = ""; return; }
+  $("cites").innerHTML = "<h3>Sources</h3>" + list.map(c =>
+    `<div class="cite"><span>${c.title} <span class="rrf">— ${c.chunk_id}</span></span>` +
+    `<span class="rrf">rrf ${c.rrf}</span></div>`).join("");
+}
+
+async function ask() {
+  const q = $("q").value.trim();
+  const key = $("key").value.trim();
+  $("err").textContent = "";
+  if (!q) { $("err").textContent = "Type a question first."; return; }
+  if (!key) { $("err").textContent = "An API key is required."; return; }
+
+  $("go").disabled = true;
+  $("ans").className = "answer";
+  $("ans").textContent = "";
+  $("meta").textContent = "";
+  $("cites").innerHTML = "";
+  const t0 = performance.now();
+  const body = {
+    question: q, k: +$("k").value, max_new: +$("mx").value,
+    rag: $("rag").checked, stream: $("stream").checked
+  };
+
+  try {
+    const r = await fetch("answer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error(`HTTP ${r.status} — ${t.slice(0, 200)}`);
+    }
+
+    if (!body.stream) {
+      const d = await r.json();
+      $("ans").textContent = d.answer;
+      renderCites(d.citations);
+      $("meta").textContent = `${d.seconds}s · ${d.grounded ? "grounded" : "no retrieval"}`
+        + (d.model ? ` · ${d.model}` : "");
+    } else {
+      const reader = r.body.getReader();
+      const dec = new TextDecoder();
+      let buf = "", text = "";
+      const cur = document.createElement("span");
+      cur.className = "cursor";
+      $("ans").appendChild(cur);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const frames = buf.split("\n\n");
+        buf = frames.pop();
+        for (const f of frames) {
+          const isCite = f.startsWith("event: citations");
+          const line = f.split("\n").find(l => l.startsWith("data: "));
+          if (!line) continue;
+          const payload = line.slice(6);
+          if (isCite) { renderCites(JSON.parse(payload)); continue; }
+          try {
+            const o = JSON.parse(payload);
+            if (o.token) { text += o.token; cur.insertAdjacentText("beforebegin", o.token); }
+          } catch (e) { /* the done frame carries {} */ }
+        }
+      }
+      cur.remove();
+      if (!text) $("ans").textContent = "(empty response)";
+      $("meta").textContent = `${((performance.now() - t0) / 1000).toFixed(2)}s · streamed`;
+    }
+  } catch (e) {
+    $("err").textContent = String(e.message || e);
+    if (!$("ans").textContent) {
+      $("ans").className = "answer empty";
+      $("ans").textContent = "Answers appear here, with the source passages they were drawn from.";
+    }
+  } finally {
+    $("go").disabled = false;
+  }
+}
+
+$("go").onclick = ask;
+$("q").addEventListener("keydown", e => {
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) ask();
+});
+</script>
+</body>
+</html>

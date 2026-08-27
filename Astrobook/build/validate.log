@@ -1,0 +1,30 @@
+W0827 09:15:52.019000 17100 site-packages\torch\utils\flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+base    Qwen/Qwen3-4B-Instruct-2507
+adapter runs/qlora-nf4  (qlora, 500 steps)
+
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<01:23,  4.78it/s]Loading weights:   4%|3         | 15/398 [00:00<00:06, 57.65it/s]Loading weights:   9%|9         | 36/398 [00:00<00:03, 111.81it/s]Loading weights:  14%|#3        | 55/398 [00:00<00:02, 136.69it/s]Loading weights:  18%|#7        | 71/398 [00:00<00:02, 142.40it/s]Loading weights:  23%|##3       | 92/398 [00:00<00:01, 161.22it/s]Loading weights:  28%|##8       | 113/398 [00:00<00:01, 173.76it/s]Loading weights:  34%|###3      | 135/398 [00:00<00:01, 182.62it/s]Loading weights:  39%|###9      | 157/398 [00:01<00:01, 187.56it/s]Loading weights:  45%|####4     | 179/398 [00:01<00:01, 189.64it/s]Loading weights:  50%|#####     | 199/398 [00:01<00:01, 190.37it/s]Loading weights:  55%|#####5    | 219/398 [00:01<00:00, 189.25it/s]Loading weights:  60%|######    | 239/398 [00:01<00:00, 186.18it/s]Loading weights:  65%|######4   | 258/398 [00:01<00:00, 182.32it/s]Loading weights:  70%|#######   | 280/398 [00:01<00:00, 188.11it/s]Loading weights:  76%|#######5  | 301/398 [00:01<00:00, 194.00it/s]Loading weights:  81%|########1 | 323/398 [00:01<00:00, 196.70it/s]Loading weights:  87%|########6 | 345/398 [00:02<00:00, 196.70it/s]Loading weights:  92%|#########2| 367/398 [00:02<00:00, 196.59it/s]Loading weights:  97%|#########7| 388/398 [00:02<00:00, 197.12it/s]Loading weights: 100%|##########| 398/398 [00:02<00:00, 173.38it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+computing held-out loss on identical examples...
+  n = 250 held-out examples
+
+generating 20 answers x2 ...
+
+====================================================================
+HELD-OUT LOSS (lower is better)             BASE         TUNED
+====================================================================
+assistant-token NLL                       2.7704        1.4463
+improvement                                            +1.3241
+perplexity                                 15.96          4.25
+
+====================================================================
+STYLE (fraction of answers)                 BASE         TUNED
+====================================================================
+names the source text                       75%          70%  worse
+doctrinal framing verb                      25%          50%  better
+uses Sanskrit terminology                   60%          30%  worse
+personal prediction (bad)                    0%           0%
+hedging preamble (bad)                      40%           5%  better
+markdown headers (bad)                      65%           0%  better
+mean answer length (words)                  119           73
+
+wrote runs/qlora-nf4/validation.json

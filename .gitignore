@@ -43,3 +43,46 @@ Thumbs.db
 
 # --- project 07: corpus and index live OUTSIDE the repo (C:\genai-data) ---
 07_rag_at_scale/latency_results.json
+
+# ---------------------------------------------------------------------------
+# Astrobook -- LoRA/QLoRA on the Jyotisha corpus. Same policy as above: keep
+# the code, the docs, and the JSON + log evidence behind every number; exclude
+# what is bulky AND regenerable, plus the source PDFs.
+#
+# Excluded by FILE pattern, never by directory: excluding Astrobook/models/
+# would take merge_info.json with it, and a parent-directory exclusion cannot
+# be undone by a later negation.
+# ---------------------------------------------------------------------------
+
+# source corpus: 212 MB of third-party PDFs whose licensing is unresolved.
+# Several are in-copyright modern works. These must not reach a public repo.
+Astrobook/Astro_book/
+
+# 11.5 GB of weights and optimizer state, regenerable by 04_train_hf.py and
+# 11_merge.py. The adapter_config.json / run_metrics.json / validation.json
+# that describe them are kept -- those are the evidence.
+Astrobook/**/*.safetensors
+Astrobook/**/*.pt
+Astrobook/**/*.pth
+Astrobook/**/*.bin
+
+# 14 identical copies of the base model's tokenizer, 11 MB each.
+Astrobook/**/tokenizer.json
+
+# regenerable build artifacts: chunks, pairs, splits, and the retrieval index.
+# extract_report.json and grounding.json are NOT here -- they are results.
+Astrobook/build/*.jsonl
+Astrobook/build/index.npz
+Astrobook/build/bm25.json
+
+# secrets: the serving API key must never be committed
+Astrobook/build/.apikey
+Astrobook/**/*.key
+
+# transient runtime + one-off diagnostic logs (the measured RESULTS are kept:
+# grounding.json, extract_report.json, validation.json, run_metrics.json)
+Astrobook/build/serve_*.log
+Astrobook/build/assert_smoke.log
+Astrobook/build/index_rebuild.log
+Astrobook/build/*_newsplit.log
+Astrobook/build/cmp_*.json

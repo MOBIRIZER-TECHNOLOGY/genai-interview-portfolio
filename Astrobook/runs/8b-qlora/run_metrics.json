@@ -1,0 +1,32 @@
+{
+  "mode": "qlora",
+  "model": "Qwen/Qwen3-8B",
+  "peak_vram_gb": 11.52,
+  "base_vram_gb": 6.17,
+  "train_runtime_s": 474.3,
+  "sec_per_step": 4.739,
+  "global_steps": 100,
+  "train_loss": 1.5618,
+  "eval_loss": 1.425,
+  "trainable_params": 87293952,
+  "total_params": 4805145600,
+  "trainable_pct": 1.817,
+  "adapter_bytes": 174656040,
+  "config": {
+    "model": "Qwen/Qwen3-8B",
+    "out": "runs/8b-qlora",
+    "qlora": true,
+    "rank": 32,
+    "alpha": 64,
+    "dropout": 0.05,
+    "seq_len": 1024,
+    "epochs": 2.0,
+    "lr": 0.0001,
+    "batch": 2,
+    "accum": 8,
+    "max_steps": 100,
+    "eval_n": 400,
+    "warmup": 20,
+    "grad_ckpt": true
+  }
+}

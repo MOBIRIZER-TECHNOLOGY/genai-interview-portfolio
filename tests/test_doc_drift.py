@@ -266,8 +266,13 @@ def test_every_test_cited_in_any_document_exists():
     Matches only backticked `test_*` names, and skips `test_*.py` filenames
     (those are covered by test_every_test_file_is_documented).
     """
+    # tests/ is not the only place tests live: Astrobook keeps its own under
+    # pipeline/tests/. Collecting only TESTS made this check call a real,
+    # existing test a phantom the moment a document outside the eight numbered
+    # projects cited one. Search the whole repo -- the question this test asks
+    # is "does this test exist", not "does it live in tests/".
     defined = set()
-    for f in TESTS.glob("test_*.py"):
+    for f in ROOT.rglob("test_*.py"):
         defined.update(re.findall(r"^def (test_[a-z0-9_]+)", _read(f), re.M))
 
     docs = sorted(ROOT.glob("*.md")) + sorted(ROOT.glob("*/*.md"))

@@ -1,0 +1,10 @@
+{
+  "needles_found": 3,
+  "needles_total": 3,
+  "control_leaks": 0,
+  "rag_overlap": 0.604800869336237,
+  "norag_overlap": 0.26105880899301287,
+  "lift": 0.34374206034322413,
+  "right_book": 18,
+  "n": 20
+}
